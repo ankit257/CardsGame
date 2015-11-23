@@ -61,7 +61,7 @@ export default class Game325 {
     GameRoomActions.joinGameRoom(id, profile)
     // requestData(this.props);
   }
-  componentWillMount() {
+  componentWillUnmount() {
     var id = this.props.params.id;
     var profile = this.props.profile;
     GameRoomActions.leaveGameRoom(id, profile)

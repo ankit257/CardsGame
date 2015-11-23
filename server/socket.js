@@ -63,7 +63,7 @@ module.exports = function (io, app) {
 					//delete gameRoom
 				}else{
 					gameObj.status = 'PLAYER_LEFT';
-					redisClient.set('Game:'+roomId, JSON.stringify(gameObj) function (err, gameData){
+					redisClient.set('Game:'+roomId, JSON.stringify(gameObj), function (err, gameData){
 						io.sockets.in(roomId).emit('player_changed', {'data': JSON.stringify(gameData)});
 					})
 				}

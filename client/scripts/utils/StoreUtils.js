@@ -13,6 +13,11 @@ export function createStore(spec) {
       emitter.emit(CHANGE_EVENT);
     },
 
+    emitAndSaveChange(name, data) {
+      // localStorage.setItem(name, JSON.stringify(data));
+      emitter.emit(CHANGE_EVENT);
+    },
+
     addChangeListener(callback) {
       emitter.on(CHANGE_EVENT, callback);
     },

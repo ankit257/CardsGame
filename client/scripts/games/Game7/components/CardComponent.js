@@ -1,4 +1,5 @@
 import React, { Component, PropTypes, findDOMNode } from 'react';
+import connectToStores from '../../../../scripts/utils/connectToStores';
 // import shouldPureComponentUpdate from 'react-pure-render/function';
 
 // import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
@@ -8,6 +9,14 @@ import * as GameActions from '../actions/GameActions';
 
 import PauseStore from '../stores/PauseStore';
 
+function getState(props){
+    let pauseState = PauseStore.getPauseState();
+    return {
+        pauseState
+    };
+}
+
+@connectToStores([PauseStore], getState)
 export default class CardComponent extends Component {
     state = {
 
@@ -15,9 +24,6 @@ export default class CardComponent extends Component {
     constructor(props) {
         super(props);
         this.handleClick = this.handleClick.bind(this);
-    }
-    shouldComponentUpdate(nextProps, nextState){
-        return true;
     }
     componentWillMount(){
         this.setState({
@@ -39,7 +45,7 @@ export default class CardComponent extends Component {
     handleClick(){
         let card = this.state.card;
         let gameState = this.props.gameState;
-        if(card.isPlayable && card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !PauseStore.getPauseState()){
+        if(card.isPlayable && card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !this.props.pauseState){
             GameActions.playCard(this.state.card);
         }
     }

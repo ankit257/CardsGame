@@ -30,13 +30,21 @@ window.requestAnimFrame = (function(){
         window.oRequestAnimationFrame        || 
         window.msRequestAnimationFrame       || 
         function(callback, element){
-            window.setTimeout(function(){
-               
-                callback(+new Date);
-            }, 1000 / 60);
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
         };
     })();
 
+window.cancelAnimFrame = (function(){
+	return window.cancelAnimationFrame ||
+		function(id) {
+            clearTimeout(id);
+        };
+})();
 
 
 (function(){
@@ -71,16 +79,21 @@ export default class AnimEngine{
 		end   : 0
 	}
 	static audio = new Howler.Howl({});
+	static requestId = undefined;
 	static makeReadyForNext(){
 		this.pause = {
 			state : false,
 			start : 0,
 			end   : 0
 		}
-		this.audio = new Howler.Howl({});
+		// this.audio = new Howler.Howl({});
 	}
 	static setPauseState(gamePause){
 		this.pause.state = gamePause;
+	}
+	static cancelAnimationFrame(){
+		window.cancelAnimFrame(this.requestId);
+		this.requestId = undefined;
 	}
 	static startListening(){
 		let self = this;
@@ -97,48 +110,57 @@ export default class AnimEngine{
 			}
 		})
 	}
-	static startAnimation(deck, gameState){
+	static startAnimation(deck, gameState, botState){
+		this.audio = new Howler.Howl({});
 		let duration = 0, action, audio;
 		switch(gameState){
 			case 'INIT_ROUND':
 				duration = timeConstants.TOTAL_DECK_DELAY;
 				action   = GameActions.initRoundSuccess;
-				this.animateCards(deck, duration, action, gameState)
+				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'DISTRIBUTING_CARDS':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
 				action   = GameActions.distributionSuccess;
 				this.audio 	 = distributeAudio;
 				this.audio.play();
-				this.animateCards(deck, duration, action, gameState)
+				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'PLAYING_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
 				action   = GameActions.playCardSuccess;
 				this.audio 	 = playAudio;
 				this.audio.play();
-				this.animateCards(deck, duration, action, gameState)
+				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'ROUND_END':
 				duration = timeConstants.ROUND_END_WAIT;
 				action   = GameActions.showScores;
-				this.animateCards(deck, duration, action, gameState)
+				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'READY_TO_PLAY_NEXT':
-				duration = timeConstants.REARRANGE_ANIM;
-				this.animateCards(deck, duration, action, gameState)
+				if(botState == 'BOT_SHOULD_PLAY'){
+					duration = timeConstants.BOT_THINKING_DELAY;
+					action = GameActions.botWillPlay;
+				}else if(botState == 'BOT_CANNOT_PLAY'){
+					duration = timeConstants.REARRANGE_ANIM;
+					action = null;
+				}
+				this.animateCards(deck, duration, action, gameState);
+				break;
+			case 'ROUND_END_SHOW_SCORES':
+				this.cancelAnimationFrame();
 				break;
 			case 'INIT_ROUND_SUCCESS':
 			case 'GAME_STARTED':
 			case 'INIT_DECK':
 			case 'DISTRIBUTE_CARDS_SUCCESS':
-			
-				
 				break;
 		}
 		
 	}
 	static animateCards(deck, duration, action, gameState){	
+		this.makeReadyForNext();
 		if(duration == 0){
 				deck.map(deckcard =>{
 				if(deckcard.animTime + deckcard.delay > duration){
@@ -160,9 +182,9 @@ export default class AnimEngine{
 				spent 		= current - start - (self.pause.end - self.pause.start);
 
 				if(remaining < 0){
-					self.makeReadyForNext();
 					if (typeof action === "function") {
 							action();
+							this.audio = new Howler.Howl({});
 						}
 					return;
 				}else{
@@ -219,9 +241,7 @@ export default class AnimEngine{
 					}) // deckcard map end
 				}
 			}
-			if(window.requestAnimFrame){
-				window.requestAnimFrame(step);
-			}
+			self.requestId = window.requestAnimFrame(step);
 		}
 		step();
 	}

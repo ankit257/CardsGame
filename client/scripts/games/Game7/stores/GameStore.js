@@ -388,7 +388,6 @@ GameStore.dispatchToken = register(action=>{
 		case 'BOT_HAS_PLAYED':
 			GameStore.playBot();
 			GameStore.setCardPositionByState();
-			
 			GameStore.emitChange();
 			break;
 		case 'PLAY_CARD':
@@ -438,6 +437,7 @@ GameStore.dispatchToken = register(action=>{
 		 case 'SHOW_SCORES':
 		 	GameStore.showScores();
 			GameStore.setRoundEndPos();
+			GameStore.setGameState('ROUND_END_SHOW_SCORES');
 		 	GameStore.emitChange();
 		 	break;
 		 }

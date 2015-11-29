@@ -35,10 +35,11 @@ export function playCardSuccess(){
 }
 
 export function playBot(){
-	dispatchDelayAsync(timeConstants.BOT_THINKING_DELAY, {
-		request	: Actions.BOT_WILL_PLAY,
-		success : Actions.BOT_HAS_PLAYED
-	}, {})
+	dispatch(Actions.BOT_WILL_PLAY, {});
+}
+
+export function botWillPlay(){
+	dispatch(Actions.BOT_HAS_PLAYED, {});
 }
 
 export function displayGameState(){

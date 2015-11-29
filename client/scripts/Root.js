@@ -22,7 +22,7 @@ export default class Root extends Component {
         <Route name='explore' path='/' component={App} title="Game"></Route>
         <Route name='settings' path='/settings' component={SettingsPage} />
         <Route name='games' path='/games' component={GamePage} />
-        <Route name='game7' path='/game7local' component={GameInterface} /> 
+        <Route name='game7' path='/game7' component={GameInterface} /> 
         <Route name='game325' path='/game325/(:id)' component={Game325} />
       </Router>
     );

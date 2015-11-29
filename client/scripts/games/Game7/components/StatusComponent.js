@@ -45,9 +45,7 @@ export default class StatusComponent extends Component {
 		this.props = nextProps;
 		this.updateSelf();
 		if(nextProps.requestShowScore){
-			this.setState({
-				showScores : true
-			})
+			this.showScore();
 		}
 	}
 	getPlayerName(position){
@@ -59,9 +57,7 @@ export default class StatusComponent extends Component {
 	}
 	startNextRound(){
 		GameActions.initStartGame();
-		this.setState({
-			showScores: false
-		})
+		this.hideScore();
 	}
 	updateSelf(){
 		let status = '';
@@ -140,20 +136,13 @@ export default class StatusComponent extends Component {
 		if(showScores){
 			style.bottom = gameCSSConstants.gameBody.height/2 + 2*gameCSSConstants.score.height/3;
 			style.fontSize = 20;
-			className = 'game-status score'
-			// let butStyle = {
-			// 			// width: 80,
-			// 			// height: 26,
-			// 			// left: gameCSSConstants.gameBody.width/2 - 40,
-			// 			// bottom: gameCSSConstants.gameBody.height/2 - 4/3*gameCSSConstants.score.height,
-			// 			// display: 'inline-block',
-			// 			// zIndex: gameCSSConstants.zIndex.SCORE
-			// 		}
-			if(gameState == 'ROUND_END'){
-				status = 'SCORES';
+			className = 'game-status score';
+			if(gameState == 'ROUND_END_SHOW_SCORES'){
+				status = 'Well Played! Time for scores.';
 				nextButtonClass = 'ok-button show';
 				okButtonClass = 'ok-button';
 				okButtonStyle.display= 'none';
+				nextButtonStyle.backgroundColor = 'red';
 			}else{
 				okButtonClass = 'ok-button show';
 				nextButtonClass = 'ok-button';

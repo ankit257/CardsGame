@@ -14,9 +14,11 @@ function getState(props){
 	let deck = GameStore.getGameProperty('deck');
 	let activePlayerPos = GameStore.getGameProperty('activePlayerPos');
 	let gameState = GameStore.getGameProperty('state');
+	let botState = GameStore.getGameProperty('botState');
 	return {
 		deck,
 		gameState,
+		botState,
 		activePlayerPos
 	};
 }
@@ -45,7 +47,8 @@ export default class DeckComponent extends Component {
 				// gamePause		: nextProps.gamePause,
 				deck 			: nextProps.deck,
 				activePlayerPos	: nextProps.activePlayerPos,
-				gameState		: nextProps.gameState
+				gameState		: nextProps.gameState,
+				botState		: nextProps.botState
 			});
 	}
 	componentWillUpdate(nextProps, nextState){
@@ -55,7 +58,7 @@ export default class DeckComponent extends Component {
 	}
 	componentDidUpdate(){
 		// console.log('component Updated ' + this.props.gameState );
-		AnimEngine.startAnimation(this.state.deck, this.state.gameState);
+		AnimEngine.startAnimation(this.state.deck, this.state.gameState, this.state.botState);
 	}
 	// toggleAnimEnginePause(){
 	// 	AnimEngine.setPauseState(this.state.gamePause);

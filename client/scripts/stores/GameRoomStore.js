@@ -9,6 +9,7 @@ let history = createBrowserHistory()
 
 
 const GameRoom = {};
+var _pauseState = false;
 
 const GameRoomStore = createStore({
 	update (data){
@@ -21,6 +22,12 @@ const GameRoomStore = createStore({
 	del(response){
 		delete GameRoom.id;
 		delete GameRoom.type;
+	},
+	getPauseState(){
+		return _pauseState;
+	},
+	togglePauseState(){
+		_pauseState = !_pauseState;
 	}
 })
 GameRoomStore.dispathToken = register(action => {

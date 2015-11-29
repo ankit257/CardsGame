@@ -125,15 +125,10 @@ const GameStore = createStore( {
 			GameActions.initStartGame();
 		}, timeConstants.DISPATCH_DELAY);
 	},
-	firePlayCardSuccess(card){
-		console.log('FIRED!');
-		_game.deck.map(deckcard=>{
-			if(deckcard.rank == card.rank && deckcard.suit == card.suit){
-				setTimeout(function(){
-					GameActions.playCardSuccess(deckcard);
-				}, timeConstants.DISPATCH_DELAY);
-			}
-		})
+	firePlayCardSuccess(){
+		setTimeout(function(){
+			GameActions.playCardSuccess();
+		}, timeConstants.DISPATCH_DELAY);
 	},
 	initPlayersArray(){
 		_playersCards = new Array();
@@ -149,7 +144,11 @@ const GameStore = createStore( {
 					_playersCards[card.ownerPos].push(card);
 				}
 			}
-			if(_game.state == 'READY_TO_PLAY_NEXT' || _game.state == 'PLAYING_CARD'){
+		}
+	},
+	checkRoundEnd(){
+		this.updatePlayersArray();
+		if(_game.state == 'PLAYING_CARD'){
 				for (var i = 0; i < gameVars.noOfPlayers; i++) {
 					if(_playersCards[i].length == 0){
 						this.setGameState('ROUND_END');
@@ -157,7 +156,6 @@ const GameStore = createStore( {
 					}
 				};
 			}
-		}
 	},
 	setPlayableCount(){
 		_playableCount = [0, 0, 0, 0];
@@ -300,7 +298,7 @@ const GameStore = createStore( {
 				GameStore.fireNextTurn();
 				break;
 			case 'PLAYING_CARD':
-				GameStore.firePlayCardSuccess(_game.cardPlayed);
+				GameStore.firePlayCardSuccess();
 				break;
 			case 'ROUND_END':
 				GameStore.fireShowScores();
@@ -341,6 +339,7 @@ GameStore.dispatchToken = register(action=>{
 				GameStore.setCardPositionByState();
 				GameStore.fireInitStartGame();
 			}
+			
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'INIT_START_GAME':
@@ -348,17 +347,21 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 			GameStore.setGameState('GAME_STARTED');
 			GameStore.fireInitRound();
+			
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'INIT_ROUND':
 			GameStore.initRound();
 			GameStore.setCardPositionByState();
+			
 			GameStore.emitChange();
 			break;
 		case 'INIT_ROUND_SUCCESS':
-			GameStore.fireDistributeCards();
 			GameStore.initPlayersArray();
 			GameStore.setCardPositionByState();
+			GameStore.fireDistributeCards();
+			GameStore.setGameState('INIT_ROUND_SUCCESS');
+			
 			GameStore.emitChange();
 			break;
 		case 'DISTRIBUTE_CARDS':
@@ -368,24 +371,22 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
 			distributeAudio.play();
+			
 			GameStore.emitChange();
 			break;
 		case 'DISTRIBUTE_CARDS_SUCCESS':
 			GameStore.distributionDone();
 			GameStore.setGameState('NOW_NEXT_TURN');
 			GameStore.fireNextTurn();
-			// GameStore.assignFirstPlayer();
-			// GameStore.updatePlayersArray();
-			// GameStore.updatePlayableCards();
-			// GameStore.checkBotPlay();
-			// GameStore.checkTurnSkip();
-			// GameStore.setCardPositionByState();
 			GameStore.setCardPositionByState();
+			GameStore.setGameState('DISTRIBUTE_CARDS_SUCCESS');
+			
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'BOT_HAS_PLAYED':
 			GameStore.playBot();
 			GameStore.setCardPositionByState();
+			
 			GameStore.emitChange();
 			break;
 		case 'PLAY_CARD':
@@ -397,22 +398,24 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
 			playAudio.play();
+			console.log(GameStore.getGameProperty('state'));
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'PLAY_CARD_SUCCESS':
-			var card = action.card;
+			var card = GameStore.getGameProperty('cardPlayed');
 			GameStore.updateCardState(card, 'PLAYED');
+			GameStore.checkRoundEnd();
 			if(GameStore.getGameProperty('state') == 'ROUND_END'){
 				GameStore.roundEnd();
 				GameStore.setRoundEndPos();
-				GameStore.fireShowScores();
 			}else{
-				GameStore.updatePlayedCards(action.card);
+				GameStore.updatePlayedCards(card);
 				GameStore.updateBotState('BOT_READY');
 				GameStore.setGameState('NOW_NEXT_TURN');
 				GameStore.setCardPositionByState();
 				GameStore.fireNextTurn();	
 			}
+			console.log(GameStore.getGameProperty('state'));
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'SKIP_TURN':
@@ -420,7 +423,7 @@ GameStore.dispatchToken = register(action=>{
 			break;
 		 case 'TURN_SKIPPED':
 		 	GameStore.setGameState('NOW_NEXT_TURN');
-		 	GameStore.fireNextTurn();
+		 	GameStore.fireNextTurn();		 	
 		 	GameStore.emitAndSaveChange( 'gameData', _game );
 		 	break;
 		 case 'NOW_NEXT_TURN':
@@ -428,16 +431,19 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.updatePlayersArray();
 			GameStore.updatePlayableCards();
 			GameStore.setClearedPlayers();
-			GameStore.checkBotPlay();
 			GameStore.checkTurnSkip();
+			GameStore.checkBotPlay();
 			GameStore.setCardPositionByState();
 		 	GameStore.emitChange();
 		 	break;
-		 case 'SHOW_SCORES' :
+		 case 'SHOW_SCORES':
 		 	GameStore.showScores();
 			GameStore.setRoundEndPos();
 		 	GameStore.emitChange();
 		 	break;
+		 case 'TOGGLE_PAUSE':
+			GameStore.togglePauseState();
+			break;
 	}
 });
 

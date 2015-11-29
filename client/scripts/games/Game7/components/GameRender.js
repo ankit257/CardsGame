@@ -7,77 +7,55 @@ import { scaleGameBody } from '../../../../scripts/utils/CommonGameUtils';
 
 import {gameCSSConstants, gamePathConstants, timeConstants} from '../constants/SattiHelper'
 
-import PlayerCardsComponent from './PlayerCardsComponent';
+import DeckComponent from './DeckComponent';
 import StatusComponent from './StatusComponent';
 
 import GameStore from '../stores/GameStore';
 import * as GameActions from '../actions/GameActions';
 
-import StoreChangeListener from '../utils/StoreChangeListener'
-
-function getState(props){
-	let game = GameStore.getGameObj();
-	return {
-		game
-	};
-}
-
-@connectToStores([GameStore], getState)
 export default class GameRender extends Component {
 	state = {
 		zoomStyle : {}
 	}
 	constructor(props){
 		super(props);
+		this.handleResize = this.handleResize.bind(this);
 	}
 	componentWillMount(){
-		GameActions.initGame();
+		
 	}
 	componentWillUnmount(){
 		if(window.detachEvent) {
-		    window.detachEvent('onresize', scaleFunc);
+		    window.detachEvent('onresize', this.handleResize);
 		}
 		else if(window.removeEventListener) {
-		    window.removeEventListener('resize', scaleFunc);
+		    window.removeEventListener('resize', this.handleResize);
 		}
 	}
 	componentDidMount(){
 		this.setState({
 			zoomStyle: scaleGameBody(gameCSSConstants)
 		});
-		let self = this;
 		if(window.attachEvent) {
-		    window.attachEvent('onresize', function scaleFunc() {
-		        self.setState({
-					zoomStyle: scaleGameBody(gameCSSConstants)
-				});
-		    });
+		    window.attachEvent('onresize', this.handleResize);
 		}
 		else if(window.addEventListener) {
-		    window.addEventListener('resize', function scaleFunc() {
-		        self.setState({
-					zoomStyle: scaleGameBody(gameCSSConstants)
-				});
-		    }, true);
+			window.addEventListener('resize', this.handleResize);
 		}
-	}
-	initGame(){
+		console.log('mount');
 		GameActions.initGame();
 	}
-	displayGameObj(){
-		GameActions.displayGameState();
+	handleResize(e){
+		this.setState({
+				zoomStyle: scaleGameBody(gameCSSConstants)
+			});
+	}
+	shouldComponentUpdate(nextProps){
+		return this.props.gamePause == nextProps.gamePause;
 	}
 	componentWillReceiveProps(nextProps){
-		this.next(nextProps.game);
-		// console.log('----STATUS--------' + nextProps.game.state);
-	}
-	next(game){
-		let gameState = game.state;
-		let botState = game.botState;
-		if(botState == 'BOT_SHOULD_PLAY'){
-			setTimeout(function(){
-				GameActions.playBot()
-			}, timeConstants.DISPATCH_DELAY);
+		if(this.props.gamePause != nextProps.gamePause){
+			GameActions.togglePauseGame();
 		}
 	}
 	deleteLocalStore(){
@@ -94,11 +72,8 @@ export default class GameRender extends Component {
 		style = Object.assign(style, zoomStyle);
 		return (
 	      <div style={style}>
-	      	{/*<button onClick={this.initGame} className = "distribute-button init-button"> INIT </button>
-	      		      	<button onClick={this.displayGameObj} className = "distribute-button display-button"> DISPLAY GAME OBJ </button>
-	      		      	<button onClick={this.deleteLocalStore} className = "distribute-button"> DELETE </button>*/}
 	        <StatusComponent/>
-	        <PlayerCardsComponent/>
+	        <DeckComponent/>
 	      </div>
 	    )
 	}

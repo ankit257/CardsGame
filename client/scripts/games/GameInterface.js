@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import DocumentTitle from 'react-document-title';
 import connectToStores from '../utils/connectToStores';
 import GameRoomStore from '../stores/GameRoomStore';
@@ -29,7 +29,7 @@ function requestData(props) {
 function getState(props) {
   var gameData = GameRoomStore.get();
   var profile = AuthStore.get();
-  console.log(gameData);
+  // console.log(gameData);
   return {
     gameData,
     profile
@@ -37,7 +37,7 @@ function getState(props) {
 }
 
 @connectToStores([GameRoomStore], getState)
-export default class GameInterface {
+export default class GameInterface extends Component{
   static propTypes = {
     // Injected by React Router:
     params: PropTypes.shape({
@@ -51,15 +51,31 @@ export default class GameInterface {
     // isLoadingStarred: PropTypes.bool.isRequired,
     // isLastPageOfStarred: PropTypes.bool.isRequired
   };
-
-  constructor() {
+  // static childContextTypes = {
+  //   color: PropTypes.string
+  // }
+  // getChildContext() {
+  //   return {color: "purple"};
+  // }
+  state = {
+    gamePause : false
+  }
+  constructor(props) {
+    super(props);
+    // this.pauseToggle = this.pauseToggle.bind(this);
     // this.renderStarredRepos = this.renderStarredRepos.bind(this);
     // this.handleLoadMoreClick = this.handleLoadMoreClick.bind(this);
   }
-
+  pauseToggle() {
+    GameRoomActions.togglePauseGame();
+    // console.log(this.state);
+    // this.setState({
+    //   gamePause: !this.state.gamePause
+    // })
+  }
   componentWillMount() {
-    // var id = this.props.params.id;
-    // var profile = this.props.profile;
+    var id = this.props.params.id;
+    var profile = this.props.profile;
     // GameRoomActions.joinGameRoom(id, profile)
     // requestData(this.props);
   }
@@ -75,11 +91,11 @@ export default class GameInterface {
   }
 
   render() {
-
     return (
       <div>
         <div className={'bkg-filter'}></div>
         <Game7Render/>
+        <button onClick={this.pauseToggle.bind(this)} className = "distribute-button"> P </button>
       </div>
     );
   }

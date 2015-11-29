@@ -19,7 +19,8 @@ export default class GameSatti{
 					cardPlayed		: {},
 					playedCards 	: {},
 					playableCards 	: [],
-					activePlayerPos	: null
+					activePlayerPos	: null,
+					pauseState		: false
 		});
 	}
 	initDeck(){
@@ -57,7 +58,7 @@ export default class GameSatti{
 	initPlayers(){
 		for (var i = 0; i < gameVars.noOfPlayers; i++) {
 			let player;
-			let botNames = ['', 'Doga', 'Bhalla', 'Bond']
+			let botNames = ['', 'Player1', 'Player2', 'Player3']
 			if( i == 0 ){
 				player = new PlayerSatti({id: i, name: 'You', img: 'IMAGE_YOU', type: 'HUMAN'});
 			}else{
@@ -99,6 +100,9 @@ export default class GameSatti{
 		let activePlayer = this.players[this.activePlayerPos];
 		if(activePlayer.type == 'BOT'){
 			this.botState = 'BOT_SHOULD_PLAY';
+			setTimeout(function(){
+				GameActions.playBot()
+			}, timeConstants.DISPATCH_DELAY);
 		}else{
 			this.botState = 'BOT_CANNOT_PLAY';
 		}

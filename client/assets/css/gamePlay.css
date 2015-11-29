@@ -259,11 +259,12 @@ hr{
 }
 .distribute-button{
     position: fixed;
-    bottom: 10px;
-    left: 50%;
-    width: 100px;
+    top: 5px;
+    left: 5px;
+    width: 40px;
     height: 40px;
-    background-color: beige;
+    border-radius: 5px;
+    background-color: #f59120;
 }
 .init-button{
 	left: 20%;

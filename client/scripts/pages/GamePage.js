@@ -198,6 +198,7 @@ export default class GamaPage extends Component{
     }
   }
   componentWillReceiveProps(nextProps){
+    console.log(this.context);
     if(!nextProps.User.profile){
       this.context.history.pushState(null, `/`, null);
     }else if(nextProps.gameRoom){
@@ -264,6 +265,11 @@ export default class GamaPage extends Component{
   joinRoom(room){
     console.log(room)
   }
+  offlinePlay(){
+    if(this.state.selectedGame == "game7"){
+      this.context.history.pushState(null, `/game7local`, null);
+    }
+  }
   showRoomsComponent(){
     let { showRooms, showPublicRooms } = this.state;
     let { css } = this.state;
@@ -322,7 +328,7 @@ export default class GamaPage extends Component{
           <RoomsComponent rooms={this.state.rooms} publicRoom={this.state.showPublicRooms} clickHandle={this.createRoom.bind(this)} joinRoom={this.joinRoom.bind(this)}></RoomsComponent>
           </div>
           <hr />
-          <div className="btn btn-primary">Play with Bots</div>
+          <div className="btn btn-primary" onClick={this.offlinePlay.bind(this)}>Play with Bots</div>
         </div>
         </div>
       )

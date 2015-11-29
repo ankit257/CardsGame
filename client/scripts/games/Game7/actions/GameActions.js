@@ -11,28 +11,27 @@ export function initStartGame() {
 }
 
 export function initRound(){
-	dispatchDelayAsync(timeConstants.TOTAL_DECK_DELAY, {
-		request	: Actions.INIT_ROUND,
-		success : Actions.INIT_ROUND_SUCCESS
-	}, {})
+	dispatch(Actions.INIT_ROUND, {});
+}
+
+export function initRoundSuccess(){
+	dispatch(Actions.INIT_ROUND_SUCCESS, {});
 }
 
 export function distributeCards(){
-	dispatchDelayAsync(timeConstants.TOTAL_DISTR_DELAY, {
-		request	: Actions.DISTRIBUTE_CARDS,
-		success : Actions.DISTRIBUTE_CARDS_SUCCESS
-	}, {})
+	dispatch(Actions.DISTRIBUTE_CARDS, {});
+}
+
+export function distributionSuccess(){
+	dispatch(Actions.DISTRIBUTE_CARDS_SUCCESS, {});
 }
 
 export function playCard(card){
-	dispatchDelayAsync(timeConstants.TOTAL_PLAY_DELAY, {
-		request	: Actions.PLAY_CARD,
-		success : Actions.PLAY_CARD_SUCCESS
-	}, {card})
+	dispatch(Actions.PLAY_CARD, {card});
 }
 
-export function playCardSuccess(card){
-	dispatch(Actions.PLAY_CARD_SUCCESS, {card});
+export function playCardSuccess(){
+	dispatch(Actions.PLAY_CARD_SUCCESS, {});
 }
 
 export function playBot(){

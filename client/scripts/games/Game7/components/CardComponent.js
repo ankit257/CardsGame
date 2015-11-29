@@ -29,9 +29,10 @@ export default class CardComponent extends Component {
         //     self.setState({mounted : true})
         // }
     }
-    componentWillLeave(){
-        // this.state.style.transform = 'translateX(0px) translateY(0px)';
-        // this.state.style.WebkitTransform = 'translateX(0px) translateY(0px)';
+    componentWillUnmount(){
+        delete this.state;
+        delete this.props.card;
+        this.props = {};
     }
     handleClick(){
         let card = this.state.card;
@@ -54,10 +55,6 @@ export default class CardComponent extends Component {
         let cardimg      = gamePathConstants.CARD_ASSETS + card.rank + card.suit + '.svg';
         let cardbackimg  = gamePathConstants.CARD_BACK_IMG;
         let style = {
-            // transform          : 'translateX(' + x + 'px) translateY(' + y + 'px) rotate(' + theta + 'deg)',
-            // WebkitTransform    : 'translateX(' + x + 'px) translateY(' + y + 'px) rotate(' + theta + 'deg)',
-            // transition         : 'transform ' + animTime + 'ms ease-in ' + delay + 'ms',
-            // WebkitTransition   : '-webkit-transform ' + animTime + 'ms ease-in ' + delay + 'ms',
             zIndex             : zIndex
         }
         let cardImgStyle ={

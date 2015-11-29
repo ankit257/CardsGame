@@ -37,7 +37,3 @@ export function exitGameRoom(url, data){
 	    failure: ActionTypes.EXIT_ROOM_REQ_ERROR
 	}, { data });
 }
-
-export function togglePauseGame(){
-	dispatch(ActionTypes.TOGGLE_PAUSE, {});	
-}

@@ -67,11 +67,11 @@ export default class GameInterface extends Component{
     // this.handleLoadMoreClick = this.handleLoadMoreClick.bind(this);
   }
   pauseToggle() {
-    GameRoomActions.togglePauseGame();
+    // GameRoomActions.togglePauseGame();
     // console.log(this.state);
-    // this.setState({
-    //   gamePause: !this.state.gamePause
-    // })
+    this.setState({
+      gamePause: !this.state.gamePause
+    })
   }
   componentWillMount() {
     var id = this.props.params.id;
@@ -91,10 +91,11 @@ export default class GameInterface extends Component{
   }
 
   render() {
+    var gamePause = this.state.gamePause;
     return (
       <div>
         <div className={'bkg-filter'}></div>
-        <Game7Render/>
+        <Game7Render gamePause={gamePause}/>
         <button onClick={this.pauseToggle.bind(this)} className = "distribute-button"> P </button>
       </div>
     );

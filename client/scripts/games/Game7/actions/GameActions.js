@@ -66,3 +66,7 @@ export function showScores(){
 export function nextTurn(gameTurn){
 	dispatch(Actions.NOW_NEXT_TURN, {gameTurn});
 }
+
+export function togglePauseGame(){
+	dispatch(Actions.TOGGLE_PAUSE, {});	
+}

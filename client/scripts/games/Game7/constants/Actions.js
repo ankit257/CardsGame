@@ -29,6 +29,6 @@ export default keyMirror({
 	SHOW_SCORES						: null,
 	WAIT_TO_SHOW_SCORE				: null,
 
-	PAUSE_GAME						: null
+	TOGGLE_PAUSE					: null
 
 });

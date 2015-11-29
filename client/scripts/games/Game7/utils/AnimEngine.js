@@ -1,6 +1,6 @@
 import { timeConstants } from '../constants/SattiHelper'
 import * as GameActions from '../actions/GameActions'; 
-import GameRoomStore from '../../../stores/GameRoomStore';
+import PauseStore from '../stores/PauseStore';
 
 window.requestAnimFrame = (function(){
         return  window.requestAnimationFrame || 
@@ -50,9 +50,9 @@ export default class AnimEngine{
 	}
 	static startListening(){
 		let self = this;
-		GameRoomStore.addChangeListener(function(){
-			console.log(GameRoomStore.getPauseState());
-			self.setPauseState(GameRoomStore.getPauseState());
+		PauseStore.addChangeListener(function(){
+			// console.log(PauseStore.getPauseState());
+			self.setPauseState(PauseStore.getPauseState());
 		})
 	}
 	static startAnimation(deck, gameState){

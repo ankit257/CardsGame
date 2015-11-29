@@ -38,8 +38,6 @@ export default keyMirror({
   
   EXIT_ROOM_REQ : null,
   EXIT_ROOM_REQ_SUCCESS : null,
-  EXIT_ROOM_REQ_ERROR : null,
-
-  TOGGLE_PAUSE: null
+  EXIT_ROOM_REQ_ERROR : null
 });
       

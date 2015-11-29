@@ -22,6 +22,7 @@ var _game = {}
 var _playersCards = []
 var _playableCount = []
 var _showScore = false
+var _pauseState = false;
 
 const GameStore = createStore( {
 	getGameObj(){
@@ -310,6 +311,12 @@ const GameStore = createStore( {
 				GameStore.fireInitStartGame();
 				break;
 			}
+	},
+	getPauseState(){
+		return _pauseState;
+	},
+	togglePauseState(){
+		_pauseState = !_pauseState;
 	}
 });
 GameStore.dispatchToken = register(action=>{
@@ -441,10 +448,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setRoundEndPos();
 		 	GameStore.emitChange();
 		 	break;
-		 case 'TOGGLE_PAUSE':
-			GameStore.togglePauseState();
-			break;
-	}
+		 }
 });
 
 export default GameStore;

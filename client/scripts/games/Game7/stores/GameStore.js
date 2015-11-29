@@ -12,8 +12,8 @@ import PlayerSatti from '../utils/PlayerSatti';
 import BotSatti from '../utils/BotSatti';
 import ScoreSatti from '../utils/ScoreSatti';
 
-let distributeAudio = new Audio('../../assets/sounds/distribute.mp3');
-let playAudio = new Audio('../../assets/sounds/play.mp3');
+// let distributeAudio = new Audio('../../assets/sounds/distribute.mp3');
+// let playAudio = new Audio('../../assets/sounds/play.mp3');
 let passAudio = new Audio('../../assets/sounds/pass.mp3');
 let bellAudio = new Audio('../../assets/sounds/bell.mp3');
 let tadaAudio = new Audio('../../assets/sounds/tada.mp3');
@@ -374,8 +374,6 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.sortDeck(0);
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
-			distributeAudio.play();
-			
 			GameStore.emitChange();
 			break;
 		case 'DISTRIBUTE_CARDS_SUCCESS':
@@ -401,7 +399,6 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.sortDeck(0);
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
-			playAudio.play();
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'PLAY_CARD_SUCCESS':

@@ -1,7 +1,28 @@
 import { timeConstants } from '../constants/SattiHelper'
 import * as GameActions from '../actions/GameActions'; 
 import PauseStore from '../stores/PauseStore';
+import * as Howler from 'howler';
 
+let distributeAudio = new Howler.Howl({
+	urls: ['../../assets/sounds/distribute.mp3'],
+	autoplay: false,
+	volume: 1
+}),
+playAudio = new Howler.Howl({
+	urls: ['../../assets/sounds/play.mp3'],
+	autoplay: false,
+	volume: 1
+}),
+pauseAudio = new Howler.Howl({
+	urls: ['../../assets/sounds/pause.mp3'],
+	autoplay: false,
+	volume: 0.5
+}),
+unPauseAudio = new Howler.Howl({
+	urls: ['../../assets/sounds/unpause.mp3'],
+	autoplay: false,
+	volume: 0.5
+})
 window.requestAnimFrame = (function(){
         return  window.requestAnimationFrame || 
         window.webkitRequestAnimationFrame   || 
@@ -47,7 +68,17 @@ export default class AnimEngine{
 	static pause = {
 		state : false,
 		start : 0,
-		end   : 0}
+		end   : 0
+	}
+	static audio = new Howler.Howl({});
+	static makeReadyForNext(){
+		this.pause = {
+			state : false,
+			start : 0,
+			end   : 0
+		}
+		this.audio = new Howler.Howl({});
+	}
 	static setPauseState(gamePause){
 		this.pause.state = gamePause;
 	}
@@ -56,14 +87,18 @@ export default class AnimEngine{
 		PauseStore.addChangeListener(function(){
 			self.setPauseState(PauseStore.getPauseState());
 			if(PauseStore.getPauseState()){
+				pauseAudio.play();
+				self.audio.pause();
 				self.pause.start = performance.now() + performance.timing.navigationStart;
 			}else{
+				unPauseAudio.play();
+				self.audio.play();
 				self.pause.end = performance.now() + performance.timing.navigationStart;
 			}
 		})
 	}
 	static startAnimation(deck, gameState){
-		let duration = 0, action;
+		let duration = 0, action, audio;
 		switch(gameState){
 			case 'INIT_ROUND':
 				duration = timeConstants.TOTAL_DECK_DELAY;
@@ -73,11 +108,15 @@ export default class AnimEngine{
 			case 'DISTRIBUTING_CARDS':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
 				action   = GameActions.distributionSuccess;
+				this.audio 	 = distributeAudio;
+				this.audio.play();
 				this.animateCards(deck, duration, action, gameState)
 				break;
 			case 'PLAYING_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
 				action   = GameActions.playCardSuccess;
+				this.audio 	 = playAudio;
+				this.audio.play();
 				this.animateCards(deck, duration, action, gameState)
 				break;
 			case 'ROUND_END':
@@ -100,7 +139,6 @@ export default class AnimEngine{
 		
 	}
 	static animateCards(deck, duration, action, gameState){	
-		
 		if(duration == 0){
 				deck.map(deckcard =>{
 				if(deckcard.animTime + deckcard.delay > duration){
@@ -122,8 +160,7 @@ export default class AnimEngine{
 				spent 		= current - start - (self.pause.end - self.pause.start);
 
 				if(remaining < 0){
-					self.pause.end = 0;
-					self.pause.start = 0;
+					self.makeReadyForNext();
 					if (typeof action === "function") {
 							action();
 						}

@@ -284,7 +284,6 @@ const GameStore = createStore( {
 				console.log('Weird');
 			}			
 		})
-		// copy score
 		newGameData.players.map(player => {
 			delete player.score;
 		})
@@ -354,13 +353,11 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 			GameStore.setGameState('GAME_STARTED');
 			GameStore.fireInitRound();
-			
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'INIT_ROUND':
 			GameStore.initRound();
 			GameStore.setCardPositionByState();
-			
 			GameStore.emitChange();
 			break;
 		case 'INIT_ROUND_SUCCESS':
@@ -405,7 +402,6 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
 			playAudio.play();
-			console.log(GameStore.getGameProperty('state'));
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'PLAY_CARD_SUCCESS':
@@ -422,7 +418,6 @@ GameStore.dispatchToken = register(action=>{
 				GameStore.setCardPositionByState();
 				GameStore.fireNextTurn();	
 			}
-			console.log(GameStore.getGameProperty('state'));
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'SKIP_TURN':

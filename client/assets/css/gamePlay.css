@@ -272,6 +272,43 @@ hr{
 .display-button{
     left: 80%;
 }
+.pause-screen {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    color: black;
+    text-align: center;
+    top: 0;
+    left: 0;
+    z-index: 600;
+    animation:colorChange 60s;
+    -webkit-animation:colorChange 60s infinite; /* Safari and Chrome */
+}
+.pause-screen span {
+    /*color: black;*/
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    top: 50%;
+    font-size: 4em;
+}
+@-webkit-keyframes colorChange /* Safari and Chrome */
+{
+    0%   {background:rgba(244,67,54,0.5);}
+    25%  {background:rgba(103,58,183,0.5);}
+    50%  {background:rgba(0,150,136,0.5);}
+    75%  {background:rgba(255,193,7,0.5);}
+    100% {background:rgba(244,67,54,0.5);}  
+}
+@keyframes colorChange /* Safari and Chrome */
+{
+    0%   {background:rgba(244,67,54,0.5);}
+    25%  {background:rgba(103,58,183,0.5);}
+    50%  {background:rgba(0,150,136,0.5);}
+    75%  {background:rgba(255,193,7,0.5);}
+    100% {background:rgba(244,67,54,0.5);}  
+}
 .poppins{
     background: -webkit-radial-gradient(center, circle cover, #f59120 00%, #000 120%);
     background: -ms-radial-gradient(center, circle cover, #f59120 00%, #000 120%);

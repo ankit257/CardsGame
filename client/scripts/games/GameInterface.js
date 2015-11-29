@@ -91,12 +91,30 @@ export default class GameInterface extends Component{
   }
 
   render() {
-    var gamePause = this.state.gamePause;
+    let gamePause = this.state.gamePause;
+    let pauseButtonText, pauseScreenStyle, pauseButtonStyle;
+    pauseButtonStyle = {
+      zIndex : 601
+    }
+    if(gamePause){
+      pauseButtonText = 'R'
+      pauseScreenStyle = {
+        display: 'block',
+        zIndex : 600
+      }
+    }else{
+      pauseButtonText = 'P'
+      pauseScreenStyle = {
+        display: 'none',
+        zIndex : 600
+      }
+    }
     return (
       <div>
         <div className={'bkg-filter'}></div>
+        <button onClick={this.pauseToggle.bind(this)} className = "distribute-button" style= {pauseButtonStyle}> {pauseButtonText} </button>
+        <div className={'pause-screen'} style={pauseScreenStyle}><span>Game Paused</span></div>
         <Game7Render gamePause={gamePause}/>
-        <button onClick={this.pauseToggle.bind(this)} className = "distribute-button"> P </button>
       </div>
     );
   }

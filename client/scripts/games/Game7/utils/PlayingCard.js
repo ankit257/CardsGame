@@ -79,7 +79,7 @@ export default class PlayingCard{
 		this.oldY = this.y;
 		this.animState  = 0;
 		this.delay = 0;
-		this.animTime = 1000;
+		this.animTime = timeConstants.ROUND_END_WAIT;
 		switch(this.state){
 			case 'DISTRIBUTED':
 				this.showFace = true;

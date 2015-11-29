@@ -44,15 +44,22 @@ window.requestAnimFrame = (function(){
 })();
 
 export default class AnimEngine{
-	static pauseState = false;
+	static pause = {
+		state : false,
+		start : 0,
+		end   : 0}
 	static setPauseState(gamePause){
-		this.pauseState = gamePause;
+		this.pause.state = gamePause;
 	}
 	static startListening(){
 		let self = this;
 		PauseStore.addChangeListener(function(){
-			// console.log(PauseStore.getPauseState());
 			self.setPauseState(PauseStore.getPauseState());
+			if(PauseStore.getPauseState()){
+				self.pause.start = performance.now() + performance.timing.navigationStart;
+			}else{
+				self.pause.end = performance.now() + performance.timing.navigationStart;
+			}
 		})
 	}
 	static startAnimation(deck, gameState){
@@ -74,15 +81,19 @@ export default class AnimEngine{
 				this.animateCards(deck, duration, action, gameState)
 				break;
 			case 'ROUND_END':
-				duration = 0;
+				duration = timeConstants.ROUND_END_WAIT;
 				action   = GameActions.showScores;
+				this.animateCards(deck, duration, action, gameState)
+				break;
+			case 'READY_TO_PLAY_NEXT':
+				duration = timeConstants.REARRANGE_ANIM;
+				this.animateCards(deck, duration, action, gameState)
 				break;
 			case 'INIT_ROUND_SUCCESS':
 			case 'GAME_STARTED':
 			case 'INIT_DECK':
 			case 'DISTRIBUTE_CARDS_SUCCESS':
-			case 'NOW_NEXT_TURN':
-			case 'READY_TO_PLAY_NEXT':
+			
 				
 				break;
 		}
@@ -105,12 +116,14 @@ export default class AnimEngine{
 		let start = performance.now() + performance.timing.navigationStart;
 		let end =  start + duration;
 		function step(){
-			if(!self.pauseState){
+			if(!self.pause.state){
 				current 	= performance.now() + performance.timing.navigationStart;
-				remaining 	= end - current;
-				spent 		= current - start;
+				remaining 	= end - current + (self.pause.end - self.pause.start);
+				spent 		= current - start - (self.pause.end - self.pause.start);
 
 				if(remaining < 0){
+					self.pause.end = 0;
+					self.pause.start = 0;
 					if (typeof action === "function") {
 							action();
 						}

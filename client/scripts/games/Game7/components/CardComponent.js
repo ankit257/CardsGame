@@ -6,6 +6,8 @@ import React, { Component, PropTypes, findDOMNode } from 'react';
 import {gameCSSConstants, gamePathConstants} from '../constants/SattiHelper'
 import * as GameActions from '../actions/GameActions';
 
+import PauseStore from '../stores/PauseStore';
+
 export default class CardComponent extends Component {
     state = {
 
@@ -37,7 +39,7 @@ export default class CardComponent extends Component {
     handleClick(){
         let card = this.state.card;
         let gameState = this.props.gameState;
-        if(card.isPlayable && card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT'){
+        if(card.isPlayable && card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !PauseStore.getPauseState()){
             GameActions.playCard(this.state.card);
         }
     }

@@ -17,6 +17,7 @@ if(process.env.REDISCLOUD_URL)
 	var redisClient = redis.createClient(redisURL.port, redisURL.hostname);
 	redisClient.auth(redisURL.auth.split(":")[1]);
 }else{
+  console.log(999990000)
   var redisClient = redis.createClient();
 }
 

@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
+// import createFragment from 'react-addons-create-fragment';
 import AuthStore from '../stores/AuthStore';
 import GameRoomStore from '../stores/GameRoomStore';
-// import RoomStre from '../stores/RoomStore';
 import DocumentTitle from 'react-document-title';
 import * as LoginActions from '../actions/LoginActions';
 import * as GameRoomActions from '../actions/GameRoomActions';
@@ -16,65 +16,101 @@ var Style={
 class RoomsComponent extends Component{
   constructor(props){
     super(props);
+    this.state = {
+      'invalidRoomId' : false,
+    }
   }
-  roomClicked(){
-
-  }
-  enterRoom(e){
-    console.log(e.target.value);
+  static contextTypes = {
+    history : PropTypes.object.isRequired,
+    showLoader : PropTypes.func.isRequired
   }
   createRoom(){
     this.props.clickHandle();
   }
   roomRowClicked(room){
     this.props.joinRoom(room);
-    console.log(room)
+  }
+  enterRoom(e){
+    var input = e.target.value;
+    var newState = _.extend({}, this.state);
+    if(input.length == 5){
+      newState['invalidRoomId'] = false;
+      this.setState(newState);
+      this.context.showLoader(true)
+      var gameRooms = this.props.gameRooms;
+      for(var game in gameRooms){
+        for(var room in gameRooms[game]){
+          if(roomId == room){
+            this.context.history.pushState(null, `/${game}/${roomId}`, null);
+            this.context.showLoader(false)
+            return;
+          }
+        }
+      }
+      newState['invalidRoomId'] = true;
+    }else{
+      newState['invalidRoomId'] = true;
+    }
+    this.setState(newState);
+    this.context.showLoader(false)
+  }
+  noRoomsDiv(){
+    return(
+      <div>
+        <h5>No rooms available</h5>
+        <div className="btn btn-primary" onClick={this.createRoom.bind(this)}>Create Room</div>
+      </div>
+    )
+  }
+  getRoomsArray(gameRooms, game){
+    var roomsArray = [];
+        for(var room in gameRooms[game]){
+            roomsArray.push(<tr key={room} onClick={this.roomRowClicked.bind(this, room)}><td>Room# {room}</td><td>{ gameRooms[game][0] }</td></tr>);
+        }
+        return (
+          <table className="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+              <thead>
+                <tr>
+                  <th>Room #Id</th>
+                  <th>Players Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+              {roomsArray}
+              </tbody>
+            </table>  
+          );
+  }
+  getPrivateRoomsDiv(){
+    return (
+      <div>
+        <form action="#" style={{padding:'0px 188px'}}>
+          <div className="mdl-textfield mdl-js-textfield">
+            <input className="mdl-textfield__input" type="text" id="enterRoomInput" onKeyUp={this.enterRoom.bind(this)} style={{borderBottom:'1px solid #cdcdcd'}}/>
+            <label className="mdl-textfield__label" htmlFor="sample1" style={{color:Style.fontColor}}>enter room id to join</label>
+          </div>
+          <span className={this.state.invalidRoomId?classNames(['show-error']):'no-error'}>Invalid Room</span>
+          <h6><span>or</span></h6>
+        </form>
+        <div className="btn btn-primary" onClick={this.createRoom.bind(this)}>Create Room</div>
+      </div>
+    )
   }
   render(){
-    let {rooms, publicRoom} = this.props;
+    let {gameRooms, publicRoom, game} = this.props;
+    console.log(this.state);
     if(publicRoom){
-      var c = [];
-      var self = this;
-      rooms.map(function (room, index){
-        c.push(<tr key={index} onClick={self.roomRowClicked.bind(self, room)}><td>Room #{room}</td><td>{index}</td></tr>);
-      })
-      var roomsX = <table className="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-                    <thead>
-                      <tr>
-                        <th>Room #Id</th>
-                        <th>No of Players</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    {c}
-                    </tbody>
-                  </table>
-      if(!rooms)
-        rooms = [];
-      if(rooms.length == 0){
-          var r = <div>
-                    <h5>No rooms available</h5>
-                    <div className="btn btn-primary" onClick={this.createRoom.bind(this)}>Create Room</div>
-                  </div>
+      if(!gameRooms || !gameRooms[game] || (gameRooms[game] && Object.keys(gameRooms[game]).length == 0)){
+          var roomsDiv = this.noRoomsDiv();
       }else{
-        var self = this;
-        var r = roomsX;
-      }  
+        var roomsDiv = this.getRoomsArray.call(this, gameRooms, game);
+        }
     }else{
-      var r = <div>
-                <form action="#" style={{padding:'0px 188px'}}>
-                  <div className="mdl-textfield mdl-js-textfield">
-                    <input className="mdl-textfield__input" type="text" id="sample1" onKeyUp={this.enterRoom.bind(this)} style={{borderBottom:'1px solid #cdcdcd'}}/>
-                    <label className="mdl-textfield__label" for="sample1" style={{color:Style.fontColor}}>enter room id to join</label>
-                  </div>
-                  <h6><span>or</span></h6>
-                </form>
-                <div className="btn btn-primary" onClick={this.createRoom.bind(this)}>Create Room</div>
-              </div>
+      var roomsDiv = this.getPrivateRoomsDiv.call(this);
     }
     return(
       <div>
-        {r}
+        {roomsDiv}
       </div>
       )
   }
@@ -85,30 +121,27 @@ class RoomsComponent extends Component{
 function requestData(props) {
   const { params } = props;
 }
-
 /**
  * Retrieves state from stores for current props.
  */
 function getState(props) {
   const User = AuthStore.get();
   const gameRoom = GameRoomStore.get();
+  const gameRooms = GameRoomStore.getRooms();
   return {
     User,
-    gameRoom
+    gameRoom,
+    gameRooms
   }
 }
-
 
 @connectToStores([AuthStore, GameRoomStore], getState)
 export default class GamaPage extends Component{
   static propTypes = {
-    params: PropTypes.shape({
-      login: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired
-    }).isRequired,
     // Injected by @connectToStores:
     User: PropTypes.object,
-    gameRoom : PropTypes.object
+    gameRoom : PropTypes.object,
+    gameRooms : PropTypes.object
   };
   // Injected by React Router:
   static contextTypes = {
@@ -152,7 +185,6 @@ export default class GamaPage extends Component{
           margin : '0 auto',
         }
       },
-      rooms : [],
     }
   }
   calculateCSS(){
@@ -190,37 +222,39 @@ export default class GamaPage extends Component{
       }
   }
   componentWillMount() {
-    if(!this.props.User.profile){
-      this.context.history.pushState(null, `/`, null);
-    }
-    if(this.props.gameRoom){
-      console.log(this.props.gameRoom)
-    }
+    // if(!this.props.User.profile){
+    //   this.context.history.pushState(null, `/`, null);
+    // }
+    // if(this.props.gameRoom){
+    //   console.log(this.props.gameRoom)
+    // }
   }
   componentWillReceiveProps(nextProps){
-    console.log(this.context);
+    console.log(nextProps);
     if(!nextProps.User.profile){
-      this.context.history.pushState(null, `/`, null);
-    }else if(nextProps.gameRoom){
+      // this.context.history.pushState(null, `/`, null);
+    }else if(nextProps.gameRoom.game){
       let { gameRoom } = nextProps;
       this.context.history.pushState(null, `/${gameRoom.game}/${gameRoom.roomId}`, null);
-      // this.context.history.pushState(null, `/${gameRoom.game}/`, null);
+    }else{
+      // console.log(nextProps);
     }
   }
   componentDidMount(){
-    // componentHandler.upgradeAllRegistered();
-    socket.emit('getRooms');
-    var self = this;
-    socket.on('rooms', function (data){
-      var newState = _.extend({}, this.state);
-      newState.rooms = data.roomNo;
-      self.reRender(newState);
-    })
+    this.intervalId = this.getRoomFromServer();
+  }
+  getRoomFromServer(){
+    return window.setInterval(function(){
+      GameRoomActions.getRooms('/getrooms');
+    },2000)
+  }
+  componentWillUnmount(){
+    window.clearInterval(this.intervalId);
   }
   componentDidUpdate(){
     setTimeout(function(){
       componentHandler.upgradeAllRegistered()
-      bindToggleEventsManually('demo-menu-lower-right');
+      // bindToggleEventsManually('demo-menu-lower-right');
       componentHandler.upgradeDom();
     },200);
   }
@@ -247,40 +281,66 @@ export default class GamaPage extends Component{
     }
     this.reRender(newState);
   }
-  openToggle(e){
-    openToggle('demo-menu-lower-right');
-    e.stopPropagation();
-  }
   handleGoToSettings(){
     this.context.history.pushState(null, `/settings`, null);
   }
   handleLogOut(){
     LoginActions.LogOut();
   }
-  createRoom(){
+  createRoom(roomType){
+    var roomType = 'private'
+    if(this.state.showPublicRooms){
+      roomType = 'public';
+    }
     var selectedGame = this.state.selectedGame;
-    console.log(selectedGame)
-    GameRoomActions.createGameRoom(`/createroom`, {'game': selectedGame})
+    GameRoomActions.createGameRoom(`/createroom`, {'game': selectedGame, 'type': roomType});
   }
   joinRoom(room){
-    console.log(room)
+    this.context.history.pushState(null, `/${this.state.selectedGame}/${room}`, null);
   }
-  offlinePlay(){
-    if(this.state.selectedGame == "game7"){
-      this.context.history.pushState(null, `/game7local`, null);
-    }
+  goToPlayWithBots(){
+    this.context.history.pushState(null, `/${this.state.selectedGame}`, null); 
   }
   showRoomsComponent(){
-    let { showRooms, showPublicRooms } = this.state;
+      let { showRooms, showPublicRooms, selectedGame } = this.state;
+      let { css } = this.state;
+      return(
+        <div>
+          <div className="form form-center" style={{textAlign:'center'}}>
+          <div>
+          <div className="radio-btn-container">
+            <section className="radio-container">Game Room</section>
+            <section className="radio-container">
+              <label className="mdl-radio mdl-js-radio mdl-js-ripple-effect" htmlFor="option-1">
+                <input type="radio" id="option-1" className="mdl-radio__button" name="options" value="public" checked={showPublicRooms} onChange={this.clicked.bind(this)}></input>
+                <span className="mdl-radio__label">Public</span>
+              </label>
+            </section>
+            <section className="radio-container">
+              <label className="mdl-radio mdl-js-radio mdl-js-ripple-effect" htmlFor="option-2">
+                <input type="radio" id="option-2" className="mdl-radio__button" name="options" value="private" checked={!showPublicRooms} onChange={this.clicked.bind(this)}></input>
+                <span className="mdl-radio__label">Private</span>
+              </label>
+            </section>
+          </div>
+          <RoomsComponent game={selectedGame} gameRooms={this.props.gameRooms} rooms={this.state.rooms} publicRoom={this.state.showPublicRooms} clickHandle={this.createRoom.bind(this)} joinRoom={this.joinRoom.bind(this)}></RoomsComponent>
+          </div>
+          <hr />
+          <div className="btn btn-primary" onClick={this.goToPlayWithBots.bind(this)}>Play with Bots</div>
+        </div>
+        </div>
+      )
+  }
+  showGameCardsComponent(){
+    let { showRooms, showPublicRooms, selectedGame } = this.state;
     let { css } = this.state;
     var games = [{'title' : 'Teen Do Paanch', 'desc': 'A classcic Indian Game played between 3 players.', 'blogref': '/bog/how-to-play-teen-do-paanch', 'key': 'game325'}, 
             {'title' : 'Satti Center', 'desc': 'Arrange the cards 4 players and try finishing your cards first .', 'blogref': '/bog/how-to-play-teen-do-paanch', 'key': 'game7'}];
     var gameCardsArray = [];
     var self = this;
-
     games.map(function (game, index){
       var classAr = ["demo-card-square","mdl-card","mdl-shadow--2dp", 'demo-card-square-'+game.key];
-      var t = <div className="demo-card-square-outer">
+      var t = <div key={index} className="demo-card-square-outer">
               <div className={classNames(classAr)}>
                 <div className="mdl-card__title mdl-card--expand">
                   <h2 className="mdl-card__title-text">{ game.title }</h2>
@@ -295,59 +355,37 @@ export default class GamaPage extends Component{
                 </div>
               </div>
               </div>
-        gameCardsArray.push(t);
-    })
-    var commonComponent = <div>
-                            { gameCardsArray }
-                          </div>
-    if(!showRooms){
-      return(
-        { commonComponent }
-      )
-    }
-    if(showRooms){
-      return(
+      gameCardsArray.push(t);
+    });
+    return (
         <div>
-          <div className="form form-center" style={{textAlign:'center'}}>
-          <div>
-          <div className="radio-btn-container">
-            <section className="radio-container">Game Room</section>
-            <section className="radio-container">
-              <label className="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1">
-                <input type="radio" id="option-1" className="mdl-radio__button" name="options" value="public" checked={showPublicRooms} onChange={this.clicked.bind(this)}></input>
-                <span className="mdl-radio__label">Public</span>
-              </label>
-            </section>
-            <section className="radio-container">
-              <label className="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2">
-                <input type="radio" id="option-2" className="mdl-radio__button" name="options" value="private" checked={!showPublicRooms} onChange={this.clicked.bind(this)}></input>
-                <span className="mdl-radio__label">Private</span>
-              </label>
-            </section>
-          </div>
-          <RoomsComponent rooms={this.state.rooms} publicRoom={this.state.showPublicRooms} clickHandle={this.createRoom.bind(this)} joinRoom={this.joinRoom.bind(this)}></RoomsComponent>
-          </div>
-          <hr />
-          <div className="btn btn-primary" onClick={this.offlinePlay.bind(this)}>Play with Bots</div>
+          { gameCardsArray }
         </div>
+    )
+  }
+  gameHeaderComponent(){
+    let { css } = this.state;
+    return(
+      <div>
+        <div onClick={this.goToGame.bind(this, 'game7')} className="animate-it block-1" style={css.game7}>
+          <span className="">Satti Center</span>
         </div>
-      )
-    }
+        <div onClick={this.goToGame.bind(this, 'game325')} className="animate-it block-2" style={css.game325}>
+          <span className="">Teen Do Paanch</span>
+        </div>
+      </div> 
+    )
   }
   render() {
     let { css, showRooms } = this.state;
     const { User } = this.props;
     let firstName = selectn('profile.first_name', User);
     let imageUrl = selectn('profile.picture.data.url', User);
-    if(showRooms){
-      var gameComponent = <div>
-                            <div onClick={this.goToGame.bind(this, 'game7')} className="animate-it block-1" style={css.game7}>
-                              <span className="">Satti Center</span>
-                            </div>
-                            <div onClick={this.goToGame.bind(this, 'game325')} className="animate-it block-2" style={css.game325}>
-                              <span className="">Teen Do Paanch</span>
-                            </div>
-                          </div>  
+    if(!showRooms){
+      var commonComponent = this.showGameCardsComponent.call(this);
+    }else{
+      var gameComponent =  this.gameHeaderComponent.call(this);
+      var commonComponent = this.showRoomsComponent.call(this);
     }
     let btnClassNames = ['mdl-button', 'mdl-js-button', 'mdl-button--icon'];
     let ulClassNames = ['mdl-menu', 'mdl-menu--bottom-right', 'mdl-js-menu', 'mdl-js-ripple-effect'];
@@ -360,79 +398,19 @@ export default class GamaPage extends Component{
         <div className='face-div' style={{'float':'right'}}>
             <img className="md-48" height="32" width="32" src={ imageUrl }/>
             <span className="pad-left-10">{ firstName }</span>
-            <button id="demo-menu-lower-right" className={classNames(btnClassNames)} onClick={this.openToggle.bind(this)} style={css.btn}>
+            <button id="demo-menu-lower-right" className={classNames(btnClassNames)} style={css.btn}>
               <i className="material-icons">more_vert</i>
             </button>
-            <ul className="" for="demo-menu-lower-right" className={classNames(ulClassNames)}>
+            <ul className="" htmlFor="demo-menu-lower-right" className={classNames(ulClassNames)}>
               <li className={classNames(liItemClassNames)} onClick={this.handleGoToSettings.bind(this)}>Settings</li>
               <li className={classNames(liItemClassNames)} onClick={this.handleLogOut.bind(this)}>Log Out</li>
             </ul>
         </div>
         <div style={{'clear':'both'}}></div>
         <hr />
-        {this.showRoomsComponent.call(this)}
+            {commonComponent}
         </div>
       </div>
     )
     }
 }
-function openToggle(id){
-    var element = document.getElementById(id);
-    if(!element){
-      return false;
-    }
-    var classes = element.nextSibling.getAttribute('class').split(' ');
-    var indexOfisVisible = classes.indexOf('is-visible');
-    if(indexOfisVisible==-1){
-      classes.push('is-visible');
-    }else{
-      classes.splice(indexOfisVisible, 1);
-    }
-    element.nextSibling.setAttribute('class', classes.join(' '));
-}
-function bindToggleEventsManually(id){
-    var element = document.getElementById(id);
-    if(!element){
-      return false;
-    }
-    var width = element.nextSibling.children[1].offsetWidth;
-    var height = element.nextSibling.children[1].offsetHeight;
-    var top = element.offsetTop+element.offsetWidth;
-    var left = element.offsetLeft;
-    left = left - width/1.2;
-    var nextElement = element.nextSibling;
-    var props = {'width': width, 'height': height, 'top': top, 'left': left};
-    for(var key in props){
-      nextElement.style[key] = props[key];
-      if(['width','height'].indexOf(key)>-1){
-        nextElement.children[0].style[key] = props[key];  
-      }
-    }
-    nextElement.children[1].style['clip'] = 'rect(0px '+width+'px '+height+'px 0px)';
-    for (var i = 0; i < nextElement.children[1].children.length; i++) {
-      var c = 9*(i+1)*(i+1)
-      nextElement.children[1].children[i].style.transitionDelay =  c+'ms';
-    };
-    nextElement.style.height = height;
-    document.addEventListener('click', function (e){
-    var classes = element.nextSibling.getAttribute('class').split(' ');
-    if(classes.indexOf('is-visible')>-1){
-      var width = element.nextSibling.children[1].offsetWidth;
-      var height = element.nextSibling.children[1].offsetHeight;
-      var top = element.offsetTop+element.offsetWidth;
-      var left = element.offsetLeft;
-      var btWidth = element.offsetWidth;
-      var btnHeight = element.offsetHeight;
-      var btnTop = element.offsetTop;
-      var btnLeft = element.offsetLeft;
-      var leftRange = [left, left+width];
-      var topRange = [top, top+height];
-      if(!((e.clientY < (top+height)) && (e.clientY > top) && (e.clientX < (left+width)) && (e.clientX > left)) && 
-        !((e.clientY < (btnTop+btnHeight)) && (e.clientY > btnTop) && (e.clientX < (btnLeft+btWidth)) && (e.clientX > btnLeft))){
-        openToggle(id);
-      }
-    }
-  })
-}
-
-

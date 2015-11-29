@@ -60,7 +60,6 @@ function postFetch(url, data) {
     url = API_ROOT + url;
   }
   fetch.withCredentials = true;
-  console.log(data)
   return fetch(url, {
       method : 'POST',
       headers : {
@@ -70,8 +69,8 @@ function postFetch(url, data) {
       body : JSON.stringify(data)
     }).then(response =>
     response.json().then(json => {
-      const camelizedJson = camelizeKeys(json);
-      return camelizedJson;  
+      // const camelizedJson = camelizeKeys(json);
+      return json;
     })
   );
 }
@@ -95,4 +94,7 @@ export function exitGameRoomServer(url) {
 
 export function createGameRoomServer(url, data) {
   return postFetch(url, data);
+}
+export function getRoomServer(url){
+  return postFetch(url, {})
 }

@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
 import DocumentTitle from 'react-document-title';
 import connectToStores from '../utils/connectToStores';
-import GameRoomStore from '../stores/GameRoomStore';
+import Game325Store from './game325/Game325Store';
 import AuthStore from '../stores/AuthStore';
-import * as GameRoomActions from '../actions/GameRoomActions';
+import * as Game325Actions from './game325/Game325Actions';
 
 function parseLogin(params) {
   return params.login;
@@ -25,7 +25,7 @@ function requestData(props) {
  * Retrieves state from stores for current props.
  */
 function getState(props) {
-  var gameData = GameRoomStore.get();
+  var gameData = Game325Store.get();
   var profile = AuthStore.get();
   console.log(gameData);
   return {
@@ -34,7 +34,7 @@ function getState(props) {
   }
 }
 
-@connectToStores([GameRoomStore], getState)
+@connectToStores([Game325Store], getState)
 export default class Game325 {
   static propTypes = {
     // Injected by React Router:
@@ -58,13 +58,25 @@ export default class Game325 {
   componentWillMount() {
     var id = this.props.params.id;
     var profile = this.props.profile;
-    GameRoomActions.joinGameRoom(id, profile)
+    console.log(id);
+    if(id){
+      GameRoomActions.joinGameRoom(id, profile, 'game325');
+      socket.on('invalid_room', function(){
+        console.log('invalid_room')
+      });
+      socket.on('room_full', function(){
+        console.log('room_full')
+      });  
+    }else{
+      GameRoomActions.startGameWithBots()
+    }
+
     // requestData(this.props);
   }
   componentWillUnmount() {
     var id = this.props.params.id;
     var profile = this.props.profile;
-    GameRoomActions.leaveGameRoom(id, profile)
+    GameRoomActions.leaveGameRoom(id, 'game325')
   }
   componentWillReceiveProps(nextProps) {
     // if (parseLogin(nextProps.params) !== parseLogin(this.props.params)) {

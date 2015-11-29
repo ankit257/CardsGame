@@ -272,19 +272,16 @@ var arrangePlayerPositions = function(playerIds, playerId){
     }
     return playerIds;
 }
-export function getCardSuit(cardSuit) {
-            if(cardSuit == 'H')
-                return '<img height="16" width="16" src="assets/css/cards/images/heart.png">';
-            if(cardSuit == 'S')
-                // return '&spades;';
-                return '<img height="18" width="18" src="assets/css/cards/images/spade.png" style="position:relative;right:4px;">';
-            if(cardSuit == 'D')
-                //return '&diams;';
-                return '<img height="18" width="18" src="assets/css/cards/images/diams.png" style="position:relative;right:6px;">';
-            if(cardSuit == 'C')
-                // return '&clubs;';
-                return '<img height="18" width="18" src="assets/css/cards/images/club.png">';
-        }
+export function getCardSuit(cardSuit){
+        if(cardSuit == 'H')
+            return '<img height="16" width="16" src="assets/css/cards/images/heart.png">';
+        if(cardSuit == 'S')
+            return '<img height="18" width="18" src="assets/css/cards/images/spade.png" style="position:relative;right:4px;">';
+        if(cardSuit == 'D')
+            return '<img height="18" width="18" src="assets/css/cards/images/diams.png" style="position:relative;right:6px;">';
+        if(cardSuit == 'C')
+            return '<img height="18" width="18" src="assets/css/cards/images/club.png">';
+      }
 export function getCardCSS () {
   return {
             position : 'absolute',

@@ -9,7 +9,7 @@ let history = createBrowserHistory()
 
 
 const GameRoom = {};
-
+var GameRooms = {};
 const GameRoomStore = createStore({
 	update (data){
 		GameRoom.roomId = data.roomId;
@@ -21,6 +21,14 @@ const GameRoomStore = createStore({
 	del(response){
 		delete GameRoom.id;
 		delete GameRoom.type;
+	},
+	getRooms(){
+		return GameRooms;
+	},
+	updateRooms(response){
+		console.log(response)
+		GameRooms = response;
+
 	}
 })
 GameRoomStore.dispathToken = register(action => {
@@ -32,6 +40,7 @@ GameRoomStore.dispathToken = register(action => {
 				//showLoader//
 				break;
 			case 'CREATE_ROOM_REQ_SUCCESS':
+				// console.log(action);
 				GameRoomStore.update(action.response);
 				GameRoomStore.emitChange();
 				break;
@@ -41,12 +50,15 @@ GameRoomStore.dispathToken = register(action => {
 				//showLoader//
 				break;
 			case 'JOIN_ROOM_REQ_SUCCESS':
-				console.log(action);
 				GameRoomStore.update(action.data);
 				GameRoomStore.emitChange();
 				break;
 			case 'EXIT_ROOM_REQ_SUCCESS':
 				GameRoomStore.del(action.data);
+				GameRoomStore.emitChange();
+				break;
+			case 'GET_ROOM_REQ_SUCCESS':
+				GameRoomStore.updateRooms(action.response.data);
 				GameRoomStore.emitChange();
 				break;
 			default:

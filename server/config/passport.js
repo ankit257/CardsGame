@@ -36,7 +36,7 @@ module.exports = function(app, passport){
                         newUser.facebook.img        = profile.picture.data.url;
                         // Save user into the database
                         newUser.save(function(err) {
-                            console.log(123);
+                            // console.log(123);
                             if (err)
                                 throw err;
                             return done(null, newUser);

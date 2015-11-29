@@ -2,12 +2,6 @@ import { Dispatcher } from 'flux';
 
 const flux = new Dispatcher();
 
-export function delay(ms) {
-    return new Promise(function (resolve, reject) {
-        setTimeout(resolve, ms); // (A)
-    });
-}
-
 export function register(callback) {
   return flux.register(callback);
 }
@@ -38,7 +32,7 @@ export function dispatch(type, action = {}) {
     // Actions are just plain JavaScript objects describing “what happened”.
     // Think of them as newspapers.
     if (action.error) {
-      console.error(type, action); 
+      console.error(type, action);
     } else {
       // console.log(type, action);
     }
@@ -58,15 +52,4 @@ export function dispatchAsync(promise, types, action = {}) {
     response => dispatch(success, { ...action, response }),
     error => dispatch(failure, { ...action, error })
   );
-}
-/**
- * Dispatches two actions for an async delay operation
- */
-export function dispatchDelayAsync(ms, types, action = {}) {
-  const { request, success } = types;
-
-  dispatch(request, action);
-  delay(ms).then(
-    response => dispatch(success, { ...action, response})
-    );
 }

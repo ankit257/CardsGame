@@ -2,7 +2,7 @@ import { dispatch, dispatchAsync } from '../AppDispatcher';
 import ActionTypes from '../constants/ActionTypes';
 import GameRoomStore from '../stores/GameRoomStore';
 
-import { createGameRoomServer, exitGameRoomServer, joinGameRoomServer } from '../utils/APIUtils';
+import { createGameRoomServer, exitGameRoomServer, joinGameRoomServer, getRoomServer } from '../utils/APIUtils';
 import { saveItemInLocalStorage, getItemFromLocalStorage } from '../utils/LocalStorageUtils';
 
 export function saveUserInLocalStorage(username){
@@ -21,14 +21,14 @@ export function createGameRoom(url, data){
 	    failure: ActionTypes.CREATE_ROOM_REQ_ERROR
 	}, { data });
 }
-export function joinGameRoom(id, profile){
-	socket.emit('join_room', {'roomId':id, 'profile': profile});
+export function joinGameRoom(id, profile, game){
+	socket.emit('join_room', {'roomId':id, 'profile': profile, 'game': game});
 	socket.on('room_joined', function(data){
 		dispatch(ActionTypes.JOIN_ROOM_REQ_SUCCESS, data);
 	})
 }
-export function leaveGameRoom(id){
-	socket.emit('leave_room', {'roomId':id});
+export function leaveGameRoom(id, game){
+	socket.emit('leave_room', {'roomId':id, 'game' : game});
 }
 export function exitGameRoom(url, data){
 	dispatchAsync(exitGameRoomServer(url, data), {
@@ -36,4 +36,11 @@ export function exitGameRoom(url, data){
 	    success: ActionTypes.EXIT_ROOM_REQ_SUCCESS,
 	    failure: ActionTypes.EXIT_ROOM_REQ_ERROR
 	}, { data });
+}
+export function getRooms(url){
+	dispatchAsync(getRoomServer(url), {
+	    request: ActionTypes.GET_ROOM_REQ,
+	    success: ActionTypes.GET_ROOM_REQ_SUCCESS,
+	    failure: ActionTypes.GET_ROOM_REQ_ERROR
+	}, {});
 }

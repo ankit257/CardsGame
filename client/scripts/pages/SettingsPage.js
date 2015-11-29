@@ -37,17 +37,14 @@ function getState(props) {
 @connectToStores([SettingsStore, AuthStore], getState)
 export default class SettingsPage extends Component{
   static propTypes = {
-    // params: PropTypes.shape({
-    //   login: PropTypes.string.isRequired,
-    //   name: PropTypes.string.isRequired
-    // }).isRequired,
     // Injected by @connectToStores:
     User: PropTypes.object,
     Settings : PropTypes.object
   };
   // Injected by React Router:
   static contextTypes = {
-    history: PropTypes.object.isRequired
+    history: PropTypes.object.isRequired,
+    showLoader: PropTypes.func.isRequired
   }
 
   constructor(props) {
@@ -85,6 +82,7 @@ export default class SettingsPage extends Component{
     }
   }
   componentWillMount() {
+    console.log(this.context)
     if(!this.props.User.profile){
       this.context.history.pushState(null, `/`, null);
     }
@@ -95,23 +93,18 @@ export default class SettingsPage extends Component{
     }
   }
   componentDidMount(){
-    // componentHandler.upgradeAllRegistered();
     var self = this;
-    // socket.on('rooms', function (data){
-    //   var newState = _.extend({}, this.state);
-    //   newState.rooms = data.roomNo;
-    //   self.reRender(newState);
-    // })
+    this.context.showLoader(true)
     setTimeout(function(){
       componentHandler.upgradeAllRegistered()
-      bindToggleEventsManually('demo-menu-lower-right');
+      // bindToggleEventsManually('demo-menu-lower-right');
       componentHandler.upgradeDom();
     },200);
   }
   componentDidUpdate(){
     setTimeout(function(){
       componentHandler.upgradeAllRegistered()
-      bindToggleEventsManually('demo-menu-lower-right');
+      // bindToggleEventsManually('demo-menu-lower-right');
       componentHandler.upgradeDom();
     },200);
   }
@@ -210,7 +203,7 @@ export default class SettingsPage extends Component{
     var self = this;
 
     sampleCards.map(function (card, index){
-      var t = <div className="card playingCards simpleCards" style={{left: index*40 +'px', padding:0}}>
+      var t = <div key={index} className="card playingCards simpleCards" style={{left: index*40 +'px', padding:0}}>
                 <div className="card playingCards simpleCards" style={ getCardCSS() }>
                   <a className="card frontRotated" style={ getCardPic(card) }></a>
                 </div>
@@ -235,7 +228,7 @@ export default class SettingsPage extends Component{
       if(self.state.classes.activeCardBack == card){
         CheckBox = 'checked';
       }
-      var t = <div className="selectCard">
+      var t = <div key={index} className="selectCard">
                 <div className="linear-block" style={{ height:'112px', width:'60px' }}>
                   <span className="check-box">
                     <span className={CheckBox}></span>
@@ -265,14 +258,14 @@ export default class SettingsPage extends Component{
       <div style={css.container}>
         <div className={'bkg-filter'}></div>
         <div className="">
-        <div style={{float:'left'}} colspan="12"><h5><i className="fa fa-gear">&nbsp;</i>Settings</h5></div>
+        <div style={{float:'left'}} colSpan="12"><h5><i className="fa fa-gear">&nbsp;</i>Settings</h5></div>
         <div className='face-div' style={{'float':'right'}}>
             <img className="md-48" height="32" width="32" src={ imageUrl }/>
             <span className="pad-left-10">{ firstName }</span>
             <button id="demo-menu-lower-right" className={classNames(btnClassNames)} onClick={this.openToggle.bind(this)} style={css.btn}>
               <i className="material-icons">more_vert</i>
             </button>
-            <ul className="" for="demo-menu-lower-right" className={classNames(ulClassNames)}>
+            <ul className="" htmlFor="demo-menu-lower-right" className={classNames(ulClassNames)}>
               <li className={classNames(liItemClassNames)} onClick={this.handleGoToSettings.bind(this)}>Settings</li>
               <li className={classNames(liItemClassNames)} onClick={this.handleLogOut.bind(this)}>Log Out</li>
             </ul>
@@ -284,11 +277,10 @@ export default class SettingsPage extends Component{
         <div className="settingsBlock">
           <table className="settingsTable">
             <thead>
-              
             </thead>
             <tbody>
               <tr>
-                <td colspan="3" className="selected" style={{width:'200px'}}>
+                <td colSpan="3" className="selected" style={{width:'200px'}}>
                   <div className={classNames(['settingsTab', classes.backgroundSettings])} onClick={this.changeTab.bind(this, 'backgroundSettings', 'backgroundTab')}>
                     <span><h6 style={{borderTop:"1px solid #444"}}>Background</h6></span>
                   </div>
@@ -341,69 +333,67 @@ export default class SettingsPage extends Component{
         </div>
         </form>
         </div>
-
-
       </div>
       </div>
       )
     }
 }
-function openToggle(id){
-    var element = document.getElementById(id);
-    if(!element){
-      return false;
-    }
-    var classes = element.nextSibling.getAttribute('class').split(' ');
-    var indexOfisVisible = classes.indexOf('is-visible');
-    if(indexOfisVisible==-1){
-      classes.push('is-visible');
-    }else{
-      classes.splice(indexOfisVisible, 1);
-    }
-    element.nextSibling.setAttribute('class', classes.join(' '));
-}
-function bindToggleEventsManually(id){
-  console.log(id);
-    var element = document.getElementById(id);
-    if(!element){
-      return false;
-    }
-    var width = element.nextSibling.children[1].offsetWidth;
-    var height = element.nextSibling.children[1].offsetHeight;
-    var top = element.offsetTop+element.offsetWidth;
-    var left = element.offsetLeft;
-    left = left - width/1.2;
-    var nextElement = element.nextSibling;
-    var props = {'width': width, 'height': height, 'top': top, 'left': left};
-    for(var key in props){
-      nextElement.style[key] = props[key];
-      if(['width','height'].indexOf(key)>-1){
-        nextElement.children[0].style[key] = props[key];  
-      }
-    }
-    nextElement.children[1].style['clip'] = 'rect(0px '+width+'px '+height+'px 0px)';
-    for (var i = 0; i < nextElement.children[1].children.length; i++) {
-      var c = 9*(i+1)*(i+1)
-      nextElement.children[1].children[i].style.transitionDelay =  c+'ms';
-    };
-    nextElement.style.height = height;
-    document.addEventListener('click', function (e){
-    var classes = element.nextSibling.getAttribute('class').split(' ');
-    if(classes.indexOf('is-visible')>-1){
-      var width = element.nextSibling.children[1].offsetWidth;
-      var height = element.nextSibling.children[1].offsetHeight;
-      var top = element.offsetTop+element.offsetWidth;
-      var left = element.offsetLeft;
-      var btWidth = element.offsetWidth;
-      var btnHeight = element.offsetHeight;
-      var btnTop = element.offsetTop;
-      var btnLeft = element.offsetLeft;
-      var leftRange = [left, left+width];
-      var topRange = [top, top+height];
-      if(!((e.clientY < (top+height)) && (e.clientY > top) && (e.clientX < (left+width)) && (e.clientX > left)) && 
-        !((e.clientY < (btnTop+btnHeight)) && (e.clientY > btnTop) && (e.clientX < (btnLeft+btWidth)) && (e.clientX > btnLeft))){
-        openToggle(id);
-      }
-    }
-  })
-}
+// function openToggle(id){
+//     var element = document.getElementById(id);
+//     if(!element){
+//       return false;
+//     }
+//     var classes = element.nextSibling.getAttribute('class').split(' ');
+//     var indexOfisVisible = classes.indexOf('is-visible');
+//     if(indexOfisVisible==-1){
+//       classes.push('is-visible');
+//     }else{
+//       classes.splice(indexOfisVisible, 1);
+//     }
+//     element.nextSibling.setAttribute('class', classes.join(' '));
+// }
+// function bindToggleEventsManually(id){
+//   console.log(id);
+//     var element = document.getElementById(id);
+//     if(!element){
+//       return false;
+//     }
+//     var width = element.nextSibling.children[1].offsetWidth;
+//     var height = element.nextSibling.children[1].offsetHeight;
+//     var top = element.offsetTop+element.offsetWidth;
+//     var left = element.offsetLeft;
+//     left = left - width/1.2;
+//     var nextElement = element.nextSibling;
+//     var props = {'width': width, 'height': height, 'top': top, 'left': left};
+//     for(var key in props){
+//       nextElement.style[key] = props[key];
+//       if(['width','height'].indexOf(key)>-1){
+//         nextElement.children[0].style[key] = props[key];  
+//       }
+//     }
+//     nextElement.children[1].style['clip'] = 'rect(0px '+width+'px '+height+'px 0px)';
+//     for (var i = 0; i < nextElement.children[1].children.length; i++) {
+//       var c = 9*(i+1)*(i+1)
+//       nextElement.children[1].children[i].style.transitionDelay =  c+'ms';
+//     };
+//     nextElement.style.height = height;
+//     document.addEventListener('click', function (e){
+//     var classes = element.nextSibling.getAttribute('class').split(' ');
+//     if(classes.indexOf('is-visible')>-1){
+//       var width = element.nextSibling.children[1].offsetWidth;
+//       var height = element.nextSibling.children[1].offsetHeight;
+//       var top = element.offsetTop+element.offsetWidth;
+//       var left = element.offsetLeft;
+//       var btWidth = element.offsetWidth;
+//       var btnHeight = element.offsetHeight;
+//       var btnTop = element.offsetTop;
+//       var btnLeft = element.offsetLeft;
+//       var leftRange = [left, left+width];
+//       var topRange = [top, top+height];
+//       if(!((e.clientY < (top+height)) && (e.clientY > top) && (e.clientX < (left+width)) && (e.clientX > left)) && 
+//         !((e.clientY < (btnTop+btnHeight)) && (e.clientY > btnTop) && (e.clientX < (btnLeft+btWidth)) && (e.clientX > btnLeft))){
+//         openToggle(id);
+//       }
+//     }
+//   })
+// }

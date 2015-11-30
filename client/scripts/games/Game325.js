@@ -3,7 +3,8 @@ import DocumentTitle from 'react-document-title';
 import connectToStores from '../utils/connectToStores';
 import Game325Store from './game325/Game325Store';
 import AuthStore from '../stores/AuthStore';
-// import * as Game325Actions from './game325/Game325Actions';
+import * as Game325Actions from './game325/Game325Actions';
+import * as GameRoomActions from '../actions/GameRoomActions';
 
 function parseLogin(params) {
   return params.login;

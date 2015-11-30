@@ -142,7 +142,7 @@ export default class StatusComponent extends Component {
 				nextButtonClass = 'ok-button show';
 				okButtonClass = 'ok-button';
 				okButtonStyle.display= 'none';
-				nextButtonStyle.backgroundColor = 'red';
+				nextButtonStyle.backgroundColor = '#E91E63';
 			}else{
 				okButtonClass = 'ok-button show';
 				nextButtonClass = 'ok-button';

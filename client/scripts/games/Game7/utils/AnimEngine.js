@@ -82,7 +82,6 @@ export default class AnimEngine{
 	static requestId = undefined;
 	static makeReadyForNext(){
 		this.pause = {
-			state : false,
 			start : 0,
 			end   : 0
 		}
@@ -145,6 +144,9 @@ export default class AnimEngine{
 				}else if(botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 					action = null;
+				}else if(botState == 'BOT_PLAYING_CARD'){
+					duration = 0;
+					action = null;
 				}
 				this.animateCards(deck, duration, action, gameState);
 				break;
@@ -160,7 +162,11 @@ export default class AnimEngine{
 		
 	}
 	static animateCards(deck, duration, action, gameState){	
-		this.makeReadyForNext();
+		if(this.pause.state){
+			this.cancelAnimationFrame();
+		}else{
+			this.makeReadyForNext();
+		}
 		if(duration == 0){
 				deck.map(deckcard =>{
 				if(deckcard.animTime + deckcard.delay > duration){

@@ -94,18 +94,14 @@ export default class SettingsPage extends Component{
   }
   componentDidMount(){
     var self = this;
-    this.context.showLoader(true)
     setTimeout(function(){
       componentHandler.upgradeAllRegistered()
-      // bindToggleEventsManually('demo-menu-lower-right');
-      componentHandler.upgradeDom();
+      adjustToggleElemenetCssManually('demo-menu-lower-right');
     },200);
   }
   componentDidUpdate(){
     setTimeout(function(){
-      componentHandler.upgradeAllRegistered()
-      // bindToggleEventsManually('demo-menu-lower-right');
-      componentHandler.upgradeDom();
+      componentHandler.upgradeAllRegistered();
     },200);
   }
   goToGame(game){
@@ -148,10 +144,6 @@ export default class SettingsPage extends Component{
         break;
     }
     this.reRender(newState);
-  }
-  openToggle(e){
-    openToggle('demo-menu-lower-right');
-    e.stopPropagation();
   }
   handleGoToSettings(){
     console.log('sett');
@@ -262,7 +254,7 @@ export default class SettingsPage extends Component{
         <div className='face-div' style={{'float':'right'}}>
             <img className="md-48" height="32" width="32" src={ imageUrl }/>
             <span className="pad-left-10">{ firstName }</span>
-            <button id="demo-menu-lower-right" className={classNames(btnClassNames)} onClick={this.openToggle.bind(this)} style={css.btn}>
+            <button id="demo-menu-lower-right" className={classNames(btnClassNames)} style={css.btn}>
               <i className="material-icons">more_vert</i>
             </button>
             <ul className="" htmlFor="demo-menu-lower-right" className={classNames(ulClassNames)}>
@@ -397,3 +389,19 @@ export default class SettingsPage extends Component{
 //     }
 //   })
 // }
+function adjustToggleElemenetCssManually(id){
+    var element = document.getElementById(id);
+    if(!element){
+      return false;
+    }
+    var width = element.nextSibling.children[1].offsetWidth;
+    // var height = element.nextSibling.children[1].offsetHeight;
+    var left = element.offsetLeft;
+    left = left - width/1.2;
+    var nextElement = element.nextSibling;
+    var props = {'left': left};
+    for(var key in props){
+      nextElement.style[key] = props[key];
+    }
+    // nextElement.children[1].style['clip'] = 'rect(0px '+width+'px '+height+'px 0px)';
+}

@@ -168,13 +168,13 @@ button.show-score-button.show{
     left: 0;
     top: 0;
 }
-/*hr{
+hr{
     margin: 0;
     position: absolute;
     left: 0;
     top: 175px;
     width: 100%;
-}*/
+}
 .playingCards{
     position: absolute;
     left: 0;

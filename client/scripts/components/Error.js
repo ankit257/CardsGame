@@ -4,8 +4,8 @@ import _ from 'underscore';
 
 export default class ErrorComponent extends Component {
   static propTypes = {
-    show : PropTypes.boolean,
-    msg : PropTypes.String
+    show : PropTypes.bool,
+    msg : PropTypes.string
   }
   constructor(props){
     super(props);

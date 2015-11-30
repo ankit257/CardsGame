@@ -252,12 +252,17 @@ export default class GamaPage extends Component{
   componentWillUnmount(){
     window.clearInterval(this.intervalId);
   }
+  componentWillMount(){
+    setTimeout(function(){
+      componentHandler.upgradeAllRegistered()
+      adjustToggleElemenetCssManually('demo-menu-lower-right');
+    },10);
+  } 
   componentDidUpdate(){
     setTimeout(function(){
       componentHandler.upgradeAllRegistered()
-      // bindToggleEventsManually('demo-menu-lower-right');
-      componentHandler.upgradeDom();
-    },200);
+      adjustToggleElemenetCssManually('demo-menu-lower-right');
+    },10);
   }
   goToGame(game){
     var newState = _.extend({}, this.state);
@@ -414,4 +419,20 @@ export default class GamaPage extends Component{
       </div>
     )
     }
+}
+function adjustToggleElemenetCssManually(id){
+    var element = document.getElementById(id);
+    if(!element){
+      return false;
+    }
+    var width = element.nextSibling.children[1].offsetWidth;
+    // var height = element.nextSibling.children[1].offsetHeight;
+    var left = element.offsetLeft;
+    left = left - width/1.2;
+    var nextElement = element.nextSibling;
+    var props = {'left': left};
+    for(var key in props){
+      nextElement.style[key] = props[key];
+    }
+    // nextElement.children[1].style['clip'] = 'rect(0px '+width+'px '+height+'px 0px)';
 }

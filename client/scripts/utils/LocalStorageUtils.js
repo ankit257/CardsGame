@@ -5,3 +5,6 @@ export function getItemFromLocalStorage(key){
 	var dataString = localStorage.getItem(key);
 	return JSON.parse(dataString);
 }
+export function deleteItemFromLocalStorage(key){
+	localStorage.removeItem(key);
+}

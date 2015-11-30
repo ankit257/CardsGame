@@ -33,6 +33,7 @@ export default class AuthHandler extends Component{
     User: PropTypes.object
   };
   static contextTypes = {
+    history: PropTypes.object.isRequired,
     showLoader: PropTypes.func.isRequired
   }
   constructor(props) {
@@ -44,6 +45,7 @@ export default class AuthHandler extends Component{
     }
   }
   componentWillReceiveProps(nextProps){
+    console.log(nextProps);
     if(!nextProps.User.profile){
       this.context.history.pushState(null, `/`, null);
     }

@@ -4,7 +4,7 @@ import ActionTypes from '../constants/ActionTypes';
 
 import { Router } from 'react-router';
 import createBrowserHistory from 'history/lib/createBrowserHistory'
-import { saveItemInLocalStorage, getItemFromLocalStorage } from '../utils/LocalStorageUtils';
+import { saveItemInLocalStorage, getItemFromLocalStorage, deleteItemFromLocalStorage } from '../utils/LocalStorageUtils';
 let history = createBrowserHistory();
 
 
@@ -20,11 +20,14 @@ const AuthStore = createStore({
 	get(){
 		if(!Session.profile){
 			var profile = getItemFromLocalStorage('user');
-			this.update(profile)
+			if(profile){
+				this.update(profile)	
+			}
 		}
 		return Session;
 	},
 	del(){
+		deleteItemFromLocalStorage('user');
 		delete Session.profile;
 	}
 })

@@ -6,7 +6,7 @@ var Score = function(){
 		handsMade : 0,
 	}
 }
-var Player = function(id){
+export function Player(id){
     return {
      id : id,
      name : '',
@@ -27,10 +27,11 @@ var Player = function(id){
      cardWillBeMovedFrom : null
     }
 }
-var Game325 = function(){
+export function Game325(){
 	this.maxPlayers = 3,
 	this.cardDistrbutionIndex = 0,
-	this.status = init,
+	this.status = 'INIT_GAME',
+	this.allowedStatus = ['INIT_GAME','PLAY_CARD','WITHDRAW_CARD','RETURN_CARD','NEXT_TURN','GAME_OVER']
 	this.players = [],
  	this.rank,
 	this.suit,
@@ -386,4 +387,3 @@ function getBiggestCard (card1, card2, turnSuit, trump) {
     }
 }
 //helper functions
-export Game325;

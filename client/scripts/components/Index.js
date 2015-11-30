@@ -105,7 +105,7 @@ export default class Index extends Component {
       <div className={'auth-inner'}>
         <form className={'form auth-form'}>
           <div className={'control-group'}>
-            <label for="username">
+            <label htmlFor="username">
               <span>What should everyone call you?</span>
             </label>
               <input type="text" id="register-username" ref="username" autoComplete="off" onKeyUp={this.validateInput.bind(this)}/>

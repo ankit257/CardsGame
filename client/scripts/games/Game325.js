@@ -4,7 +4,6 @@ import connectToStores from '../utils/connectToStores';
 import Game325Store from './game325/Game325Store';
 import AuthStore from '../stores/AuthStore';
 import * as Game325Actions from './game325/Game325Actions';
-import * as GameRoomActions from '../actions/GameRoomActions';
 
 function parseLogin(params) {
   return params.login;
@@ -69,7 +68,7 @@ export default class Game325 {
         console.log('room_full')
       });  
     }else{
-      GameRoomActions.startGameWithBots()
+      Game325Actions.startGame()
     }
 
     // requestData(this.props);
@@ -77,7 +76,9 @@ export default class Game325 {
   componentWillUnmount() {
     var id = this.props.params.id;
     var profile = this.props.profile;
-    GameRoomActions.leaveGameRoom(id, 'game325')
+    if(id){
+      GameRoomActions.leaveGameRoom(id, 'game325')  
+    }
   }
   componentWillReceiveProps(nextProps) {
     // if (parseLogin(nextProps.params) !== parseLogin(this.props.params)) {

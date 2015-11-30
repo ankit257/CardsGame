@@ -26,7 +26,7 @@ const GameRoomStore = createStore({
 		return GameRooms;
 	},
 	updateRooms(response){
-		console.log(response)
+		// console.log(response)
 		GameRooms = response;
 
 	}

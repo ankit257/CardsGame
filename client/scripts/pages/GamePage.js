@@ -98,7 +98,7 @@ class RoomsComponent extends Component{
   }
   render(){
     let {gameRooms, publicRoom, game} = this.props;
-    console.log(this.state);
+    // console.log(this.state);
     if(publicRoom){
       if(!gameRooms || !gameRooms[game] || (gameRooms[game] && Object.keys(gameRooms[game]).length == 0)){
           var roomsDiv = this.noRoomsDiv();
@@ -145,7 +145,8 @@ export default class GamaPage extends Component{
   };
   // Injected by React Router:
   static contextTypes = {
-    history: PropTypes.object.isRequired
+    history: PropTypes.object.isRequired,
+    showLoader : PropTypes.func.isRequired
   }
 
   constructor(props) {
@@ -230,7 +231,7 @@ export default class GamaPage extends Component{
     // }
   }
   componentWillReceiveProps(nextProps){
-    console.log(nextProps);
+    // console.log(nextProps);
     if(!nextProps.User.profile){
       // this.context.history.pushState(null, `/`, null);
     }else if(nextProps.gameRoom.game){

@@ -42,8 +42,7 @@ export default class GameRender extends Component {
 		else if(window.addEventListener) {
 			window.addEventListener('resize', this.handleResize);
 		}
-		console.log('mount');
-		GameActions.initGame();
+		// GameActions.initGame();
 	}
 	handleResize(e){
 		this.setState({

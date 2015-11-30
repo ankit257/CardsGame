@@ -76,6 +76,18 @@ export default class GameInterface extends Component{
   componentWillMount() {
     var id = this.props.params.id;
     var profile = this.props.profile;
+    console.log(id);
+    if(id){
+      GameRoomActions.joinGameRoom(id, profile, 'game7');
+      socket.on('invalid_room', function(){
+        console.log('invalid_room')
+      });
+      socket.on('room_full', function(){
+        console.log('room_full')
+      });  
+    }else{
+      GameRoomActions.startGameWithBots('game7')
+    }
     // GameRoomActions.joinGameRoom(id, profile)
     // requestData(this.props);
   }

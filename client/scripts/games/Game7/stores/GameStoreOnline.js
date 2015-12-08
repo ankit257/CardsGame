@@ -126,7 +126,7 @@ const GameStoreOnline = createStore( {
 	getXP(){
 		let xp = 0;
 		_game.players.map(player=>{
-			if(player.id == _myid){
+			if(player.id == _myid && player.type == 'HUMAN'){
 				let score = player.score;
 				let penalty = score.penalty[score.penalty.length-1];
 				if(penalty) {

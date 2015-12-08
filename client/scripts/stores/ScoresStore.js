@@ -23,7 +23,8 @@ let _gameScores = {};
 const ScoresStore = createStore({
 	updateCurrentScores(){
 		let scores = this.getScoresFromLocal();	
-		if(scores && scores.game7 && scores.game7.xp){
+		// console.log(scores);
+		if(scores && scores.game7 && scores.game7.stats && scores.game7.stats.xp){
 			_gameScores = scores;
 		}else{
 			this.setDefaultScores();

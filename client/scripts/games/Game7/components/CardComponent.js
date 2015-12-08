@@ -8,26 +8,40 @@ import {gameCSSConstants, gamePathConstants} from '../constants/SattiHelper'
 import * as GameActions from '../actions/GameActions';
 
 import PauseStore from '../stores/PauseStore';
+import SettingsStore from '../../../stores/SettingsStore';
 
 function getState(props){
     let pauseState = PauseStore.getPauseState();
+    let settings = SettingsStore.getSettings();
+    let cardbackimg = settings.activeCardBack;
     return {
-        pauseState
+        pauseState,
+        cardbackimg
     };
 }
 
-@connectToStores([PauseStore], getState)
+@connectToStores([PauseStore, SettingsStore], getState)
 export default class CardComponent extends Component {
     state = {
 
+    }
+    static contextTypes = {
+        ifOnline: PropTypes.bool
     }
     constructor(props) {
         super(props);
         this.handleClick = this.handleClick.bind(this);
     }
     componentWillMount(){
+        let x = gameCSSConstants.gameBody.width/2 - gameCSSConstants.cardSize.width/2;
+        let y = gameCSSConstants.gameBody.height/2 - gameCSSConstants.cardSize.height/2;
+        let theta = 0;
         this.setState({
             card: this.props.card,
+            initialstyle: {
+                transform           : 'translateX(' + x + 'px) translateY(' + y + 'px) rotate(' + theta + 'deg)',
+                WebkitTransform     : 'translateX(' + x + 'px) translateY(' + y + 'px) rotate(' + theta + 'deg)'
+            }
         })
     }
     componentDidMount(){
@@ -45,15 +59,16 @@ export default class CardComponent extends Component {
     handleClick(){
         let card = this.state.card;
         let gameState = this.props.gameState;
-        if(card.isPlayable && card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !this.props.pauseState){
-            GameActions.playCard(this.state.card);
+        if(card.isPlayable && card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !this.props.pauseState && !this.props.ifIAmBot){
+            GameActions.playCard(this.state.card, this.context.ifOnline);
         }
     }
     handleTouch(){
     }
     componentWillReceiveProps(nextProps) {
         this.setState({
-            card : nextProps.card
+            card : nextProps.card,
+            initialstyle: {}
         })
         this.props = nextProps;
     }	
@@ -61,10 +76,17 @@ export default class CardComponent extends Component {
         const { card } = this.state;
         const { x, y, theta, animTime, delay, zIndex, bgColor } = card;
         let cardimg      = gamePathConstants.CARD_ASSETS + card.rank + card.suit + '.svg';
-        let cardbackimg  = gamePathConstants.CARD_BACK_IMG;
-        let style = {
-            zIndex             : zIndex
+        let cardbackimg  = this.props.cardbackimg;
+        if(this.context.ifOnline){
+            cardimg = '../'+cardimg;
+            cardbackimg = '../'+cardbackimg;
         }
+        // let style = Object.assign(initialstyle, {
+        //                                 zIndex : zIndex
+        //                         });
+        let style = {
+            zIndex: zIndex
+        };
         let cardImgStyle ={
             backgroundColor         : bgColor,
             WebkitBackgroundColor   : bgColor

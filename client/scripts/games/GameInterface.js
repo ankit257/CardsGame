@@ -3,6 +3,7 @@ import DocumentTitle from 'react-document-title';
 import connectToStores from '../utils/connectToStores';
 import GameRoomStore from '../stores/GameRoomStore';
 import AuthStore from '../stores/AuthStore';
+import SettingsStore from '../stores/SettingsStore';
 import * as GameRoomActions from '../actions/GameRoomActions';
 
 import Game7Render from './Game7/components/GameRender'
@@ -29,10 +30,13 @@ function requestData(props) {
 function getState(props) {
   var gameData = GameRoomStore.get();
   var profile = AuthStore.get();
+  var settings = SettingsStore.getSettings();
+  var activeColor = settings.activeColor;
   // console.log(gameData);
   return {
     gameData,
-    profile
+    profile,
+    activeColor
   }
 }
 
@@ -41,7 +45,7 @@ export default class GameInterface extends Component{
   static propTypes = {
     // Injected by React Router:
     params: PropTypes.shape({
-      id: PropTypes.string.isRequired
+      id: PropTypes.string
     }).isRequired,
 
     // Injected by @connectToStores:
@@ -51,12 +55,14 @@ export default class GameInterface extends Component{
     // isLoadingStarred: PropTypes.bool.isRequired,
     // isLastPageOfStarred: PropTypes.bool.isRequired
   };
-  // static childContextTypes = {
-  //   color: PropTypes.string
-  // }
-  // getChildContext() {
-  //   return {color: "purple"};
-  // }
+  static childContextTypes = {
+    ifOnline: PropTypes.bool
+  }
+  getChildContext() {
+    return { 
+        ifOnline : this.props.params.id === undefined ? false : true
+      }
+  }
   state = {
     gamePause : false
   }
@@ -67,16 +73,15 @@ export default class GameInterface extends Component{
     // this.handleLoadMoreClick = this.handleLoadMoreClick.bind(this);
   }
   pauseToggle() {
-    // GameRoomActions.togglePauseGame();
-    // console.log(this.state);
-    this.setState({
-      gamePause: !this.state.gamePause
-    })
+    if(!this.context.ifOnline){
+      this.setState({
+        gamePause: !this.state.gamePause
+      })
+    }
   }
   componentWillMount() {
     var id = this.props.params.id;
     var profile = this.props.profile;
-    console.log(id);
     if(id){
       GameRoomActions.joinGameRoom(id, profile, 'game7');
       socket.on('invalid_room', function(){
@@ -88,13 +93,17 @@ export default class GameInterface extends Component{
     }else{
       GameRoomActions.startGameWithBots('game7')
     }
-    // GameRoomActions.joinGameRoom(id, profile)
-    // requestData(this.props);
+  }
+  componentDidMount(){
+    socket.on('game_state', function(data){
+      var clientData = data.clientData;
+      GameRoomActions.gameStateReceived('game7', clientData);
+    })
   }
   componentWillUnmount() {
-    // var id = this.props.params.id;
+    var id = this.props.params.id;
     // var profile = this.props.profile;
-    // GameRoomActions.leaveGameRoom(id, profile)
+    GameRoomActions.leaveGameRoom(id, 'game7');
   }
   componentWillReceiveProps(nextProps) {
     // if (parseLogin(nextProps.params) !== parseLogin(this.props.params)) {
@@ -105,25 +114,31 @@ export default class GameInterface extends Component{
   render() {
     let gamePause = this.state.gamePause;
     let pauseButtonText, pauseScreenStyle, pauseButtonStyle;
-    pauseButtonStyle = {
-      zIndex : 601
-    }
-    if(gamePause){
-      pauseButtonText = 'R'
-      pauseScreenStyle = {
-        display: 'block',
-        zIndex : 600
+    if(this.context.ifOnline){
+      pauseButtonStyle = {
+        display: 'none'
       }
     }else{
-      pauseButtonText = 'P'
-      pauseScreenStyle = {
-        display: 'none',
-        zIndex : 600
+      pauseButtonStyle = {
+        zIndex : 601
+      }
+      if(gamePause){
+        pauseButtonText = 'R'
+        pauseScreenStyle = {
+          display: 'block',
+          zIndex : 600
+        }
+      }else{
+        pauseButtonText = 'P'
+        pauseScreenStyle = {
+          display: 'none',
+          zIndex : 600
+        }
       }
     }
     return (
       <div>
-        <div className={'bkg-filter'}></div>
+        <div className={this.props.activeColor.name+' fixed-bkg'}></div>
         <button onClick={this.pauseToggle.bind(this)} className = "distribute-button" style= {pauseButtonStyle}> {pauseButtonText} </button>
         <div className={'pause-screen'} style={pauseScreenStyle}><span>Game Paused</span></div>
         <Game7Render gamePause={gamePause}/>

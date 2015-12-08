@@ -1,4 +1,4 @@
-import CardsSatti from './CardsSatti'
+import CardsSatti from '../utils/CardsSatti'
 import { gameCSSConstants, gameVars, timeConstants } from '../constants/SattiHelper'
 import PlayerSatti from '../utils/PlayerSatti'
 import BotSatti from '../utils/BotSatti'
@@ -10,6 +10,8 @@ let cardsSatti = new CardsSatti();
 export default class GameSatti{
 	constructor(){
 		Object.assign(this, {
+					adminId			: null,
+					maxPlayers		: 4,
 					players 		: [],
 					deck 			: [],
 					gameTurn		: 0,
@@ -20,6 +22,7 @@ export default class GameSatti{
 					playedCards 	: {},
 					playableCards 	: [],
 					activePlayerPos	: null,
+					activePlayerId	: null,
 					pauseState		: false
 		});
 	}
@@ -97,33 +100,53 @@ export default class GameSatti{
 		this.gameTurn = 0;
 	}
 	checkBotPlay(){
-		let activePlayer = this.players[this.activePlayerPos];
+		let activePlayer;
+		this.players.map(player=>{
+			if(player.position == this.activePlayerPos){
+				activePlayer = player;
+			}
+		})
 		if(activePlayer.type == 'BOT'){
 			this.botState = 'BOT_SHOULD_PLAY';
-			setTimeout(function(){
-				GameActions.playBot()
-			}, timeConstants.DISPATCH_DELAY);
 		}else{
 			this.botState = 'BOT_CANNOT_PLAY';
 		}
 	}
-	checkTurnSkip(){
-		let activePlayer = this.players[this.activePlayerPos];
+	checkTurnSkip(gameType){
+		let activePlayer;
+		this.players.map(player=>{
+			if(player.position == this.activePlayerPos){
+				activePlayer = player;
+			}
+		})
 		if(activePlayer.state == 'SKIP_TURN'){
-			setTimeout(function(){
-				GameActions.skipTurn(activePlayer.position);
-			}, timeConstants.DISPATCH_DELAY);
+			if(gameType == 'offline'){
+				setTimeout(function(){
+					GameActions.skipTurn(activePlayer.position);
+				}, timeConstants.DISPATCH_DELAY);
+			}else if(gameType == 'online'){
+				setTimeout(function(){
+					GameActions.skipMyTurn(activePlayer.id);
+				}, timeConstants.DISPATCH_DELAY);
+			}else{
+				console.log('Weird');
+			}
 		}
 	}
-	playBot(){
-		let activeBot = this.players[this.activePlayerPos];
+	playBot(botCards){
+		let activeBot;
+		this.players.map(player=>{
+			if(player.position == this.activePlayerPos){
+				activeBot = player;
+			}
+		})
 		if(activeBot.type == 'BOT' && this.botState == 'BOT_SHOULD_PLAY'){
 			this.botState = 'BOT_PLAYING_CARD';
-			activeBot.playCard();
+			return activeBot.playCard(botCards);
 		}
 	}
-	playCard(card){
-		if(card.ownerPos == this.activePlayerPos && this.state == 'READY_TO_PLAY_NEXT'){
+	playCard(card, callerLocation){
+		if(card && ((callerLocation == 'client' && card.ownerPos == this.activePlayerPos) || (callerLocation == 'server' && card.ownerId == this.activePlayerId)) && this.state == 'READY_TO_PLAY_NEXT'){
 			for(let deckcard of this.deck){
 				if(card.rank == deckcard.rank && card.suit == deckcard.suit){
 					this.cardPlayed = deckcard;

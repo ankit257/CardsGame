@@ -1,8 +1,7 @@
 import PlayingCard from './PlayingCard'
 
 export default class CardsSatti{
-	_defaultDeck = [
-						{
+	_defaultDeck = [{
 							suit	: 'S',
 							rank	: 13,
 							order	: 1,

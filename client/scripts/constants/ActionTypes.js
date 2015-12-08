@@ -44,6 +44,8 @@ export default keyMirror({
   GET_ROOM_REQ_SUCCESS : null,
   GET_ROOM_REQ_ERROR : null,
 
-  GAME325 : null,
+  CHANGE_SETTINGS: null,
+
+  GAME325 : null
 });
       

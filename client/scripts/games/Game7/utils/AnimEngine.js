@@ -1,27 +1,25 @@
 import { timeConstants } from '../constants/SattiHelper'
 import * as GameActions from '../actions/GameActions'; 
 import PauseStore from '../stores/PauseStore';
-import * as Howler from 'howler';
+import { getItemFromLocalStorage } from '../../../utils/LocalStorageUtils';
+import SettingsStore from '../../../stores/SettingsStore';
+import { Howl }  from 'howler';
 
-let distributeAudio = new Howler.Howl({
+let distributeAudio = new Howl({
 	urls: ['../../assets/sounds/distribute.mp3'],
-	autoplay: false,
-	volume: 1
+	autoplay: false
 }),
-playAudio = new Howler.Howl({
+playAudio = new Howl({
 	urls: ['../../assets/sounds/play.mp3'],
-	autoplay: false,
-	volume: 1
+	autoplay: false
 }),
-pauseAudio = new Howler.Howl({
+pauseAudio = new Howl({
 	urls: ['../../assets/sounds/pause.mp3'],
-	autoplay: false,
-	volume: 0.5
+	autoplay: false
 }),
-unPauseAudio = new Howler.Howl({
+unPauseAudio = new Howl({
 	urls: ['../../assets/sounds/unpause.mp3'],
-	autoplay: false,
-	volume: 0.5
+	autoplay: false
 })
 window.requestAnimFrame = (function(){
         return  window.requestAnimationFrame || 
@@ -78,14 +76,13 @@ export default class AnimEngine{
 		start : 0,
 		end   : 0
 	}
-	static audio = new Howler.Howl({});
+	static audio = new Howl({});
 	static requestId = undefined;
 	static makeReadyForNext(){
 		this.pause = {
 			start : 0,
 			end   : 0
 		}
-		// this.audio = new Howler.Howl({});
 	}
 	static setPauseState(gamePause){
 		this.pause.state = gamePause;
@@ -109,42 +106,52 @@ export default class AnimEngine{
 			}
 		})
 	}
-	static startAnimation(deck, gameState, botState){
-		this.audio = new Howler.Howl({});
+	static startAnimation(deck, gameState, botState, ifOnline){
+		this.audio = new Howl({});
 		let duration = 0, action, audio;
 		switch(gameState){
 			case 'INIT_ROUND':
 				duration = timeConstants.TOTAL_DECK_DELAY;
-				action   = GameActions.initRoundSuccess;
+				action   = ifOnline ? GameActions.onlineInitRoundSuccess : GameActions.initRoundSuccess;
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'DISTRIBUTING_CARDS':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
-				action   = GameActions.distributionSuccess;
+				action   = ifOnline ? GameActions.onlineDistributionSuccess : GameActions.distributionSuccess;
 				this.audio 	 = distributeAudio;
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'PLAYING_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
-				action   = GameActions.playCardSuccess;
+				action   = ifOnline ? GameActions.playedWaitForServer : GameActions.playCardSuccess;
 				this.audio 	 = playAudio;
+				this.audio.play();
+				this.animateCards(deck, duration, action, gameState);
+				break;
+			case 'PLAYING_PLAYED_CARD':
+				duration = timeConstants.TOTAL_PLAY_DELAY;
+				action   = ifOnline ? GameActions.playCardSuccessOnline : '';
+				// this.audio 	 = playAudio;
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'ROUND_END':
 				duration = timeConstants.ROUND_END_WAIT;
-				action   = GameActions.showScores;
+				action   = ifOnline ? GameActions.showScoresOnline : GameActions.showScores;
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'READY_TO_PLAY_NEXT':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-					action = GameActions.botWillPlay;
-				}else if(botState == 'BOT_CANNOT_PLAY'){
+					action = ifOnline ? GameActions.requestServerBot : GameActions.botWillPlay;
+				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 					action = null;
-				}else if(botState == 'BOT_PLAYING_CARD'){
+				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
+					duration = 0;
+					action = null;
+				}else if(ifOnline){
 					duration = 0;
 					action = null;
 				}
@@ -156,7 +163,9 @@ export default class AnimEngine{
 			case 'INIT_ROUND_SUCCESS':
 			case 'GAME_STARTED':
 			case 'INIT_DECK':
-			case 'DISTRIBUTE_CARDS_SUCCESS':
+			case 'NOW_NEXT_TURN':
+			case 'PLAY_DATA_RECEIVED':
+			case 'SKIP_DATA_RECEIVED':
 				break;
 		}
 		
@@ -190,7 +199,7 @@ export default class AnimEngine{
 				if(remaining < 0){
 					if (typeof action === "function") {
 							action();
-							this.audio = new Howler.Howl({});
+							self.audio = new Howl({});
 						}
 					return;
 				}else{
@@ -229,20 +238,25 @@ export default class AnimEngine{
 									frontRotateY = 180
 								}
 							}
-							element.style.transform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)';
-							element.style.WebkitTransform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)';
-							Array.prototype.map.call(element.childNodes, child=>{
-								switch(child.className){
-									case "front":
-										child.style.transform = 'perspective(400px) rotateY('+ frontRotateY +'deg)';
-										child.style.WebkitTransform = 'perspective(400px) rotateY('+ frontRotateY +'deg)';
-										break;
-									case "back":
-										child.style.transform = 'perspective(400px) rotateY('+ backRotateY +'deg)';
-										child.style.WebkitTransform = 'perspective(400px) rotateY('+ backRotateY +'deg)';
-										break;
-								}
-							}) //childNodes map end
+							if(element){
+								element.style.transform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)';
+								element.style.WebkitTransform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)';
+								Array.prototype.map.call(element.childNodes, child=>{
+									switch(child.className){
+										case "front":
+											child.style.transform = 'perspective(400px) rotateY('+ frontRotateY +'deg)';
+											child.style.WebkitTransform = 'perspective(400px) rotateY('+ frontRotateY +'deg)';
+											break;
+										case "back":
+											child.style.transform = 'perspective(400px) rotateY('+ backRotateY +'deg)';
+											child.style.WebkitTransform = 'perspective(400px) rotateY('+ backRotateY +'deg)';
+											break;
+									}
+								}) //childNodes map end
+							}else{
+								self.cancelAnimationFrame();
+							}
+							
 						}
 					}) // deckcard map end
 				}

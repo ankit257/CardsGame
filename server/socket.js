@@ -1,6 +1,15 @@
 // var io = require('socket.io');
+
+/* roomData Format
+	roomData[game][roomId] = [numberOfPlayers gameType gameState showOrHide]
+	numberOfPlayers: 
+	gameType  : 'game325' || 'game7'   || anyOtherGame
+	gameState : 'waiting' || 'running'
+	showOrHide: 'show'    || 'hide'
+*/
+
 var Game325 = require('./games/Game325');
-var Game7Center = require('./games/Game7Center');
+var Game7Centre = require('./games/game7/Game7Centre');
 
 module.exports = function (io, app) {
 	io.on('connection', function (socket){
@@ -16,11 +25,256 @@ module.exports = function (io, app) {
 			roomId = data.roomId;
 			var profile = data.profile;
 			game = data.game;
+			redisClient.get('Game:'+roomId, function (err, gameData){  						// get GameData from roomId
+				if(err)
+					throw err;
+				gameData = JSON.parse(gameData);
+				if(!gameData || gameData === null || (Object.keys(gameData).length==0)){ 	
+					if(gameData == null || (Object.keys(gameData).length==0)){
+						redisClient.del('Game:'+roomId, function (err, gameData){})
+					}
+					redisClient.get('roomData', function (err, roomData){
+						roomData = JSON.parse(roomData);
+						if(roomData[game] && roomData[game][roomId]){
+							delete roomData[game][roomId];									// *ROOM_DATA_DESTROYED_HERE* if gameData does not exist, destroy roomId key
+						}
+						redisClient.set('roomData', JSON.stringify(roomData), function (err, roomData){
+							if(err)
+								throw err;
+							console.log(roomData);
+							socket.emit('invalid_room', {});	
+						})
+					})
+				}else{ // if gameData exists for roomId
+					gameData.roomAvailabilityIndex = -1;
+					var humansJoined = 0;
+					var activePlayers = 0;
+					for (var i = gameData.players.length-1; i >= 0; i--) {  // set roomAvailabilityIndex to appropriate bot location 
+						if(gameData.players[i].type == 'BOT'){
+							gameData.roomAvailabilityIndex = i;
+						}
+					}
+					if(gameData.roomAvailabilityIndex == -1){              // if no bots found, emit room_full
+						socket.emit('room_full');
+					}else{												   // if bot(s) found, check if game waiting or running
+						redisClient.get('roomData', function (err, roomData){
+							var roomData = JSON.parse(roomData);
+							var thisPlayerId = '';
+							socket.join(roomId);
+							if(roomData[game][roomId][2] == 'waiting')
+							{
+								var joinindex = gameData.roomAvailabilityIndex;
+								thisPlayerId = roomId+joinindex;
+								gameData.players[joinindex].socket = socket.id;
+								gameData.players[joinindex].id = thisPlayerId;
+								gameData.players[joinindex].type = 'HUMAN';
+								gameData.players[joinindex].profile = profile;
+								
+								// set admin
+								var adminFound = false;
+								for (var i = 0; i < gameData.players.length; i++) {
+									if(gameData.players[i].type == 'ADMIN'){
+										adminFound = true;
+									}
+								}
+								if(!adminFound){
+									for (var i = 0; i < gameData.players.length; i++) {
+										if(gameData.players[i].type == 'HUMAN'){
+											gameData.players[i].type = 'ADMIN';
+											gameData.adminId = gameData.players[i].id;
+											break;
+										}
+									};
+								}
+							}else if(roomData[game][roomId][2] == 'running'){
+								var joinindex = gameData.roomAvailabilityIndex;
+								thisPlayerId = roomId+joinindex;
+								gameData.players[joinindex].socket = socket.id;
+								gameData.players[joinindex].id = thisPlayerId;
+								gameData.players[joinindex].type = 'SPECTATOR';
+								gameData.players[joinindex].profile = profile;
+							}
+							for (var i = 0; i < gameData.players.length; i++) {
+									if(gameData.players[i].type !== 'BOT'){
+										humansJoined++;
+									}
+							}
+							if(humansJoined == gameData.players.length){
+								roomData[game][roomId][3] = 'hide';       // <- This line gives error
+							}else{
+								roomData[game][roomId][0] = humansJoined; 
+							}
+							redisClient.set('roomData', JSON.stringify(roomData), function (err, success){
+								if(err)
+									throw err;
+								redisClient.set('Game:'+roomId, JSON.stringify(gameData), function (err, success){
+									io.sockets.connected[socket.id].emit('game_state', {clientData : 
+																								{'action': 'SET_ID',
+																								 'id': thisPlayerId
+																								}
+																							});
+									io.sockets.in(roomId).emit('room_joined', {'data': gameData});
+								});
+							});
+						});
+					}
+				}
+			});
+		});
+		socket.on('leave_room', function (data){
+			var game = data.game;
+			roomId = data.roomId;
+			socket.leave(roomId); //
+			redisClient.get('Game:'+roomId, function (err, gameData){
+				var gameObj = JSON.parse(gameData);
+				if(err)
+					throw err;
+				var noOfBots = 0;
+				var activePlayers = 0;
+				var spectatorLeft = false;
+				if(gameData && gameData != null){
+					for (var i = gameObj.players.length - 1; i >= 0; i--){
+						if(gameObj.players[i].socket == socket.id){
+							gameObj.players[i].type = 'BOT';
+							gameObj.players[i].socket = '';
+							if(gameObj.players[i].type == 'SPECTATOR'){
+								spectatorLeft = true;
+								console.log('spectator left');
+							}
+						}
+
+						if(gameObj.players[i] && gameObj.players[i].type == 'BOT')
+							noOfBots++;
+					}
+					activePlayers = gameObj.players.length - noOfBots;
+					// set admin
+					var adminFound = false;
+					for (var i = 0; i < gameObj.players.length; i++) {
+						if(gameObj.players[i].type == 'ADMIN'){
+							adminFound = true;
+						}
+					}
+					if(!adminFound){
+						for (var i = 0; i < gameObj.players.length; i++) {
+							if(gameObj.players[i].type == 'ADMIN') break;
+							if(gameObj.players[i].type == 'HUMAN'){
+								gameObj.players[i].type = 'ADMIN';
+								gameObj.adminId = gameObj.players[i].id;
+								break;
+							}
+						};
+					}
+				}
+				
+				redisClient.get('roomData', function (err, roomData){
+					roomData = JSON.parse(roomData);
+					if(!gameData || gameData == null || activePlayers == 0){
+						delete roomData[game][roomId];
+					}else{
+						// gameObj.status = 'PLAYER_LEFT';
+						roomData[gameObj.game][roomId][0] = activePlayers;
+						roomData[gameObj.game][roomId][3] = 'show';
+					}
+					redisClient.set('roomData', JSON.stringify(roomData), function (err, success){
+						if(err)
+							throw err;
+						if(gameData && gameData != null && activePlayers != 0){
+							redisClient.set('Game:'+roomId, JSON.stringify(gameObj), function (err, success){
+								if(err)
+									throw err;
+								if(!spectatorLeft){
+									io.sockets.in(roomId).emit('player_changed', {'game': gameObj.game, 'players': gameObj.players});	
+									console.log('player_changed');
+								}
+							});
+						}else{
+							redisClient.del('Game:'+roomId);
+						}
+					})
+				})
+			});
+		});
+		socket.on('disconnect', function(){
+			console.log('disconnect');
+			if(!roomId){
+				return false;
+			}
+			socket.leave(roomId); //
+			redisClient.get('Game:'+roomId, function (err, gameData){
+				var gameObj = JSON.parse(gameData);
+				if(err)
+					throw err;
+				var noOfBots = 0;
+				var activePlayers = 0;
+				var spectatorLeft = false;
+				if(gameData && gameData != null){
+					for (var i = gameObj.players.length - 1; i >= 0; i--){
+						if(gameObj.players[i].socket == socket.id){
+							gameObj.players[i].type = 'BOT';
+							gameObj.players[i].socket = '';
+							if(gameObj.players[i].type == 'SPECTATOR'){
+								spectatorLeft = true;
+								console.log('spectator left');
+							}
+						}
+
+						if(gameObj.players[i] && gameObj.players[i].type == 'BOT')
+							noOfBots++;
+					}
+					activePlayers = gameObj.players.length - noOfBots;
+					// set admin
+					var adminFound = false;
+					for (var i = 0; i < gameObj.players.length; i++) {
+						if(gameObj.players[i].type == 'ADMIN'){
+							adminFound = true;
+						}
+					}
+					if(!adminFound){
+						for (var i = 0; i < gameObj.players.length; i++) {
+							if(gameObj.players[i].type == 'ADMIN') break;
+							if(gameObj.players[i].type == 'HUMAN'){
+								gameObj.players[i].type = 'ADMIN';
+								gameObj.adminId = gameObj.players[i].id;
+								break;
+							}
+						};
+					}
+				}
+				
+				redisClient.get('roomData', function (err, roomData){
+					roomData = JSON.parse(roomData);
+					if(!gameData || gameData == null || activePlayers == 0){
+						delete roomData[game][roomId];
+					}else{
+						// gameObj.status = 'PLAYER_LEFT';
+						roomData[gameObj.game][roomId][0] = activePlayers;
+						roomData[gameObj.game][roomId][3] = 'show';
+					}
+					redisClient.set('roomData', JSON.stringify(roomData), function (err, success){
+						if(err)
+							throw err;
+						if(gameData && gameData != null && activePlayers != 0){
+							redisClient.set('Game:'+roomId, JSON.stringify(gameObj), function (err, success){
+								if(err)
+									throw err;
+								if(!spectatorLeft){
+									io.sockets.in(roomId).emit('player_changed', {'game': gameObj.game, 'players': gameObj.players});
+									console.log('player_changed');
+								}
+							});
+						}else{
+							redisClient.del('Game:'+roomId);
+						}
+					})
+				})
+			});
+		});
+		socket.on('play_card', function (clientData){
 			redisClient.get('Game:'+roomId, function (err, gameData){
 				if(err)
 					throw err;
 				gameData = JSON.parse(gameData);
-				if(!gameData || gameData === null || (Object.keys(gameData).length==0)){
+				if(!gameData || gameData === null || (Object.keys(gameData).length==0)){ // if gameData does not exist, destroy roomData
 					if(gameData == null || (Object.keys(gameData).length==0)){
 						redisClient.del('Game:'+roomId, function (err, gameData){})
 					}
@@ -36,154 +290,35 @@ module.exports = function (io, app) {
 							socket.emit('invalid_room', {});	
 						})
 					})
-				}else{
-					gameData.roomAvailabilityIndex = -1;
-					var playersJoined = 0;
-					var activePlayers = 0;
-					for (var i = gameData.players.length-1; i >= 0; i--) {
-						if(gameData.players[i].id == 'BOT'){
-							gameData.roomAvailabilityIndex = i;
-						}
-					}
-					if(gameData.roomAvailabilityIndex == -1){
-						socket.emit('room_full');
-					}else{
-						socket.join(roomId); //
-						gameData.players[gameData.roomAvailabilityIndex].id = socket.id;
-						if(gameData.roomAvailabilityIndex === 0){
-							gameData.activePlayerId = socket.id;
-						}
-						gameData.players[gameData.roomAvailabilityIndex].profile = profile;
-						for (var i = 0; i < gameData.players.length; i++) {
-							if(gameData.players[i].id !== 'BOT'){
-								playersJoined++;
-							}
-						}
-						redisClient.get('roomData', function (err, roomData){
-							console.log(roomData)
-							var roomData = JSON.parse(roomData);
-							if(playersJoined == gameData.players.length){
-								delete roomData[game][roomId];
-							}else{
-								roomData[game][roomId][0] = playersJoined;
-							}
-							redisClient.set('roomData', JSON.stringify(roomData), function (err, success){
-								if(err)
-									throw err;
-								redisClient.set('Game:'+roomId, JSON.stringify(gameData), function (err, success){
-									io.sockets.in(roomId).emit('room_joined', {'data': JSON.stringify(gameData)});
-									if(playersJoined === gameData.players.length){
-										io.sockets.in(roomId).emit('start_game', {'data': JSON.stringify(gameData)});
-									}	
-								});
+				}else{ // if gameData exists for roomId
+					redisClient.get('roomData', function (err, roomData){  // Set GameStatus in roomData = 'running'
+						var roomData = JSON.parse(roomData);
+						roomData[game][roomId][2] = 'running'; 
+						redisClient.set('roomData', JSON.stringify(roomData), function (err, success){
+							if(err)
+								throw err;
+							redisClient.set('Game:'+roomId, JSON.stringify(gameData), function (err, success){
+									
+									// Now handle play_card
+									var newClientData = {}, newGameData = {};
+									switch(gameData.game){
+										case 'Game325':
+											var newGame = Game325.call(clientData);
+										case 'game7':
+											var newData = Game7Centre.handlePlayCard({clientData: clientData, gameData: gameData});
+											newClientData = newData.clientData;
+											newGameData   = newData.gameData;
+									}
+									redisClient.set('Game:'+roomId, JSON.stringify(newGameData), function (err, success){
+										io.sockets.in(roomId).emit('game_state', {'clientData': newClientData});
+									})
+									// play card handle end
 							});
 						});
-					}
-				}
-			});
-		});
-		socket.on('leave_room', function (data){
-			var game = data.game;
-			socket.leave(roomId); //
-			redisClient.get('Game:'+roomId, function (err, gameData){
-				var gameObj = JSON.parse(gameData);
-				if(err)
-					throw err;
-				var noOfBots = 0;
-				var activePlayers = 0
-				if(gameData && gameData != null){
-					for (var i = gameObj.players.length - 1; i >= 0; i--){
-						if(gameObj.players[i].id == socket.id)
-							gameObj.players[i].id = 'BOT';
-						if(gameObj.players[i].id == 'BOT')
-							noOfBots++;
-					}
-					activePlayers = gameObj.players.length - noOfBots;
-				}
-				redisClient.get('roomData', function (err, roomData){
-					roomData = JSON.parse(roomData);
-					if(!gameData || gameData == null || activePlayers == 0){
-						delete roomData[game][roomId];
-					}else{
-						gameObj.status = 'PLAYER_LEFT';
-						roomData[gameObj.game][roomId] = [activePlayers, gameObj.game];
-					}
-					redisClient.set('roomData', JSON.stringify(roomData), function (err, success){
-						if(err)
-							throw err;
-						if(gameData && gameData != null && activePlayers != 0){
-							redisClient.set('Game:'+roomId, JSON.stringify(gameObj), function (err, success){
-								if(err)
-									throw err;
-								io.sockets.in(roomId).emit('player_changed', {'data': JSON.stringify(gameObj)});
-							});
-						}else{
-							redisClient.del('Game:'+roomId);
-						}
-					})
-				})
-			});
-		});
-		socket.on('disconnect', function(){
-			if(!roomId){
-				return false;
-			}
-			socket.leave(roomId); //
-			redisClient.get('Game:'+roomId, function (err, gameData){
-				var gameObj = JSON.parse(gameData);
-				if(err)
-					throw err;
-				var noOfBots = 0;
-				var activePlayers = 0
-				if(gameData && gameData != null){
-					for (var i = gameObj.players.length - 1; i >= 0; i--){
-						if(gameObj.players[i].id == socket.id)
-							gameObj.players[i].id = 'BOT';
-						if(gameObj.players[i].id == 'BOT')
-							noOfBots++;
-					}
-					activePlayers = gameObj.players.length - noOfBots;
-				}
-				redisClient.get('roomData', function (err, roomData){
-					roomData = JSON.parse(roomData);
-					if(!gameData || gameData == null || activePlayers == 0){
-						delete roomData[game][roomId];
-					}else{
-						gameObj.status = 'PLAYER_LEFT';
-						roomData[gameObj.game][roomId] = [activePlayers, gameObj.game];
-					}
-					redisClient.set('roomData', JSON.stringify(roomData), function (err, success){
-						if(err)
-							throw err;
-						if(gameData && gameData != null && activePlayers != 0){
-							redisClient.set('Game:'+roomId, JSON.stringify(gameObj), function (err, success){
-								if(err)
-									throw err;
-								io.sockets.in(roomId).emit('player_changed', {'data': JSON.stringify(gameObj)});
-							});
-						}else{
-							redisClient.del('Game:'+roomId);
-						}
-					})
-				})
-			});
-		});
-		socket.on('play_card', function (data){
-			redisClient.get('Game:'+roomId, function (err, gameData){
-				switch(gameData.game){
-					case 'Game325':
-						var newGame = Game325.call(data);
-					case 'Game7Center':
-						var newGame = Game7Center.call(data);
-				}
-
-				redisClient.set('Game:'+roomId, function (err, gameData){
-					socket.in(roomId).emit('game_state', {'gameData': gameData});
-				})
+					});
+				} // gameData exists elseblock end
 			})
-
-		})
-
+		})// socket.on('play_card') end
 	})
 }
 

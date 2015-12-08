@@ -16,9 +16,11 @@ export default class PlayerComponent extends Component {
 		let players = this.props.players;
 		let activePlayerPos = this.props.activePlayerPos;
 		let showScores = this.props.showScores;
+		let showTable = this.props.showTable;
+		let ifWaiting = this.props.ifWaiting;
 		return(
 			<div>
-				{players.map(player=> <PlayerInfoComponent player={player} key={player.position} activePlayerPos={activePlayerPos} showScores={showScores}/>)}
+				{players.map(player=> <PlayerInfoComponent player={player} key={player.position} activePlayerPos={activePlayerPos} showScores={showScores} ifWaiting={ifWaiting} showTable={showTable}/>)}
 			</div>
 			)
 	}

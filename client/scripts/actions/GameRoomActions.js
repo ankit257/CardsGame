@@ -28,6 +28,13 @@ export function joinGameRoom(id, profile, game){
 	socket.on('room_joined', function(data){
 		dispatch(ActionTypes.JOIN_ROOM_REQ_SUCCESS, data);
 	})
+	socket.on('player_changed', function(data){
+		switch(data.game){
+			case 'game7':
+				Game7Actions.playerChanged(data.players);
+				break;
+		}
+	})
 }
 export function leaveGameRoom(id, game){
 	socket.emit('leave_room', {'roomId':id, 'game' : game});
@@ -47,7 +54,17 @@ export function getRooms(url){
 	}, {});
 }
 export function startGameWithBots(game){
-	if(game == 'game7'){
-		Game7Actions.initGame();
+	switch(game){
+		case 'game7':
+			Game7Actions.initGame();
+			break;
+	}
+}
+
+export function gameStateReceived(game, data){
+	switch(game){
+		case 'game7':
+			Game7Actions.gameStateReceived(data);
+			break;
 	}
 }

@@ -9,16 +9,16 @@ export const gameCSSConstants = {
 	score 				: { width: 100, height: 100, sep: 20 }
 }
 export const gamePathConstants = {
-	CARD_BACK_IMG		: 'assets/cards/cardback.svg',
+	CARD_BACK_IMG		: ['assets/cards/cardback.svg','assets/cards/cardbackblackred.png','assets/cards/cardbackorange.svg','assets/cards/cardbackred.svg'] ,
 	CARD_ASSETS 		: 'assets/cards/',
 	IMG_ASSETS  		: 'assets/img/'
 }
 export const timeConstants = {
-	TOTAL_DISTR_DELAY 	: 30*52 + 200, 			// = SINGLE_DISTR_DELAY*52 + SINGLE_DISTR_ANIM
+	TOTAL_DISTR_DELAY 	: 50*52 + 1000, 			// = SINGLE_DISTR_DELAY*52 + SINGLE_DISTR_ANIM
 	TOTAL_PLAY_DELAY	: 500 + 0,				// = PLAY_ANIM + PLAY_DELAY
 	TOTAL_DECK_DELAY	: 100 + 200 + 500, 			// = DECK_ANIM + DECK_DELAY + 500
-	SINGLE_DISTR_DELAY	: 30,
-	SINGLE_DISTR_ANIM	: 200,
+	SINGLE_DISTR_DELAY	: 50,
+	SINGLE_DISTR_ANIM	: 1000,
 	PLAY_ANIM			: 500,
 	PLAY_DELAY			: 0,
 	DECK_DELAY			: 100,
@@ -34,4 +34,11 @@ export const timeConstants = {
 export const gameVars = {
 	noOfPlayers			: 4,
 	maxPenalty			: 13*4 + 12*4 + 11*4 + 10
+}
+
+export function getSavedScoreObj() {
+	return stats = {
+		roundsPlayed: 0,
+		xp: 0
+	}
 }

@@ -23,6 +23,7 @@ export default class PlayingCard{
 			delay		: 0,
 			showFace	: false,
 			ownerPos	: null,
+			ownerId		: null,
 			index		: null,
 			similar		: null,
 			theta		: 0,

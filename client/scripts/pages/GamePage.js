@@ -2,6 +2,8 @@ import React, { PropTypes, Component } from 'react';
 // import createFragment from 'react-addons-create-fragment';
 import AuthStore from '../stores/AuthStore';
 import GameRoomStore from '../stores/GameRoomStore';
+import SettingsStore from '../stores/SettingsStore';
+import ScoresStore from '../stores/ScoresStore';
 import DocumentTitle from 'react-document-title';
 import * as LoginActions from '../actions/LoginActions';
 import * as GameRoomActions from '../actions/GameRoomActions';
@@ -65,7 +67,9 @@ class RoomsComponent extends Component{
   getRoomsArray(gameRooms, game){
     var roomsArray = [];
         for(var room in gameRooms[game]){
-            roomsArray.push(<tr key={room} onClick={this.roomRowClicked.bind(this, room)}><td>Room# {room}</td><td>{ gameRooms[game][0] }</td></tr>);
+          if(gameRooms[game][room][3] == 'show'){
+            roomsArray.push(<tr key={room} onClick={this.roomRowClicked.bind(this, room)}><td>Room# {room}</td><td>{ gameRooms[game][room][0] }</td><td>{ gameRooms[game][room][2] }</td></tr>);
+          }
         }
         return (
           <table className="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
@@ -73,6 +77,7 @@ class RoomsComponent extends Component{
                 <tr>
                   <th>Room #Id</th>
                   <th>Players Joined</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -128,14 +133,19 @@ function getState(props) {
   const User = AuthStore.get();
   const gameRoom = GameRoomStore.get();
   const gameRooms = GameRoomStore.getRooms();
+  const settings = SettingsStore.getSettings();
+  let scores = ScoresStore.getScores();
+  let activeColor = settings.activeColor;
   return {
     User,
     gameRoom,
-    gameRooms
+    gameRooms,
+    scores,
+    activeColor
   }
 }
 
-@connectToStores([AuthStore, GameRoomStore], getState)
+@connectToStores([AuthStore, GameRoomStore, SettingsStore], getState)
 export default class GamaPage extends Component{
   static propTypes = {
     // Injected by @connectToStores:
@@ -222,18 +232,18 @@ export default class GamaPage extends Component{
         }
       }
   }
-  componentWillMount() {
-    // if(!this.props.User.profile){
-    //   this.context.history.pushState(null, `/`, null);
-    // }
-    // if(this.props.gameRoom){
-    //   console.log(this.props.gameRoom)
-    // }
-  }
+  // componentWillMount() {
+  //   if(!this.props.User.profile){
+  //     this.context.history.pushState(null, `/`, null);
+  //   }
+  //   // if(this.props.gameRoom){
+  //   //   console.log(this.props.gameRoom)
+  //   // }
+  // }
   componentWillReceiveProps(nextProps){
     // console.log(nextProps);
-    if(!nextProps.User.profile){
-      // this.context.history.pushState(null, `/`, null);
+    if(!nextProps.User.profile.id){
+      this.context.history.pushState(null, `/`, null);
     }else if(nextProps.gameRoom.game){
       let { gameRoom } = nextProps;
       this.context.history.pushState(null, `/${gameRoom.game}/${gameRoom.roomId}`, null);
@@ -253,6 +263,10 @@ export default class GamaPage extends Component{
     window.clearInterval(this.intervalId);
   }
   componentWillMount(){
+    // console.log(this.props);
+    if(!this.props.User.profile.id){
+      this.context.history.pushState(null, `/`, null);
+    }
     setTimeout(function(){
       componentHandler.upgradeAllRegistered()
       adjustToggleElemenetCssManually('demo-menu-lower-right');
@@ -398,7 +412,7 @@ export default class GamaPage extends Component{
     let liItemClassNames = ['mdl-menu__item'];
     return (
       <div className={''} style={css.container}>
-        <div className={'bkg-filter'}></div>
+        <div className={this.props.activeColor.name+'-img fixed-bkg'}></div>
         <div className="">
         {gameComponent}
         <div className='face-div' style={{'float':'right'}}>

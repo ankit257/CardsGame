@@ -74,13 +74,8 @@ export default class GameRender extends Component {
 		style = Object.assign(style, zoomStyle);
 		return (
 	      <div style={style}>
-<<<<<<< HEAD
-	        <StatusComponent />
-	        <DeckComponent />
-=======
 	        <StatusComponent/>
 			<DeckComponent/>
->>>>>>> 86ed60d3772ca4f8b657cd3a33f6f80f2f639e20
 	      </div>
 	    )
 	}

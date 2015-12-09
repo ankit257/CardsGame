@@ -118,6 +118,13 @@ export default class AnimEngine{
 				action   = GameActions.initRoundSuccess;
 				this.animateCards(deck, duration, action, gameState);
 				break;
+			case 'DISTRIBUTING_CARDS_0':
+				duration = timeConstants.TOTAL_DISTR_DELAY;
+				action   = GameActions.selectDealer;
+				this.audio 	 = distributeAudio;
+				this.audio.play();
+				this.animateCards(deck, duration, action, gameState);
+				break;
 			case 'SELECT_DEALER':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
 				action   = GameActions.initStartGame;

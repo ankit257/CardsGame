@@ -379,6 +379,7 @@ GameStore.dispatchToken = register(action=>{
 				GameStore.initGame();
 				GameStore.initDeck();
 				GameStore.setCardPositionByState();
+				GameStore.setGameState('DISTRIBUTING_CARDS_0');
 				// GameStore.fireInitStartGame();
 				// GameStore.setGameState('GAME_STARTED');
 			
@@ -387,7 +388,7 @@ GameStore.dispatchToken = register(action=>{
 			}
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
-		case 'GAME325_DISTRIBUTE_ONE_CARD_EACH':
+		case 'GAME325_SELECT_DEALER':
 			GameStore.distributeOneCardEach();
 			GameStore.setCardPositionByState();
 			GameStore.emitAndSaveChange( 'gameData', _game );

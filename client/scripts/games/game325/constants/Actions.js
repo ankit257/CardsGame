@@ -32,6 +32,7 @@ export default keyMirror({
 	GAME325_TOGGLE_PAUSE					: null,
 
 	GAME325_DISTRIBUTE_ONE_CARD_EACH		: null,
+	GAME325_SELECT_DEALER					: null,
 
 	GAME325_SET_TRUMP						: null,
 

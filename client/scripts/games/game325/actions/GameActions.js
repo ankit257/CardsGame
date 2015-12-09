@@ -9,6 +9,9 @@ export function initGame(){
 export function initStartGame() {
 	dispatch(Actions.GAME325_INIT_START_GAME, {});
 }
+export function selectDealer(){
+	dispatch(Actions.GAME325_SELECT_DEALER, {});	
+}
 export function distributeOneCardEach(){
 	dispatch(Actions.GAME325_DISTRIBUTE_ONE_CARD_EACH, {});	
 }

@@ -39,7 +39,8 @@ export default class SettingsPage extends Component{
   static propTypes = {
     // Injected by @connectToStores:
     User: PropTypes.object,
-    Settings : PropTypes.object
+    Settings : PropTypes.object,
+    asd : PropTypes.string
   };
   // Injected by React Router:
   static contextTypes = {
@@ -82,7 +83,6 @@ export default class SettingsPage extends Component{
     }
   }
   componentWillMount() {
-    console.log(this.context)
     if(!this.props.User.profile){
       this.context.history.pushState(null, `/`, null);
     }
@@ -93,6 +93,7 @@ export default class SettingsPage extends Component{
     }
   }
   componentDidMount(){
+    console.log(this.props);
     var self = this;
     setTimeout(function(){
       componentHandler.upgradeAllRegistered()

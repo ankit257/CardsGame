@@ -29,9 +29,6 @@ export default class DeckComponent extends Component {
 		deck 		: [],
 		activePlayer: null
 	}
-	// static contextTypes = {
- //    	color: PropTypes.string
- //  	}
 	componentDidMount(){
 		AnimEngine.startListening();
 		// AnimEngine.startAnimation(this.state.deck, this.state.gameState);	
@@ -64,6 +61,7 @@ export default class DeckComponent extends Component {
 	// 	AnimEngine.setPauseState(this.state.gamePause);
 	// }
 	render() {
+
 		let deck = this.state.deck;
 		let activePlayerPos = this.state.activePlayerPos;
 		let gameState = this.state.gameState;

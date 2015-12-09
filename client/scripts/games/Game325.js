@@ -1,14 +1,13 @@
 import React, { PropTypes } from 'react';
 import DocumentTitle from 'react-document-title';
 import connectToStores from '../utils/connectToStores';
-import Game325Store from './game325/Game325Store';
+import Game325Store from './Game325/Game325Store';
 import AuthStore from '../stores/AuthStore';
-import * as Game325Actions from './game325/Game325Actions';
+import * as Game325Actions from './Game325/Game325Actions';
 
 function parseLogin(params) {
   return params.login;
 }
-
 /**
  * Requests data from server for current props.
  */
@@ -20,7 +19,6 @@ function requestData(props) {
   UserActionCreators.requestUser(userLogin, ['name', 'avatarUrl']);
   RepoActionCreators.requestStarredReposPage(userLogin, true);
 }
-
 /**
  * Retrieves state from stores for current props.
  */
@@ -58,9 +56,8 @@ export default class Game325 {
   componentWillMount() {
     var id = this.props.params.id;
     var profile = this.props.profile;
-    console.log(id);
     if(id){
-      GameRoomActions.joinGameRoom(id, profile, 'game325');
+      GameRoomActions.joinGameRoom(id, profile, 'Game325');
       socket.on('invalid_room', function(){
         console.log('invalid_room')
       });
@@ -77,7 +74,7 @@ export default class Game325 {
     var id = this.props.params.id;
     var profile = this.props.profile;
     if(id){
-      GameRoomActions.leaveGameRoom(id, 'game325')  
+      GameRoomActions.leaveGameRoom(id, 'Game325')  
     }
   }
   componentWillReceiveProps(nextProps) {

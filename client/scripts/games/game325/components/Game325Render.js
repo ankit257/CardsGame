@@ -9,11 +9,12 @@ import {gameCSSConstants, gamePathConstants, timeConstants} from '../constants/S
 
 import DeckComponent from './DeckComponent';
 import StatusComponent from './StatusComponent';
+import TrumpComponent from './TrumpComponent';
 
 import GameStore from '../stores/GameStore';
 import * as GameActions from '../actions/GameActions';
 
-export default class GameRender extends Component {
+export default class Game325Render extends Component {
 	state = {
 		zoomStyle : {}
 	}
@@ -41,7 +42,6 @@ export default class GameRender extends Component {
 		else if(window.addEventListener) {
 			window.addEventListener('resize', this.handleResize);
 		}
-		console.log('mount');
 		GameActions.initGame();
 	}
 	handleResize(e){
@@ -64,8 +64,8 @@ export default class GameRender extends Component {
 		let style = {
 			position	: 'relative',
 			width		: gameCSSConstants.gameBody.width,
-			height		: gameCSSConstants.gameBody.height
-			,overflow	: 'hidden'
+			height		: gameCSSConstants.gameBody.height,
+			overflow	: 'hidden'
 		}
 		let zoomStyle = this.state.zoomStyle;
 		style = Object.assign(style, zoomStyle);
@@ -73,6 +73,7 @@ export default class GameRender extends Component {
 	      <div style={style}>
 	        <StatusComponent />
 	        <DeckComponent />
+	        <TrumpComponent />
 	      </div>
 	    )
 	}

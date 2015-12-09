@@ -13,13 +13,15 @@ import AnimEngine from '../utils/AnimEngine'
 function getState(props){
 	let deck = GameStore.getGameProperty('deck');
 	let activePlayerPos = GameStore.getGameProperty('activePlayerPos');
+	let otherPlayerId = GameStore.getGameProperty('otherPlayerId');
 	let gameState = GameStore.getGameProperty('state');
 	let botState = GameStore.getGameProperty('botState');
 	return {
 		deck,
 		gameState,
 		botState,
-		activePlayerPos
+		activePlayerPos,
+		otherPlayerId
 	};
 }
 
@@ -47,6 +49,7 @@ export default class DeckComponent extends Component {
 				// gamePause		: nextProps.gamePause,
 				deck 			: nextProps.deck,
 				activePlayerPos	: nextProps.activePlayerPos,
+				otherPlayerId	: nextProps.otherPlayerId,
 				gameState		: nextProps.gameState,
 				botState		: nextProps.botState
 			});
@@ -66,10 +69,12 @@ export default class DeckComponent extends Component {
 	render() {
 		let deck = this.state.deck;
 		let activePlayerPos = this.state.activePlayerPos;
+		let otherPlayerId = this.state.otherPlayerId;
 		let gameState = this.state.gameState;
+		let cardsToDistribute = [];
 		return(
 			<div className="playingCards">
-				{deck.map(card => <CardComponent key={card.key} card={card} activePlayerPos={activePlayerPos} gameState={gameState}/>)}
+				{deck.map(card => <CardComponent key={card.key} card={card} activePlayerPos={activePlayerPos} otherPlayerId={otherPlayerId} gameState={gameState}/>)}
 			</div>
 			)
 	}

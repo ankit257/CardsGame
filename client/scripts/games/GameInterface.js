@@ -43,17 +43,15 @@ export default class GameInterface extends Component{
     params: PropTypes.shape({
       id: PropTypes.string.isRequired
     }).isRequired,
-
-    // Injected by @connectToStores:
-    // user: PropTypes.object,
-    // starred: PropTypes.arrayOf(PropTypes.object).isRequired,
-    // starredOwners: PropTypes.arrayOf(PropTypes.object).isRequired,
-    // isLoadingStarred: PropTypes.bool.isRequired,
-    // isLastPageOfStarred: PropTypes.bool.isRequired
   };
-  // static childContextTypes = {
-  //   color: PropTypes.string
-  // }
+  static childContextTypes ={
+    gamePause : PropTypes.bool
+  }
+  static getChildContext(){
+    return {
+      'gamePause' : this.state.gamePause
+    }
+  }
   // getChildContext() {
   //   return {color: "purple"};
   // }
@@ -114,7 +112,7 @@ export default class GameInterface extends Component{
         <div className={'bkg-filter'}></div>
         <button onClick={this.pauseToggle.bind(this)} className = "distribute-button" style= {pauseButtonStyle}> {pauseButtonText} </button>
         <div className={'pause-screen'} style={pauseScreenStyle}><span>Game Paused</span></div>
-        <Game7Render gamePause={gamePause}/>
+        {this.props.children}
       </div>
     );
   }

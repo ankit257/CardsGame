@@ -22,6 +22,7 @@ export default class GameRender extends Component {
 		this.handleResize = this.handleResize.bind(this);
 	}
 	componentWillMount(){
+		
 	}
 	componentWillUnmount(){
 		if(window.detachEvent) {
@@ -71,8 +72,8 @@ export default class GameRender extends Component {
 		style = Object.assign(style, zoomStyle);
 		return (
 	      <div style={style}>
-	        <StatusComponent />
-	        <DeckComponent />
+	        <StatusComponent/>
+	        <DeckComponent/>
 	      </div>
 	    )
 	}

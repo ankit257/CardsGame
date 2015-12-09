@@ -10,12 +10,14 @@ import {gameCSSConstants, gamePathConstants, timeConstants} from '../constants/S
 import DeckComponent from './DeckComponent';
 import StatusComponent from './StatusComponent';
 
-import GameStore from '../stores/GameStore';
 import * as GameActions from '../actions/GameActions';
 
 export default class GameRender extends Component {
 	state = {
 		zoomStyle : {}
+	}
+	static contextTypes = {
+		ifOnline: PropTypes.bool
 	}
 	constructor(props){
 		super(props);
@@ -41,8 +43,9 @@ export default class GameRender extends Component {
 		else if(window.addEventListener) {
 			window.addEventListener('resize', this.handleResize);
 		}
-		console.log('mount');
-		GameActions.initGame();
+		if(!this.context.ifOnline){
+			// GameActions.initGame();	
+		}
 	}
 	handleResize(e){
 		this.setState({
@@ -71,8 +74,13 @@ export default class GameRender extends Component {
 		style = Object.assign(style, zoomStyle);
 		return (
 	      <div style={style}>
+<<<<<<< HEAD
 	        <StatusComponent />
 	        <DeckComponent />
+=======
+	        <StatusComponent/>
+			<DeckComponent/>
+>>>>>>> 86ed60d3772ca4f8b657cd3a33f6f80f2f639e20
 	      </div>
 	    )
 	}

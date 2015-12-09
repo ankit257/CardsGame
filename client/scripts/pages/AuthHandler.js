@@ -45,7 +45,6 @@ export default class AuthHandler extends Component{
     }
   }
   componentWillReceiveProps(nextProps){
-    console.log(nextProps);
     if(!nextProps.User.profile){
       this.context.history.pushState(null, `/`, null);
     }

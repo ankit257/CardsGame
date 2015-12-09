@@ -20,6 +20,18 @@
     font-size: 11px;
     box-sizing: content-box;
 }
+.player-info span.player-type {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    position: relative;
+    left: 3px;
+    top: 0px;
+    padding: 2px;
+    box-sizing: border-box;
+    border-radius: 3px;
+    font-size: 8px;
+}
 .player-info .small-score{
     position: absolute;
     left: 0;
@@ -112,6 +124,62 @@
     -webkit-transition: all 100ms linear 0s;
     box-sizing: content-box;
 }
+.player-info .table-score {
+    position: absolute;
+    top: 76px;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    transition: all 100ms ease-in 0ms;
+}
+.player-info .table-score.show {
+    opacity: 1;
+    transition: all 200ms ease-in 400ms;
+}
+.table-score table{
+    margin:  0 auto;
+    width: 100%;
+    padding: 0 20px;
+}
+.table-score td, .table-score th{
+    height: 15px;
+    font-size: 8px;
+    box-sizing: border-box;
+    padding: 1px;
+    margin: 1px auto;
+    text-align: center;
+    border-bottom: 1px solid #FF9800;
+    color: #FFEB3B;
+}
+.table-score tr{
+    
+}
+button.table-button {
+    position: absolute;
+    left: 450px;
+    width: 0;
+    height: 20px;
+    bottom: 80px;
+    border-radius: 2px;
+    text-align: center;
+    color: #673AB7;
+    font-size: 0;
+    padding: 0;
+    transition: all 0 linear 0ms;
+    background-color: #FF9800;
+}
+button.table-button.show{
+    left: 389px;
+    width: 48px;
+    padding: 5px;
+    font-size: 10px;
+    transition: all 200ms ease-out 500ms;
+}
+button.table-button.show.shown{
+    background-color: rgba(200,200,200,0.3);
+    color: #111;
+    transition: all 200ms ease-out 0ms;
+}
 button.next-button {
     position: absolute;
     border-radius: 5px;
@@ -120,9 +188,9 @@ button.next-button {
 }
 button.show-score-button{
     position: absolute;
-    left: 448;
-    width: 33;
-    height: 33;
+    left: 448px;
+    width: 33px;
+    height: 33px;
     border-radius: 50%;
     -webkit-border-radius: 50%;
     border: none;
@@ -132,14 +200,15 @@ button.show-score-button{
 }
 button.ok-button{
     position: absolute;
-    left: 448;
+    left: 448px;
     width: 25px;
     height: 25px;
     border-radius: 50%;
     -webkit-border-radius: 50%;
     bottom: 76px;
     border: none;
-    background-color: #FFEB3B;
+    background-color: #FFC107;
+    color: #673AB7;
     transition: all 200ms ease 0s;
     opacity: 0
 }
@@ -148,6 +217,22 @@ button.ok-button.show{
     width: 30px;
     height: 30px;
     transition: all 100ms ease 100ms;
+}
+button.show-score-button.score-updated{
+    animation:colorChange 20s infinite;
+    -webkit-animation:colorChange 20s infinite; /* Safari and Chrome */
+}
+button.show-score-button.score-updated:after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    background-color: red;
+    position: absolute;
+    left: 23px;
+    top: 2px;
+    border: 1px solid #fff;
 }
 button.show-score-button.show{
     opacity: 1;
@@ -162,6 +247,7 @@ button.show-score-button.show{
     font-size: 0.8em;
     padding: 4px;
     box-sizing: content-box;
+    line-height: 24px;
 }
 .score-overlay{
     position: absolute;
@@ -184,23 +270,18 @@ button.show-score-button.show{
 	position: absolute;
 	width: 50px;
 	height: 70px;
-	/*-moz-box-shadow: -.05em .05em .1em #757575;
-    -webkit-box-shadow: -.05em .05em .1em #757575;
-    box-shadow: -.05em .05em .1em #757575;*/
     cursor: pointer;
     transform-origin: 50% 50%;
     -webkit-transform-origin: 50% 50%;
     background-color: rgba(0,0,0,0);
     -webkit-background-color: rgba(0,0,0,0);
-    /*border-radius: .3em;
-    -moz-border-radius: .3em;
-    -webkit-border-radius: .3em;
-    -khtml-border-radius: .3em;*/
 }
 .card img{
     position: absolute;
     left: 0;
     top: 0;
+    width: 50px;
+    height: 70px;
     border-radius: .3em;
     -moz-border-radius: .3em;
     -webkit-border-radius: .3em;
@@ -214,26 +295,22 @@ button.show-score-button.show{
     -webkit-backface-visibility : hidden;
     -moz-backface-visibility : hidden;
     -ms-backface-visibility : hidden;
-    /*transform-style: preserve-3d;
-    -webkit-transform-style: preserve-3d;*/
-    /*transform : perspective(400px) rotateY(0deg);
-    -webkit-transform : perspective(400px) rotateY(0deg);*/
-    /*-webkit-transition: 300ms all ease-in-out 0.1s;
-    transition: 300ms all ease-in-out 0.1s;*/
 }
 .card .front{
     backface-visibility : hidden;
     -webkit-backface-visibility : hidden;
     -moz-backface-visibility : hidden;
     -ms-backface-visibility : hidden;
-    /*transform-style: preserve-3d;
-    -webkit-transform-style: preserve-3d;*/
-   /* transform : perspective(400px) rotateY(179.9deg);
-    -webkit-transform : perspective(400px) rotateY(179.9deg);*/
-    /*-webkit-transition: 300ms all ease-in-out 0s;
-    transition: 300ms all ease-in-out 0s;*/
 }
-.card .backRotated{
+.selectCard .card.selected {
+    box-shadow: 0px 0px 10px #00BCD4;
+    zoom: 110%;
+    transition: 200ms linear 0s;
+}
+.card.selected img {
+    border: 1px solid rgba(0, 188, 212, 0.68);
+}
+/*.card .backRotated{
     backface-visibility : hidden;
     -webkit-backface-visibility : hidden;
     -moz-backface-visibility : hidden;
@@ -256,7 +333,7 @@ button.show-score-button.show{
     -webkit-transform : perspective(400px) rotateY(0deg) rotateX(0deg) translateZ(0);
     -webkit-transition: 300ms all ease-in-out 0s;
     transition: 300ms all ease-in-out 0s;
-}
+}*/
 .distribute-button{
     position: fixed;
     top: 5px;
@@ -293,6 +370,50 @@ button.show-score-button.show{
     top: 50%;
     font-size: 4em;
 }
+span.player-type.player-type-waiting {
+    display: block;
+    box-sizing: border-box;
+    margin: 0 auto;
+    width: 50px;
+    left: 0px;
+    padding: 2px;
+    top: 8px;
+    border-radius: 6px;
+}
+.admin-status {
+    position: absolute;
+    font-size: 0.8em;
+    text-align: center;
+    width: 60%;
+    margin: 0 auto;
+    line-height: 16px;
+    left: 0;
+    right: 0;
+}
+.admin-status span{
+    color: #CDDC39;
+}
+.xp-show {
+    position: absolute;
+    padding: 4px;
+    font-size: 0.5em;
+    width: 40px;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    box-sizing: border-box;
+    text-align: center;
+    box-shadow: 0px 0px 2px #111;
+    left: 20px;
+    margin-bottom: 8px;
+}
+button.request-bot-button {
+    margin: 8px auto;
+    padding: 4px 8px;
+    border-radius: 3px;
+    background-color: #CDDC39;
+    color: #111;
+    display: block;
+}
 @-webkit-keyframes colorChange /* Safari and Chrome */
 {
     0%   {background:rgba(244,67,54,0.5);}
@@ -308,6 +429,50 @@ button.show-score-button.show{
     50%  {background:rgba(0,150,136,0.5);}
     75%  {background:rgba(255,193,7,0.5);}
     100% {background:rgba(244,67,54,0.5);}  
+}
+.fixed-bkg{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+.poppins-img{
+    background-image: url('../images/poppins.jpg');
+    background-size: cover;
+    -webkit-filter: brightness(0.6);
+    transition: background-image 1s ease-in-out
+}
+.sushi-img{
+    background-image: url('../images/sushi.jpg');
+    background-size: cover;
+    -webkit-filter: brightness(0.6);
+    transition: background-image 1s ease-in-out
+}
+.viking-img{
+    background-image: url('../images/viking.jpg');
+    background-size: cover;
+    -webkit-filter: brightness(0.6);
+    transition: background-image 1s ease-in-out
+}
+.orchid-img{
+    background-image: url('../images/orchid.jpg');
+    background-size: cover;
+    -webkit-filter: brightness(0.6);
+    transition: background-image 1s ease-in-out
+}
+.flamingo-img{
+    background-image: url('../images/flamingo.jpg');
+    background-size: cover;
+    -webkit-filter: brightness(0.6);
+    transition: background-image 1s ease-in-out
+}
+.haze-img{
+    background-image: url('../images/haze.jpg');
+    background-size: cover;
+    -webkit-filter: brightness(0.6);
+    transition: background-image 1s ease-in-out
 }
 .poppins{
     background: -webkit-radial-gradient(center, circle cover, #f59120 00%, #000 120%);
@@ -347,9 +512,9 @@ button.show-score-button.show{
 }
 .haze{
     background-color: #461C56;
-/*    background: -webkit-radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
+    background: -webkit-radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
     background: -moz-radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
     background: -ms-radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
     background: -o-radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
-    background: radial-gradient(center, circle cover, #795fa1 00%, #000 120%);*/
+    background: radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
 }

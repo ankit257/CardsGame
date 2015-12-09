@@ -9,6 +9,7 @@ export default class LargeScoreComponent extends Component {
 		this.props = nextProps;
 	}
 	render() {
+		let ifWaiting = this.props.ifWaiting;
 		let score = this.props.score;
 		let showScores = this.props.showScores;
 		let totalPenalty = score.getTotalPenalty();
@@ -48,13 +49,12 @@ export default class LargeScoreComponent extends Component {
 				display: 'block',
 				boxSizing: 'content-box'
 			}
-			// divStyle2 ={
-			// 	opacity: 1,
-			// 	fontSize : 10,
-			// 	transition: 'all 100ms ease 700ms',
-			// 	WebkitTransition: 'all 100ms ease 700ms'
-			// }
 			className = 'large-score expanded';
+		}
+		if(ifWaiting){
+			divStyle ={
+				display: 'none'
+			}
 		}
 		return(
 			<div className={className} style={style}>

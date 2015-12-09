@@ -1,58 +1,79 @@
-import { register } from '../AppDispatcher';
+import { Howler }  from 'howler';
+import { register, waitFor } from '../AppDispatcher';
 import { createStore, mergeIntoBag, isInBag } from '../utils/StoreUtils';
 import ActionTypes from '../constants/ActionTypes';
+import AuthStore from '../stores/AuthStore';
 
 import { Router } from 'react-router';
 import createBrowserHistory from 'history/lib/createBrowserHistory'
+import  { globalVars } from '../utils/CommonUtils'
+import { saveItemInLocalStorage, getItemFromLocalStorage, deleteItemFromLocalStorage } from '../utils/LocalStorageUtils';
+
 let history = createBrowserHistory()
 
+const _defaultSettings = {
+	activeColor: globalVars.colors[0],
+	activeCardBack: globalVars.cardBack[0],
+	volume: 0.8
+}
+let _currentSettings = {};
 
 
-const GameRoom = {};
 
 const SettingsStore = createStore({
-	update (data){
-		GameRoom.roomId = data.roomId;
-		GameRoom.game = data.game;
+	updateCurrentSettings(){
+		let settings = this.getSettingsFromLocal();	
+		if(settings.volume){
+			_currentSettings = settings;
+		}else{
+			this.setDefaultSettings();
+		}
+		this.saveSettingsInLocalStorage();
 	},
-	get(){
-		return GameRoom;
+	setDefaultSettings(){
+		_currentSettings = _defaultSettings;
 	},
-	del(response){
-		delete GameRoom.id;
-		delete GameRoom.type;
+	getSettingsFromLocal(){
+		let user = getItemFromLocalStorage('user');
+		if(user && user.settings){
+			return user.settings;
+		}else{
+			return {};
+		}
+		
+	},
+	getSettings(){
+		if(!_currentSettings || !_currentSettings.activeColor || !_currentSettings.activeCardBack){
+			this.updateCurrentSettings();
+		}
+		Howler.volume(_currentSettings.volume);
+		return _currentSettings;
+	},
+	setSettings(settings){
+		_currentSettings = settings;
+		Howler.volume(settings.volume);
+		this.saveSettingsInLocalStorage();
+	},
+	saveSettingsInLocalStorage(){
+		let user = getItemFromLocalStorage('user');
+		if(user && user.settings){
+			saveItemInLocalStorage('user', user);
+			user.settings = _currentSettings;
+		}
 	}
 })
-SettingsStore.dispathToken = register(action => {
+SettingsStore.dispatchToken = register(action => {
 	const { type }  = action;
 		switch(type){
-			case 'CREATE_ROOM_REQ':
-				// SettingsStore.update(action.response);
-				// SettingsStore.emitChange();
-				//showLoader//
+			case 'LOGGED_IN':
+			waitFor([AuthStore.dispatchToken]);
+				SettingsStore.updateCurrentSettings();
 				break;
-			case 'CREATE_ROOM_REQ_SUCCESS':
-				SettingsStore.update(action.response);
-				SettingsStore.emitChange();
+			case 'CHANGE_SETTINGS':
+				SettingsStore.setSettings(action.settings);
 				break;
-			case 'JOIN_ROOM_REQ':
-				// SettingsStore.update(action.response);
-				// SettingsStore.emitChange();
-				//showLoader//
-				break;
-			case 'JOIN_ROOM_REQ_SUCCESS':
-				console.log(action);
-				SettingsStore.update(action.data);
-				SettingsStore.emitChange();
-				break;
-			case 'EXIT_ROOM_REQ_SUCCESS':
-				SettingsStore.del(action.data);
-				SettingsStore.emitChange();
-				break;
-			default:
-				return true;
 		}
-		// SettingsStore.emitChange();
+		SettingsStore.emitChange();
 });
 
 export default SettingsStore;

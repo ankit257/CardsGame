@@ -10,18 +10,26 @@ let history = createBrowserHistory();
 
 
 
-const Session = {};
+const Session = {
+	profile: {},
+	settings: {},
+	games: {}
+};
 
 const AuthStore = createStore({
-	update (profile){
+	update (user){
+		Session.profile = user.profile;
+		saveItemInLocalStorage('user', user);
+	},
+	updateProfile (profile){
 		Session.profile = profile;
-		saveItemInLocalStorage('user', profile);
+		saveItemInLocalStorage('user', Session);
 	},
 	get(){
-		if(!Session.profile){
-			var profile = getItemFromLocalStorage('user');
-			if(profile){
-				this.update(profile)	
+		if(!Session.profile.id){					
+			var user = getItemFromLocalStorage('user');
+			if(user && user.profile){
+				this.update(user);
 			}
 		}
 		return Session;
@@ -29,18 +37,18 @@ const AuthStore = createStore({
 	del(){
 		deleteItemFromLocalStorage('user');
 		delete Session.profile;
+		Session.profile = new Object();
 	}
 })
-//AuthStore.dispathToken =
-register(action => {
+AuthStore.dispatchToken = register(action => {
 	const { type }  = action;
 		switch(type){
 			case 'LOGGED_IN':
-				AuthStore.update(action.User);
+				AuthStore.updateProfile(action.User);
 				AuthStore.emitChange();
 				break;
 			case 'LOGGED_IN_WITH_FB':
-				AuthStore.update(action.data);
+				AuthStore.updateProfile(action.data);
 				AuthStore.emitChange();
 				break;
 			case 'LOGGED_OUT':

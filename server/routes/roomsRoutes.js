@@ -15,6 +15,7 @@ var getRoomObj = function(roomId, game){
 }
 
 var Game325 = require('../utils/game325');
+var Game7   = require('../games/game7/utils/GameSatti');
 
 module.exports = function (app, passport) {
 	var redisClient = app.get('redisClient');
@@ -37,11 +38,17 @@ module.exports = function (app, passport) {
 				gameInstance.type = type;
 				gameInstance.game = game;
 				break;
+			case 'game7':
+				var gameInstance = new Game7();
+				gameInstance.initBots(roomId);    // roomId sent for creating bots to get appropriate bot-ids derived from roomId
+				gameInstance.type = type;
+				gameInstance.game = game;
+				break;
 		}
 		var key = 'Game:'+roomId;
 		redisClient.get('roomData', function (err, roomData){
 			roomData = JSON.parse(roomData);
-			roomData[game][roomId] = [0, type];
+			roomData[game][roomId] = [0, type, 'waiting', 'show'];  // waiting means game has not started for this roomId
 			redisClient.set('roomData', JSON.stringify(roomData), function (err, done){
 				if(err)
 					throw err;

@@ -32,7 +32,7 @@ export default class PopUpComponent extends Component {
 			style.WebkitTransform = 'rotate(180deg)';
 		}
 		return(
-			<div className="pop-up-msg" style={style} onTouchStart={this.doNotPropagate} onTouchEnd={this.doNotPropagate} onMouseUp={this.doNotPropagate} onMouseDown={this.doNotPropagate}>
+			<div className="pop-up-msg" style={style} onTouchStart={this.doNotPropagate} onTouchEnd={this.doNotPropagate}>
 				{popup.msg}
 			</div>
 			)

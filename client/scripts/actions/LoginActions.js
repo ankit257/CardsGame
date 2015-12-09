@@ -27,7 +27,6 @@ export function saveUserInLocalStorage(username){
 		'first_name': username,
 		'image': ''
 	}
-	saveItemInLocalStorage(User);
 	dispatch(ActionTypes.LOGGED_IN, {User})
 }
 export function LoginWithFB(){
@@ -46,6 +45,7 @@ export function LoginWithFB(){
 export function checkLoginWithFB(){
 	FB.getLoginStatus(function (response) {
 		if(response.status == 'connected'){
+			console.log(response);
 			dispatch(ActionTypes.LOGGED_IN_WITH_FB, {response});
 		}
 	});
@@ -85,6 +85,10 @@ export function LogOut() {
 		// AuthStore.del();
 		dispatch(ActionTypes.LOGGED_OUT, {});
 	}
+}
+
+export function applySettings(settings){
+	dispatch(ActionTypes.CHANGE_SETTINGS, {settings});
 }
 //Promise Function to Get GeoLocation for coordinates
 var getGeoLocation = new Promise(function (resolve, reject) {

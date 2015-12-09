@@ -17,11 +17,13 @@ export default class PlayerSatti{
 					theta				: 0,
 					bgColor				: 'rgba(100,100,100,0.9)',
 					animTime			: 100,
-					delay				: 0
+					delay				: 0,
+					socket				: ''
 		});
 	}
-	updatePosition(activePlayerPos, touched, showScores){
-		if(!showScores){
+	updatePosition(activePlayerPos, touched, showScores, ifWaiting, showTable){
+		let hideEnlarged = !(showScores || ifWaiting);
+		if(hideEnlarged){
 			this.delay 			= 50;
 			this.animTime       = 200;
 			this.width			= gameCSSConstants.player.largeDim;
@@ -57,9 +59,21 @@ export default class PlayerSatti{
 			this.delay 			= 200;
 			this.animTime       = 200;
 			this.width 			= gameCSSConstants.score.width;
-			this.height			= gameCSSConstants.score.height;
 			let boundSep		= (gameCSSConstants.gameBody.width - 4*gameCSSConstants.score.width - 3*gameCSSConstants.score.sep)/2;
-			this.y				= gameCSSConstants.gameBody.height/2 - gameCSSConstants.score.height/2;
+			this.y				= gameCSSConstants.gameBody.height/2 - gameCSSConstants.score.height/2;	
+			this.height			= gameCSSConstants.score.height;
+			if(showTable){
+				let miny = gameCSSConstants.score.sep;
+				let maxh = gameCSSConstants.gameBody.height - 2*gameCSSConstants.score.sep;
+				this.y			= this.y - (1+this.score.penalty.length)*15 + 20;
+				this.height     = this.height + (1+this.score.penalty.length)*15 + 20;
+				this.delay 		= 50;
+				this.animTime   = 50;
+				if(this.y < miny || this.height > maxh){
+					this.y = miny;
+					this.height = maxh;
+				}
+			}
 			this.theta 			= 0;
 			let switchvar;
 			if(this.rank == 0){
@@ -82,7 +96,8 @@ export default class PlayerSatti{
 					break;
 			}
 		}
-		if(this.position == activePlayerPos){
+		if(!ifWaiting){
+			if(this.position == activePlayerPos){
 				switch(this.state){
 					case 'INIT':
 						// this.bgColor		= 'rgba(0,0,200,0.9)';
@@ -102,7 +117,21 @@ export default class PlayerSatti{
 			}
 			if(this.state == 'CLEARED'){
 				this.bgColor = 'rgba(226,93,138,0.8)';
+			}
+		}else{
+			switch(this.type){
+				case 'ADMIN':
+					this.bgColor = '#29367B';
+					break;
+				case 'HUMAN':
+					this.bgColor = 'rgba(0,146,132,1)';
+					break;
+				case 'BOT':
+					this.bgColor = 'rgba(158,158,158,0.3)';
+					break;
+			}
 		}
+		
 		
 	}
 }

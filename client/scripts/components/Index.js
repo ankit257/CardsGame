@@ -17,7 +17,7 @@ function checkValidUsername(name){
 }
 function getState(props){
   var User = AuthStore.get();
-  console.log(User)
+  // console.log(User)
   return {
     User
   }
@@ -51,13 +51,13 @@ export default class Index extends Component {
     };
   }
   componentWillMount(){
-    if(this.props.User.profile){
+    if(this.props.User.profile && this.props.User.profile.id){
       this.context.history.pushState(null, `/games`, null);
     }
   }
   // shouldComponentUpdate = shouldPureComponentUpdate;
   componentWillReceiveProps(nextProps) {
-    if(nextProps.User.profile){
+    if(nextProps.User.profile.id){
       this.context.history.pushState(null, `/games`, null);
     }
     // this.setState({
@@ -80,6 +80,9 @@ export default class Index extends Component {
   }
   register(e){
     var name = findDOMNode(this.refs.username).value;
+    if(name.length==0){
+      this.validateInput(e);
+    }
     var stopPropagation = false;
     for(var key in this.state.errors){
       if (this.state.errors[key].show) {

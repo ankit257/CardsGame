@@ -2,7 +2,7 @@ import React from 'react';
 import { register } from '../../../../scripts/AppDispatcher';
 import { createStore, mergeIntoBag, isInBag } from '../../../../scripts/utils/StoreUtils';
 import selectn from 'selectn';
-
+import { Howl } from "howler"
 import * as GameActions from '../actions/GameActions';
 import { timeConstants, gameVars } from '../constants/SattiHelper'
 
@@ -12,21 +12,36 @@ import PlayerSatti from '../utils/PlayerSatti';
 import BotSatti from '../utils/BotSatti';
 import ScoreSatti from '../utils/ScoreSatti';
 
-// let distributeAudio = new Audio('../../assets/sounds/distribute.mp3');
-// let playAudio = new Audio('../../assets/sounds/play.mp3');
-let passAudio = new Audio('../../assets/sounds/pass.mp3');
-let bellAudio = new Audio('../../assets/sounds/bell.mp3');
-let tadaAudio = new Audio('../../assets/sounds/tada.mp3');
+let passAudio = new Howl({
+	urls: ['../../assets/sounds/pass.mp3'],
+	autoplay: false
+}),
+bellAudio = new Howl({
+	urls: ['../../assets/sounds/bell.mp3'],
+	autoplay: false
+}),
+tadaAudio = new Howl({
+	urls: ['../../assets/sounds/tada.mp3'],
+	autoplay: false
+})
 
 var _game = {}
 var _playersCards = []
 var _playableCount = []
 var _showScore = false
 var _pauseState = false;
+var _scoreUpdated = false;
 
 const GameStore = createStore( {
+	type : 'offline',
 	getGameObj(){
 		return _game;
+	},
+	ifGameWaiting(){
+		return false;
+	},
+	ifIAmSpectatorOrBot(){
+		return false;
 	},
 	getCardState(card){
 		return _game.getCardState(card);
@@ -86,13 +101,16 @@ const GameStore = createStore( {
 		_game.checkBotPlay();
 	},
 	checkTurnSkip(){
-		_game.checkTurnSkip();
+		_game.checkTurnSkip('offline');
 	},
 	playBot(){
-		_game.playBot();
+		let card = _game.playBot(_playersCards[_game.activePlayerPos]);
+		setTimeout(function(){
+				GameActions.playCard(card);
+			}, timeConstants.DISPATCH_DELAY);
 	},
 	playCard(card){
-		_game.playCard(card);
+		_game.playCard(card, 'client');
 	},
 	nextTurn(){
 		_game.nextTurn();
@@ -136,6 +154,21 @@ const GameStore = createStore( {
 		for (var i = 0; i < gameVars.noOfPlayers; i++) {
 			_playersCards.push(new Array());
 		}
+	},
+	getXP(){
+		let xp = 0;
+		_game.players.map(player=>{
+			if(player.position == 0){
+				let score = player.score;
+				let penalty = score.penalty[score.penalty.length-1];
+				if(penalty) {
+					xp = Math.round((100-penalty)/10);
+				}else{
+					xp = 0;
+				}
+			}
+		})
+		return xp;
 	},
 	updatePlayersArray(){
 		this.initPlayersArray();
@@ -316,27 +349,30 @@ const GameStore = createStore( {
 	},
 	togglePauseState(){
 		_pauseState = !_pauseState;
+	},
+	scoreUpdatedTrue(){
+		_scoreUpdated = true;
+	},
+	scoreUpdatedFalse(){
+		_scoreUpdated = false;
+	},
+	getScoreUpdated(){
+		return _scoreUpdated;
 	}
 });
 GameStore.dispatchToken = register(action=>{
 	const responseData = selectn('response.data', action);
 	switch(action.type){
-		case 'DISPLAY_GAME_STATE':
+		case 'GAME7_OFFLINE_DISPLAY_GAME_STATE':
 			console.log(GameStore.getGameObj());
 			// GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
-		case 'INIT_GAME':
+		case 'GAME7_OFFLINE_INIT_GAME':
 			let gameData;
 			gameData = localStorage.getItem('gameData');
 			if(gameData){
 				gameData = JSON.parse(gameData);
 				let newGameData = GameStore.makeGameObj(gameData);
-				// newGameData.deck.map(deckcard=> {
-				// 	newGameData.deck.push()
-				// })
-				// gameData.deck.map(deckcard => {
-				// 	newGameData.deck.push(Object.assign(PlayingCard.prototype, deckcard));
-				// })
 				GameStore.setGameObj(newGameData);
 				GameStore.actOnState();
 			}else{
@@ -348,19 +384,19 @@ GameStore.dispatchToken = register(action=>{
 			
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
-		case 'INIT_START_GAME':
+		case 'GAME7_OFFLINE_INIT_START_GAME':
 			GameStore.hideScores();
 			GameStore.setCardPositionByState();
 			GameStore.setGameState('GAME_STARTED');
 			GameStore.fireInitRound();
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
-		case 'INIT_ROUND':
+		case 'GAME7_OFFLINE_INIT_ROUND':
 			GameStore.initRound();
 			GameStore.setCardPositionByState();
 			GameStore.emitChange();
 			break;
-		case 'INIT_ROUND_SUCCESS':
+		case 'GAME7_OFFLINE_INIT_ROUND_SUCCESS':
 			GameStore.initPlayersArray();
 			GameStore.setCardPositionByState();
 			GameStore.fireDistributeCards();
@@ -368,7 +404,7 @@ GameStore.dispatchToken = register(action=>{
 			
 			GameStore.emitChange();
 			break;
-		case 'DISTRIBUTE_CARDS':
+		case 'GAME7_OFFLINE_DISTRIBUTE_CARDS':
 			GameStore.distributeCards();
 			GameStore.updatePlayersArray();
 			GameStore.sortDeck(0);
@@ -376,21 +412,19 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 			GameStore.emitChange();
 			break;
-		case 'DISTRIBUTE_CARDS_SUCCESS':
+		case 'GAME7_OFFLINE_DISTRIBUTE_CARDS_SUCCESS':
 			GameStore.distributionDone();
 			GameStore.setGameState('NOW_NEXT_TURN');
 			GameStore.fireNextTurn();
 			GameStore.setCardPositionByState();
-			GameStore.setGameState('DISTRIBUTE_CARDS_SUCCESS');
-			
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
-		case 'BOT_HAS_PLAYED':
+		case 'GAME7_OFFLINE_BOT_HAS_PLAYED':
 			GameStore.playBot();
 			GameStore.setCardPositionByState();
 			GameStore.emitChange();
 			break;
-		case 'PLAY_CARD':
+		case 'GAME7_OFFLINE_PLAY_CARD':
 			var card = action.card;
 			GameStore.playCard(card);
 			GameStore.updatePlayersArray();
@@ -400,15 +434,16 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
-		case 'PLAY_CARD_SUCCESS':
+		case 'GAME7_OFFLINE_PLAY_CARD_SUCCESS':
 			var card = GameStore.getGameProperty('cardPlayed');
 			GameStore.updateCardState(card, 'PLAYED');
+			GameStore.updatePlayedCards(card);
 			GameStore.checkRoundEnd();
 			if(GameStore.getGameProperty('state') == 'ROUND_END'){
 				GameStore.roundEnd();
 				GameStore.setRoundEndPos();
 			}else{
-				GameStore.updatePlayedCards(card);
+				// GameStore.updatePlayedCards(card);
 				GameStore.updateBotState('BOT_READY');
 				GameStore.setGameState('NOW_NEXT_TURN');
 				GameStore.setCardPositionByState();
@@ -416,15 +451,15 @@ GameStore.dispatchToken = register(action=>{
 			}
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
-		case 'SKIP_TURN':
+		case 'GAME7_OFFLINE_SKIP_TURN':
 			passAudio.play();
 			break;
-		 case 'TURN_SKIPPED':
+		 case 'GAME7_OFFLINE_TURN_SKIPPED':
 		 	GameStore.setGameState('NOW_NEXT_TURN');
 		 	GameStore.fireNextTurn();		 	
 		 	GameStore.emitAndSaveChange( 'gameData', _game );
 		 	break;
-		 case 'NOW_NEXT_TURN':
+		 case 'GAME7_OFFLINE_NOW_NEXT_TURN':
 		 	GameStore.nextTurn();
 			GameStore.updatePlayersArray();
 			GameStore.updatePlayableCards();
@@ -434,12 +469,15 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 		 	GameStore.emitChange();
 		 	break;
-		 case 'SHOW_SCORES':
+		 case 'GAME7_OFFLINE_SHOW_SCORES':
 		 	GameStore.showScores();
 			GameStore.setRoundEndPos();
 			GameStore.setGameState('ROUND_END_SHOW_SCORES');
 		 	GameStore.emitChange();
 		 	break;
+		 case 'GAME_7_OFFLINE_HIDE_SCORE_UPDATED':
+			GameStore.scoreUpdatedFalse();
+			break;
 		 }
 });
 

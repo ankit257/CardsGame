@@ -2,6 +2,8 @@ import { dispatch, dispatchAsync } from '../AppDispatcher';
 import ActionTypes from '../constants/ActionTypes';
 import GameRoomStore from '../stores/GameRoomStore';
 
+import * as Game7Actions from '../games/Game7/actions/GameActions'
+
 import { createGameRoomServer, exitGameRoomServer, joinGameRoomServer, getRoomServer } from '../utils/APIUtils';
 import { saveItemInLocalStorage, getItemFromLocalStorage } from '../utils/LocalStorageUtils';
 
@@ -26,6 +28,13 @@ export function joinGameRoom(id, profile, game){
 	socket.on('room_joined', function(data){
 		dispatch(ActionTypes.JOIN_ROOM_REQ_SUCCESS, data);
 	})
+	socket.on('player_changed', function(data){
+		switch(data.game){
+			case 'game7':
+				Game7Actions.playerChanged(data.players);
+				break;
+		}
+	})
 }
 export function leaveGameRoom(id, game){
 	socket.emit('leave_room', {'roomId':id, 'game' : game});
@@ -43,4 +52,19 @@ export function getRooms(url){
 	    success: ActionTypes.GET_ROOM_REQ_SUCCESS,
 	    failure: ActionTypes.GET_ROOM_REQ_ERROR
 	}, {});
+}
+export function startGameWithBots(game){
+	switch(game){
+		case 'game7':
+			Game7Actions.initGame();
+			break;
+	}
+}
+
+export function gameStateReceived(game, data){
+	switch(game){
+		case 'game7':
+			Game7Actions.gameStateReceived(data);
+			break;
+	}
 }

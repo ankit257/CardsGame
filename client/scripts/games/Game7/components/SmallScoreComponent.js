@@ -9,6 +9,7 @@ export default class SmallScoreComponent extends Component {
 		this.props = nextProps;
 	}
 	render() {
+		let ifWaiting = this.props.ifWaiting;
 		let score = this.props.score;
 		let showScores = this.props.showScores;
 		let totalPenalty = score.getTotalPenalty();
@@ -40,7 +41,7 @@ export default class SmallScoreComponent extends Component {
 			width : totalPenalty + '%'
 		}
 		let className = 'small-score';
-		if(showScores){
+		if(showScores || ifWaiting){
 			className = 'small-score expanded';
 			rankClass = "rank-container expanded";
 			rankStyle = {

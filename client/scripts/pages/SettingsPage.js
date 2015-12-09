@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import AuthStore from '../stores/AuthStore';
 import SettingsStore from '../stores/SettingsStore';
-// import RoomStre from '../stores/RoomStore';
+import { Howl, Howler } from 'howler';
 import DocumentTitle from 'react-document-title';
 import * as LoginActions from '../actions/LoginActions';
 import * as GameRoomActions from '../actions/GameRoomActions';
@@ -10,10 +10,15 @@ import _ from 'underscore';
 import classNames from 'classnames/dedupe';
 import selectn from 'selectn';
 import  { getCardCSS, getCardSuit, getColorClass, globalVars, getCardPic, getRankForHTML, getSuitForHTML } from '../utils/CommonUtils'
+import * as LocalStorage from '../utils/LocalStorageUtils'
 
 var style={
   fontColor : '#bebebe'
-}
+} 
+let tadaAudio = new Howl({
+  urls: ['../assets/sounds/tada.mp3'],
+  autoplay: false
+})
 /**
  * Requests data from server for current props.
  */
@@ -26,9 +31,11 @@ function requestData(props) {
  */
 function getState(props) {
   const User = AuthStore.get();
+  let settings = SettingsStore.getSettings();
   // const gameRoom = GameRoomStore.get();
   return {
     User,
+    settings
     // gameRoom
   }
 }
@@ -54,8 +61,8 @@ export default class SettingsPage extends Component{
     // this.goToGame = this.goToGame.bind(this)
     this.tabs = ['colors', 'deck'];
     this.state = {
-      activeTab : 'colors',
-      activeColor : globalVars.colors[0],
+      // activeTab : 'colors',
+      activeColor : '',
       css : {
         container : {
           paddingTop : '50px',
@@ -64,25 +71,30 @@ export default class SettingsPage extends Component{
         }
       },
       classes : {
-        activeCardBack : 'cardBack1',
-        activeCardFront : 'cardFront1',
+        activeCardBack : '',
+        // activeCardFront : 'cardFront1',
         backgroundTab : 'activeSettingsTab',
         deckBackTab:'',
-        deckFrontTab:'',
+        // deckFrontTab:'',
         backgroundSettings : 'activeSettings', 
         deckBackSettings : '', 
-        deckFrontSettings : '',
-        CardsFront : 'cardFront1',
-        CardsFront_2 : { 
-          CheckBox : '',
-        },
-        CardsFront_1 : { 
-          CheckBox : '',
-        }
+        // deckFrontSettings : '',
+        // CardsFront : 'cardFront1',
+        // CardsFront_2 : { 
+        //   CheckBox : '',
+        // },
+        // CardsFront_1 : { 
+        //   CheckBox : '',
+        // }
       }
     }
   }
   componentWillMount() {
+    var newState = _.extend({}, this.state);
+    newState.activeColor = this.props.settings.activeColor;
+    newState.classes.activeCardBack = this.props.settings.activeCardBack;
+    newState.volume = this.props.settings.volume;
+    this.reRender(newState);
     if(!this.props.User.profile){
       this.context.history.pushState(null, `/`, null);
     }
@@ -118,19 +130,19 @@ export default class SettingsPage extends Component{
   getDefaultClass(){
     return {
       activeCardBack : 'cardBack1',
-      activeCardFront : 'cardFront1',
+      // activeCardFront : 'cardFront1',
       backgroundTab : '',
       deckBackTab:'',
-      deckFrontTab:'',
+      // deckFrontTab:'',
       backgroundSettings : '', 
       deckBackSettings : '',
-      deckFrontSettings : '',
-      CardsFront_2 : { 
-        CheckBox : '',
-      },
-      CardsFront_1 : { 
-        CheckBox : '',
-      }
+      // deckFrontSettings : '',
+      // CardsFront_2 : { 
+      //   CheckBox : '',
+      // },
+      // CardsFront_1 : { 
+      //   CheckBox : '',
+      // }
     }
   }
   clicked(e){
@@ -147,7 +159,7 @@ export default class SettingsPage extends Component{
     this.reRender(newState);
   }
   handleGoToSettings(){
-    console.log('sett');
+    // console.log('sett');
   }
   handleLogOut(){
     LoginActions.LogOut();
@@ -166,21 +178,40 @@ export default class SettingsPage extends Component{
     newState.classes[tab] = 'activeSettingsTab';
     this.reRender(newState);
   }
-  selectBackgroundColor(color){
-    console.log(color);
+  selectBackgroundColor(color){    
     var newState = _.extend({}, this.state);
     newState.activeColor = color;
     this.reRender(newState);
   }
-  selectFront(front){
-    var newState = _.extend({}, this.state);
-    newState.classes.CardsFront = front;
-    this.reRender(newState);
-  }
+  // selectFront(front){
+  //   var newState = _.extend({}, this.state);
+  //   newState.classes.CardsFront = front;
+  //   this.reRender(newState);
+  // }
   selectCardBack(card){
     var newState = _.extend({}, this.state);
     newState.classes.activeCardBack = card;
     this.reRender(newState);
+  }
+  changeVolume(e){
+    var newState = _.extend({}, this.state);
+    newState.volume = e.target.value;
+    Howler.volume(e.target.value);
+    tadaAudio.play();
+    e.target.MaterialSlider.change(e.target.value);
+    this.reRender(newState);
+  }
+  applySettings(e){
+    if(e){
+      e.preventDefault();
+    }
+    let settings = {
+      activeColor: this.state.activeColor,
+      activeCardBack: this.state.classes.activeCardBack,
+      volume: this.state.volume
+    }
+    LoginActions.applySettings(settings);
+    this.context.history.pushState(null, `/games`, null);
   }
   render() {
     let { css, showRooms, activeColor, classes } = this.state;
@@ -195,7 +226,7 @@ export default class SettingsPage extends Component{
     let cardFronts = globalVars.cardFront;
     var self = this;
 
-    sampleCards.map(function (card, index){
+    /*sampleCards.map(function (card, index){
       var t = <div key={index} className="card playingCards simpleCards" style={{left: index*40 +'px', padding:0}}>
                 <div className="card playingCards simpleCards" style={ getCardCSS() }>
                   <a className="card frontRotated" style={ getCardPic(card) }></a>
@@ -214,21 +245,23 @@ export default class SettingsPage extends Component{
                 </a>
               </div>
       CardsFront_1.push(t);
-    });
+    });*/
     var backCardsArray = [];
     cardBacks.map(function (card, index){
       var CheckBox;
       if(self.state.classes.activeCardBack == card){
-        CheckBox = 'checked';
+        CheckBox = 'card selected';
+      }else{
+        CheckBox = 'card';
       }
       var t = <div key={index} className="selectCard">
-                <div className="linear-block" style={{ height:'112px', width:'60px' }}>
+                {/*<div className="linear-block" style={{ height:'112px', width:'60px' }}>
                   <span className="check-box">
                     <span className={CheckBox}></span>
                   </span>
-                </div>
-                <div className="card playingCards simpleCards" onClick={self.selectCardBack.bind(self, card)}>
-                  <a className={classNames(["card", "back", card])}></a>
+                </div>*/}
+                <div className={CheckBox} onClick={self.selectCardBack.bind(self, card)}>
+                  <img className="back" src={card} />
                 </div>
               </div>
       backCardsArray.push(t)
@@ -236,8 +269,8 @@ export default class SettingsPage extends Component{
     var colorsArray = [];
     var self = this;
     bgColors.map(function (color, index){
-      var t = <div key={index} className={classNames(['color-list-block'], getColorClass(color.color, index, self.state.activeColor))}>
-              <div className="colorBlock" style={{backgroundColor: color.color}} onClick={self.selectBackgroundColor.bind(self, color)}></div>
+      var t = <div key={index} className={classNames(['color-list-block'], getColorClass(color.color, index, self.state.activeColor))} onClick={self.selectBackgroundColor.bind(self, color)}>
+              <div className="colorBlock" style={{backgroundColor: color.color}}></div>
               <div className="color-name">
                 { color.name }
               </div>
@@ -249,7 +282,7 @@ export default class SettingsPage extends Component{
     let liItemClassNames = ['mdl-menu__item'];
     return (
       <div style={css.container}>
-        <div className={'bkg-filter'}></div>
+        <div className={this.state.activeColor.name+'-img fixed-bkg'}></div>
         <div className="">
         <div style={{float:'left'}} colSpan="12"><h5><i className="fa fa-gear">&nbsp;</i>Settings</h5></div>
         <div className='face-div' style={{'float':'right'}}>
@@ -281,7 +314,7 @@ export default class SettingsPage extends Component{
                     <span><h6>Deck Back</h6></span>
                   </div>
                   <div className={classNames(['settingsTab', classes.deckFrontSettings])} onClick={this.changeTab.bind(this, 'deckFrontSettings', 'deckFrontTab')}>
-                    <span><h6>Deck Front</h6></span>
+                    <span><h6>Sound</h6></span>
                   </div>
                 </td>
                 <td>
@@ -291,7 +324,10 @@ export default class SettingsPage extends Component{
                   <div className={classNames('tabs', classes.deckBackTab)}>
                     { backCardsArray }
                   </div>
-                  <div className={classNames('tabs', classes.deckFrontTab)}>
+                  <div className={classNames('volume-control tabs', classes.deckFrontTab)}>
+                    <input className="mdl-slider mdl-js-slider" id="s1" type="range" min="0" max="1" step="0.1" value={this.state.volume} onChange={this.changeVolume.bind(this)}/>
+                  </div>
+                  {/*<div className={classNames('tabs', classes.deckFrontTab)}>
                     <div>
                       <div className="linear-block" style={{ height:'112px', width:'90px' }}>
                         <span className="check-box">
@@ -313,17 +349,18 @@ export default class SettingsPage extends Component{
                         {CardsFront_2}
                       </div>  
                     </div>
-                  </div>
+                  </div>*/}
                 </td>
               </tr>
             </tbody>
           </table>
           <div className="control-group">
-          <button className="btn btn-primary">
+          <button className="btn btn-primary" onClick={this.applySettings.bind(this)}>
             <span>Apply</span>
           </button>
           </div>
         </div>
+
         </form>
         </div>
       </div>

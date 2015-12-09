@@ -38,8 +38,9 @@ export default class Root extends Component {
         <Route name='auth' path='/' component={AuthHandler}>
           <Route name='settings' path='/settings' component={SettingsPage} />
           <Route name='games' path='/games' component={GamePage} />
+          <Route name='game7' path='/game7' component={GameInterface} /> 
+          <Route name='game7multi' path='/game7/(:id)' component={GameInterface} />
           <Route name='game325' path='/game325(/)(:id)' component={Game325} />
-          <Route name='game7' path='/game7(/)(:id)' component={Game7} /> 
         </Route>
       </Router>
     );

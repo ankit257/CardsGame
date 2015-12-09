@@ -14,11 +14,11 @@ export var globalVars = {
         {name : 'haze', color : '#795fa1'}
     ],
     backClass : 'poppins',
-    cardBack : ['cardBack1', 'cardBack2'],
-    cardFront : ['cardFront1', 'cardFront2'],
+    cardBack : ['assets/cards/cardback.svg','assets/cards/cardbackblackred.png','assets/cards/cardbackorange.svg','assets/cards/cardbackred.svg'],
+    // cardFront : ['cardFront1', 'cardFront2'],
     activeBgColor : {name : 'poppins', color : '#f59120'},
-    activeCardBack : 'cardBack1',
-    activeCardFront : 'cardFront1'
+    activeCardBack : 'assets/cards/cardback.svg'//,
+    // activeCardFront : 'cardFront1'
 }
 var gameSettings = localStorage.getItem('gameSettings');
 if(gameSettings){

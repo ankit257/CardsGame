@@ -17,7 +17,8 @@ export default class GameRender extends Component {
 		zoomStyle : {}
 	}
 	static contextTypes = {
-		ifOnline: PropTypes.bool
+		ifOnline: PropTypes.bool,
+		ifOverlayShown: PropTypes.func
 	}
 	constructor(props){
 		super(props);
@@ -60,6 +61,8 @@ export default class GameRender extends Component {
 		if(this.props.gamePause != nextProps.gamePause){
 			GameActions.togglePauseGame();
 		}
+		if(nextProps.gamePause) this.context.ifOverlayShown(true);
+			else this.context.ifOverlayShown(false);
 	}
 	deleteLocalStore(){
 		localStorage.removeItem('gameData');

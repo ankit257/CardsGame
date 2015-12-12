@@ -20,7 +20,7 @@
     font-size: 11px;
     box-sizing: content-box;
 }
-.player-info span.player-type {
+.player-info img.player-type {
     width: 12px;
     height: 12px;
     display: inline-block;
@@ -31,6 +31,13 @@
     box-sizing: border-box;
     border-radius: 3px;
     font-size: 8px;
+}
+img.player-type.player-type-waiting {
+    display: block;
+    margin: 0 auto;
+    width: 70%;
+    left: 0px;
+    height: 22px;
 }
 .player-info .small-score{
     position: absolute;
@@ -113,16 +120,12 @@
     left: 0;
     right: 0;
     margin: 0 auto;
-    font-size: 12px;
-    width: max-content;
-    padding: 3px 6px;
-    vertical-align: middle;
-    width: -webkit-max-content;
-    -webkit-border-radius: 10px;
-    border-radius: 10px;
     transition: all 100ms linear 0s;
     -webkit-transition: all 100ms linear 0s;
     box-sizing: content-box;
+}
+.player-info .pop-up-msg img {
+    width: 100px;
 }
 .player-info .table-score {
     position: absolute;
@@ -349,7 +352,8 @@ button.show-score-button.show{
 .display-button{
     left: 80%;
 }
-.pause-screen {
+.overlay-screen {
+    display: none;
     width: 100%;
     height: 100%;
     position: absolute;
@@ -361,24 +365,13 @@ button.show-score-button.show{
     animation:colorChange 60s;
     -webkit-animation:colorChange 60s infinite; /* Safari and Chrome */
 }
-.pause-screen span {
-    /*color: black;*/
+.overlay-screen span {
     position: absolute;
     left: 0;
     right: 0;
     margin: 0 auto;
     top: 50%;
     font-size: 4em;
-}
-span.player-type.player-type-waiting {
-    display: block;
-    box-sizing: border-box;
-    margin: 0 auto;
-    width: 50px;
-    left: 0px;
-    padding: 2px;
-    top: 8px;
-    border-radius: 6px;
 }
 .admin-status {
     position: absolute;

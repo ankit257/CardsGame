@@ -240,11 +240,10 @@ export default class GamaPage extends Component{
   //   //   console.log(this.props.gameRoom)
   //   // }
   // }
-  componentWillReceiveProps(nextProps){
-    // console.log(nextProps);
+  componentWillReceiveProps(nextProps, nextState){
     if(!nextProps.User.profile.id){
       this.context.history.pushState(null, `/`, null);
-    }else if(nextProps.gameRoom.game){
+    }else if(nextProps.gameRoom.game && nextProps.gameRoom.roomId !== undefined){
       let { gameRoom } = nextProps;
       this.context.history.pushState(null, `/${gameRoom.game}/${gameRoom.roomId}`, null);
     }else{

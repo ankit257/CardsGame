@@ -46,7 +46,7 @@ function getState(props, ifOnline){
 }
 
 
-@connectToGameStores([GameStoreOffline, GameStoreOnline], getState)
+@connectToGameStores([GameStoreOffline, GameStoreOnline, ScoresStore], getState)
 export default class StatusComponent extends Component {
 	static contextTypes = {
 		ifOnline: PropTypes.bool

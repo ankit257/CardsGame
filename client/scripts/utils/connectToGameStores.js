@@ -53,16 +53,8 @@ export default function connectToGameStores(stores, getState) {
 
       componentWillUnmount() {
         stores.forEach(store =>{
-                  if(store.type){
-                          //   if(store.type=='online' && this.context.id){
-                          //     store.removeChangeListener(this.handleStoresChanged)
-                          //   }else if(store.type=='offline' && !this.context.id){
-                          //     store.removeChangeListener(this.handleStoresChanged)
-                          //   }
-                          // }else{
                             store.removeChangeListener(this.handleStoresChanged)
                           }
-                        }
         );
       }
 

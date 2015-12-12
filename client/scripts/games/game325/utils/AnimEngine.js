@@ -1,27 +1,25 @@
 import { timeConstants } from '../constants/SattiHelper'
 import * as GameActions from '../actions/GameActions'; 
 import PauseStore from '../stores/PauseStore';
-import * as Howler from 'howler';
+import { getItemFromLocalStorage } from '../../../utils/LocalStorageUtils';
+import SettingsStore from '../../../stores/SettingsStore';
+import { Howl }  from 'howler';
 
-let distributeAudio = new Howler.Howl({
+let distributeAudio = new Howl({
 	urls: ['../../assets/sounds/distribute.mp3'],
-	autoplay: false,
-	volume: 1
+	autoplay: false
 }),
-playAudio = new Howler.Howl({
+playAudio = new Howl({
 	urls: ['../../assets/sounds/play.mp3'],
-	autoplay: false,
-	volume: 1
+	autoplay: false
 }),
-pauseAudio = new Howler.Howl({
+pauseAudio = new Howl({
 	urls: ['../../assets/sounds/pause.mp3'],
-	autoplay: false,
-	volume: 0.5
+	autoplay: false
 }),
-unPauseAudio = new Howler.Howl({
+unPauseAudio = new Howl({
 	urls: ['../../assets/sounds/unpause.mp3'],
-	autoplay: false,
-	volume: 0.5
+	autoplay: false
 })
 window.requestAnimFrame = (function(){
         return  window.requestAnimationFrame || 
@@ -78,14 +76,14 @@ export default class AnimEngine{
 		start : 0,
 		end   : 0
 	}
-	static audio = new Howler.Howl({});
+	static audio = new Howl({});
 	static requestId = undefined;
 	static makeReadyForNext(){
 		this.pause = {
 			start : 0,
 			end   : 0
 		}
-		this.audio = new Howler.Howl({});
+		this.audio = new Howl({});
 	}
 	static setPauseState(gamePause){
 		this.pause.state = gamePause;
@@ -109,25 +107,34 @@ export default class AnimEngine{
 			}
 		})
 	}
-	static startAnimation(deck, gameState, botState){
-		this.audio = new Howler.Howl({});
+	static startAnimation(deck, gameState, botState, ifOnline){
+		this.audio = new Howl({});
 		let duration = 0, action, audio;
 		switch(gameState){
 			case 'INIT_ROUND':
 				duration = timeConstants.TOTAL_DECK_DELAY;
-				action   = GameActions.initRoundSuccess;
+				// action   = GameActions.initRoundSuccess;
+				action   = ifOnline ? GameActions.initRoundOnlineSuccess : GameActions.initRoundSuccess;
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'DISTRIBUTING_CARDS_0':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
-				action   = GameActions.selectDealer;
+				// action   = GameActions.distributingCardsZeroSuccess;
+				action   = ifOnline ? GameActions.distributingCardsZeroOnlineSuccess : GameActions.distributingCardsZeroSuccess;
+				this.audio 	 = distributeAudio;
+				// this.audio.play();
+				this.animateCards(deck, duration, action, gameState);
+				break;
+			case 'DEALER_SELECTION_SUCCESS':
+				duration = timeConstants.TOTAL_DISTR_DELAY;
+				action   = GameActions.startGame;
 				this.audio 	 = distributeAudio;
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'SELECT_DEALER':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
-				action   = GameActions.initStartGame;
+				action   = GameActions.selectDealerSuccess;
 				this.audio 	 = distributeAudio;
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
@@ -148,8 +155,15 @@ export default class AnimEngine{
 				break;
 			case 'PLAYING_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
-				action   = GameActions.playCardSuccess;
+				action   = ifOnline ? GameActions.playedWaitForServer : GameActions.playCardSuccess;
 				this.audio 	 = playAudio;
+				this.audio.play();
+				this.animateCards(deck, duration, action, gameState);
+				break;
+			case 'PLAYING_PLAYED_CARD':
+				duration = timeConstants.TOTAL_PLAY_DELAY;
+				action   = ifOnline ? GameActions.playCardSuccessOnline : '';
+				// this.audio 	 = playAudio;
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
@@ -193,7 +207,7 @@ export default class AnimEngine{
 			case 'GAME325_WITHDRAW_CARD':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-					action = GameActions.botWillPlay;
+					action = ifOnline ? GameActions.requestServerBot : GameActions.botWillPlay;
 				}else if(botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 					action = null;
@@ -206,7 +220,7 @@ export default class AnimEngine{
 			case 'GAME325_RETURN_CARD':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-					action = GameActions.botWillPlay;
+					action = ifOnline ? GameActions.requestServerBot : GameActions.botWillPlay;
 				}else if(botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 					action = null;
@@ -219,7 +233,7 @@ export default class AnimEngine{
 			case 'READY_TO_PLAY_NEXT':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-					action = GameActions.botWillPlay;
+					action = ifOnline ? GameActions.requestServerBot : GameActions.botWillPlay;
 				}else if(botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 					action = null;

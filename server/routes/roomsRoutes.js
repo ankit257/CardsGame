@@ -14,7 +14,7 @@ var getRoomObj = function(roomId, game){
 	return {roomId : players};
 }
 
-var Game325 = require('../utils/game325');
+var Game325 = require('../games/game325/utils/Game325');
 var Game7   = require('../games/game7/utils/GameSatti');
 
 module.exports = function (app, passport) {
@@ -34,7 +34,7 @@ module.exports = function (app, passport) {
 		switch(game){
 			case 'game325':
 				var gameInstance = new Game325();
-				gameInstance.init();
+				gameInstance.initBots(roomId);    // roomId sent for creating bots to get appropriate bot-ids derived from roomId
 				gameInstance.type = type;
 				gameInstance.game = game;
 				break;

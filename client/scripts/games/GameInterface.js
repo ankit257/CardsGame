@@ -6,7 +6,8 @@ import AuthStore from '../stores/AuthStore';
 import SettingsStore from '../stores/SettingsStore';
 import * as GameRoomActions from '../actions/GameRoomActions';
 
-import Game7Render from './Game7/components/GameRender'
+import Game7Render from './Game7/components/GameRender';
+import Game325Render from './Game325/components/Game325Render';
 
 function parseLogin(params) {
   return params.login;
@@ -32,11 +33,13 @@ function getState(props) {
   var profile = AuthStore.get();
   var settings = SettingsStore.getSettings();
   var activeColor = settings.activeColor;
+  var selectedGame = GameRoomStore.getSelectedGame();
   // console.log(gameData);
   return {
     gameData,
     profile,
-    activeColor
+    activeColor,
+    selectedGame
   }
 }
 
@@ -75,8 +78,9 @@ export default class GameInterface extends Component{
   componentWillMount() {
     var id = this.props.params.id;
     var profile = this.props.profile;
+    var game = this.props.selectedGame;
     if(id){
-      GameRoomActions.joinGameRoom(id, profile, 'game7');
+      GameRoomActions.joinGameRoom(id, profile, game);
       socket.on('invalid_room', function(){
         console.log('invalid_room')
       });
@@ -84,26 +88,28 @@ export default class GameInterface extends Component{
         console.log('room_full')
       });  
     }else{
-      GameRoomActions.startGameWithBots('game7')
+      GameRoomActions.startGameWithBots(game)
     }
   }
   componentDidMount(){
+    var game = this.props.selectedGame;
     socket.on('game_state', function(data){
       var clientData = data.clientData;
-      GameRoomActions.gameStateReceived('game7', clientData);
+      GameRoomActions.gameStateReceived(game, clientData);
     })
   }
   componentWillUnmount() {
+    var game = this.props.gameData.game;
     var id = this.props.params.id;
     // var profile = this.props.profile;
-    GameRoomActions.leaveGameRoom(id, 'game7');
+    GameRoomActions.leaveGameRoom(id, game);
+    socket.removeAllListeners();
   }
   componentWillReceiveProps(nextProps) {
     // if (parseLogin(nextProps.params) !== parseLogin(this.props.params)) {
     //   requestData(nextProps);
     // }
   }
-
   render() {
     let gamePause = this.state.gamePause;
     let pauseButtonText, pauseScreenStyle, pauseButtonStyle;
@@ -134,7 +140,7 @@ export default class GameInterface extends Component{
         <div className={this.props.activeColor.name+' fixed-bkg'}></div>
         <button onClick={this.pauseToggle.bind(this)} className = "distribute-button" style= {pauseButtonStyle}> {pauseButtonText} </button>
         <div className={'pause-screen'} style={pauseScreenStyle}><span>Game Paused</span></div>
-        {this.props.children}
+        <Game325Render gamePause={gamePause}/>
       </div>
     );
   }

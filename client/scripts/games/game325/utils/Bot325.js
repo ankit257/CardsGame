@@ -26,7 +26,6 @@ export default class Bot325 extends Player325{
 		return deck[randomInt];
 	}
 	setTrump(){
-		console.log(123)
 		setTimeout(function(){
 			GameActions.setTrump('H');
 		}, timeConstants.DISPATCH_DELAY);

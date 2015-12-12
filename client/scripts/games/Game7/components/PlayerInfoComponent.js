@@ -98,6 +98,7 @@ export default class PlayerInfoComponent extends Component {
             WebkitTransition   	: 'all ' + animTime + 'ms linear ' + delay + 'ms'
 		}
 		if(ifWaiting){
+			console.log(1234);
 			playerNameStyle.height = 50;
 			playerTypeClass = 'player-type player-type-waiting';
 			switch(player.type){

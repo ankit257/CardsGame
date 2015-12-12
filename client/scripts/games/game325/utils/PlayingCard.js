@@ -103,7 +103,6 @@ export default class PlayingCard{
 		this.oldY = this.y;
 		this.oldZ = this.z;
 		this.animState  = 0;
-		console.log(this.state)
 		switch(this.state){
 			case 'START_DISTRIBUTING':
 				this.ox 		= gameCSSConstants.gameBody.width/2 - gameCSSConstants.cardSize.width/2;

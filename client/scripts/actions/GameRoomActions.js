@@ -2,7 +2,8 @@ import { dispatch, dispatchAsync } from '../AppDispatcher';
 import ActionTypes from '../constants/ActionTypes';
 import GameRoomStore from '../stores/GameRoomStore';
 
-import * as Game7Actions from '../games/Game7/actions/GameActions'
+import * as Game7Actions from '../games/Game7/actions/GameActions';
+import * as Game325Actions from '../games/Game325/actions/GameActions'
 
 import { createGameRoomServer, exitGameRoomServer, joinGameRoomServer, getRoomServer } from '../utils/APIUtils';
 import { saveItemInLocalStorage, getItemFromLocalStorage } from '../utils/LocalStorageUtils';
@@ -33,6 +34,9 @@ export function joinGameRoom(id, profile, game){
 			case 'game7':
 				Game7Actions.playerChanged(data.players);
 				break;
+			case 'game325':
+				Game325Actions.playerChanged(data.players);
+				break;
 		}
 	})
 }
@@ -58,13 +62,21 @@ export function startGameWithBots(game){
 		case 'game7':
 			Game7Actions.initGame();
 			break;
+		case 'game325':
+			Game325Actions.initGame();
+			break;
 	}
 }
-
+export function updateSelectedGame(game){
+	dispatch(ActionTypes.UPDATE_SELECTED_GAME, {data : game})
+}
 export function gameStateReceived(game, data){
 	switch(game){
 		case 'game7':
 			Game7Actions.gameStateReceived(data);
+			break;
+		case 'game325':
+			Game325Actions.gameStateReceived(data);
 			break;
 	}
 }

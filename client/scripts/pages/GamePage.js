@@ -43,6 +43,7 @@ class RoomsComponent extends Component{
       for(var game in gameRooms){
         for(var room in gameRooms[game]){
           if(roomId == room){
+            // GameRoomStore.update();
             this.context.history.pushState(null, `/${game}/${roomId}`, null);
             this.context.showLoader(false)
             return;
@@ -244,7 +245,7 @@ export default class GamaPage extends Component{
     // console.log(nextProps);
     if(!nextProps.User.profile.id){
       this.context.history.pushState(null, `/`, null);
-    }else if(nextProps.gameRoom.game){
+    }else if(nextProps.gameRoom.game && nextProps.gameRoom.roomId){
       let { gameRoom } = nextProps;
       this.context.history.pushState(null, `/${gameRoom.game}/${gameRoom.roomId}`, null);
     }else{
@@ -252,6 +253,7 @@ export default class GamaPage extends Component{
     }
   }
   componentDidMount(){
+    GameRoomActions.updateSelectedGame('game325');
     this.intervalId = this.getRoomFromServer();
   }
   getRoomFromServer(){
@@ -283,6 +285,7 @@ export default class GamaPage extends Component{
       newState['css'] = this.calculateCSS();
       newState['showRooms'] = true;
       newState['selectedGame'] = game;
+      GameRoomStore.updateSelectedGame(game);
       this.reRender(newState);
   }
   reRender(newState){

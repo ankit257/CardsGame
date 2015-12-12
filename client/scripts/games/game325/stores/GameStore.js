@@ -26,7 +26,17 @@ var _pauseState = false;
 
 var _game = new Game325();
 
-const GameStore = createStore({
+const GameStoreOffline = createStore({
+	type : 'offline',
+	ifGameWaiting(){
+		return false;
+	},
+	ifIAmSpectatorOrBot(){
+		return false;
+	},
+	getScoreUpdated(){
+		return {}
+	},
 	getGameObj(){
 		return _game;
 	},
@@ -115,6 +125,9 @@ const GameStore = createStore({
 	},
 	moveHand(){
 		return _game.shouldMoveHand();
+	},
+	reInitDeck(){
+		_game.reInitDeck()
 	},
 	roundEnd(){
 		tadaAudio.play();
@@ -339,19 +352,19 @@ const GameStore = createStore({
 	actOnState(){
 		switch(_game.state){
 			case 'NOW_NEXT_TURN':
-				GameStore.fireNextTurn();
+				GameStoreOffline.fireNextTurn();
 				break;
 			case 'PLAYING_CARD':
-				GameStore.firePlayCardSuccess();
+				GameStoreOffline.firePlayCardSuccess();
 				break;
 			case 'ROUND_END':
-				GameStore.fireShowScores();
+				GameStoreOffline.fireShowScores();
 				break;
 			case 'GAME_STARTED':
-				GameStore.fireInitRound();
+				GameStoreOffline.fireInitRound();
 				break;
 			default:
-				GameStore.fireInitStartGame();
+				GameStoreOffline.fireInitStartGame();
 				break;
 			}
 	},
@@ -362,7 +375,7 @@ const GameStore = createStore({
 		_pauseState = !_pauseState;
 	}
 });
-GameStore.dispatchToken = register(action=>{
+GameStoreOffline.dispatchToken = register(action=>{
 	const responseData = selectn('response.data', action);
 	switch(action.type){
 		case 'GAME325_DISPLAY_GAME_STATE':
@@ -372,138 +385,147 @@ GameStore.dispatchToken = register(action=>{
 			gameData = localStorage.getItem('gameData');
 			if(gameData){
 				gameData = JSON.parse(gameData);
-				let newGameData = GameStore.makeGameObj(gameData);
-				GameStore.setGameObj(newGameData);
-				GameStore.actOnState();
+				let newGameData = GameStoreOffline.makeGameObj(gameData);
+				GameStoreOffline.setGameObj(newGameData);
+				GameStoreOffline.actOnState();
 			}else{
-				GameStore.initGame();
-				GameStore.initDeck();
-				GameStore.setCardPositionByState();
-				GameStore.setGameState('DISTRIBUTING_CARDS_0');
-				// GameStore.fireInitStartGame();
-				// GameStore.setGameState('GAME_STARTED');
-			
-				// GameStore.emitAndSaveChange( 'gameData', _game );
-				GameStore.fireDistributeOneCardEach();
+				GameStoreOffline.initGame();
+				GameStoreOffline.initDeck();
+				GameStoreOffline.setCardPositionByState();
+				GameStoreOffline.fireInitStartGame();
 			}
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			break;
-		case 'GAME325_SELECT_DEALER':
-			GameStore.distributeOneCardEach();
-			GameStore.setCardPositionByState();
-			GameStore.emitAndSaveChange( 'gameData', _game );
+		case 'GAME325_DISTRIBUTE_CARDS_ZERO_SUCCESS':
+			GameStoreOffline.reInitDeck();
+			GameStoreOffline.setCardPositionByState();
+			GameStoreOffline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case 'GAME325_DISTRIBUTE_ONE_CARD_EACH':
+			GameStoreOffline.distributeOneCardEach();
+			GameStoreOffline.setCardPositionByState();
+			GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_INIT_START_GAME':
-			GameStore.hideScores();
-			GameStore.setCardPositionByState();
-			GameStore.setGameState('GAME_STARTED');
-			GameStore.fireInitRound();
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStoreOffline.hideScores();
+			GameStoreOffline.setCardPositionByState();
+			GameStoreOffline.setGameState('GAME_STARTED');
+			GameStoreOffline.fireInitRound();
+			GameStoreOffline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case 'GAME325_START_GAME':
+			GameStoreOffline.fireDistributeCards();
+			GameStoreOffline.setGameState('INIT_ROUND_SUCCESS');
+			GameStoreOffline.emitChange();
 			break;
 		case 'GAME325_INIT_ROUND':
-			GameStore.initRound();
-			GameStore.setCardPositionByState();
-			GameStore.emitChange();
+			GameStoreOffline.initRound();
+			GameStoreOffline.setCardPositionByState();
+			GameStoreOffline.emitChange();
 			break;
 		case 'GAME325_INIT_ROUND_SUCCESS':
-			GameStore.initPlayersArray();
-			GameStore.setCardPositionByState();
-			GameStore.fireDistributeCards();
-			GameStore.setGameState('INIT_ROUND_SUCCESS');
-			GameStore.emitChange();
+			GameStoreOffline.initPlayersArray();
+			GameStoreOffline.setCardPositionByState();
+			if(GameStoreOffline.getGameProperty('dealerPos')){
+				GameStoreOffline.fireDistributeCards();
+				GameStoreOffline.setGameState('INIT_ROUND_SUCCESS');
+			}else{
+				GameStoreOffline.fireDistributeOneCardEach();
+				GameStoreOffline.setGameState('DISTRIBUTING_CARDS_0');
+			}
+			GameStoreOffline.emitChange();
 			break;
 		case 'GAME325_DISTRIBUTE_CARDS':
-			GameStore.distributeCards();
-			GameStore.updatePlayersArray();
-			GameStore.sortDeck(0);
-			GameStore.updateCardIndex();
-			GameStore.setCardPositionByState();
-			GameStore.emitChange();
+			GameStoreOffline.distributeCards();
+			GameStoreOffline.updatePlayersArray();
+			GameStoreOffline.sortDeck(0);
+			GameStoreOffline.updateCardIndex();
+			GameStoreOffline.setCardPositionByState();
+			GameStoreOffline.emitChange();
 			break;
 		case 'GAME325_DISTRIBUTE_CARDS_FIRST_SUCCESS':
-			GameStore.distributionDone();
-			GameStore.sortDeck(0);
-			GameStore.setActivePlayerId();
-			GameStore.setGameState('SET_TRUMP');
-			GameStore.checkBotPlay();
-			GameStore.setCardPositionByState();
-			// GameStore.fireNextTurn();
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStoreOffline.distributionDone();
+			GameStoreOffline.sortDeck(0);
+			GameStoreOffline.setActivePlayerId();
+			GameStoreOffline.setGameState('SET_TRUMP');
+			GameStoreOffline.checkBotPlay();
+			GameStoreOffline.setCardPositionByState();
+			// GameStoreOffline.fireNextTurn();
+			GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_DISTRIBUTE_CARDS_SECOND_SUCCESS':
-			GameStore.distributionDone();
-			GameStore.sortDeck(0);
-			GameStore.setCardPositionByState();
-			if(GameStore.isWithdrawCard()){
-				GameStore.setGameState('GAME325_WITHDRAW_CARD');
-				GameStore.checkBotPlay();
-				GameStore.setCardPositionByState();
-			 	GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStoreOffline.distributionDone();
+			GameStoreOffline.sortDeck(0);
+			GameStoreOffline.setCardPositionByState();
+			if(GameStoreOffline.isWithdrawCard()){
+				GameStoreOffline.setGameState('GAME325_WITHDRAW_CARD');
+				GameStoreOffline.checkBotPlay();
+				GameStoreOffline.setCardPositionByState();
+			 	GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			}else{
-				GameStore.setGameState('GAME325_PLAY_CARD');
-				GameStore.fireNextTurn();
+				GameStoreOffline.setGameState('GAME325_PLAY_CARD');
+				GameStoreOffline.fireNextTurn();
 			}
 			break;
 		case 'GAME325_WITHDRAW_CARD_SUCCESS':
-			GameStore.setGameState('GAME325_RETURN_CARD');
-			GameStore.checkBotPlay();
-			GameStore.setCardPositionByState();
-			 	
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStoreOffline.setGameState('GAME325_RETURN_CARD');
+			GameStoreOffline.checkBotPlay();
+			GameStoreOffline.setCardPositionByState();
+			GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_RETURN_CARD_SUCCESS':
-			if(GameStore.isWithdrawCard()){
-				GameStore.setGameState('GAME325_WITHDRAW_CARD');
-				GameStore.checkBotPlay();
-				GameStore.setCardPositionByState();
+			if(GameStoreOffline.isWithdrawCard()){
+				GameStoreOffline.setGameState('GAME325_WITHDRAW_CARD');
+				GameStoreOffline.checkBotPlay();
+				GameStoreOffline.setCardPositionByState();
 			}else{
-				GameStore.setGameState('READY_TO_PLAY_NEXT');
-				GameStore.setActivePlayerId();
-				GameStore.checkBotPlay();
-				GameStore.setCardPositionByState();
+				GameStoreOffline.setGameState('READY_TO_PLAY_NEXT');
+				GameStoreOffline.setActivePlayerId();
+				GameStoreOffline.checkBotPlay();
+				GameStoreOffline.setCardPositionByState();
 			}
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_SET_TRUMP':
 			var trump = action.trump;
-			GameStore.setTrump(trump);
-			GameStore.distributeCards();
-			GameStore.updatePlayersArray();
-			GameStore.sortDeck(0);
-			GameStore.updateCardIndex();
-			GameStore.setCardPositionByState();
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStoreOffline.setTrump(trump);
+			GameStoreOffline.distributeCards();
+			GameStoreOffline.updatePlayersArray();
+			GameStoreOffline.sortDeck(0);
+			GameStoreOffline.updateCardIndex();
+			GameStoreOffline.setCardPositionByState();
+			GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_BOT_HAS_PLAYED':
-			GameStore.playBot();
-			GameStore.setCardPositionByState();
-			GameStore.emitChange();
+			GameStoreOffline.playBot();
+			GameStoreOffline.setCardPositionByState();
+			GameStoreOffline.emitChange();
 			break;
 		case 'GAME325_PLAY_CARD':
 			var card = action.card;
-			GameStore.playCard(card);
-			GameStore.updatePlayersArray();
-			GameStore.sortDeck(0);
-			GameStore.updateCardIndex();
-			GameStore.setCardPositionByState();
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStoreOffline.playCard(card);
+			GameStoreOffline.updatePlayersArray();
+			GameStoreOffline.sortDeck(0);
+			GameStoreOffline.updateCardIndex();
+			GameStoreOffline.setCardPositionByState();
+			GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_PLAY_CARD_SUCCESS':
-			var card = GameStore.getGameProperty('cardPlayed');
-			GameStore.updateCardState(card, 'PLAYED');
-			GameStore.checkTurnEnd();
-			if(GameStore.getGameProperty('state') == 'MOVE_HAND'){
-					GameStore.setGameState('MOVE_HAND');
-					GameStore.setCardPositionByState();
-					GameStore.fireMoveHand();
-			 		GameStore.emitAndSaveChange( 'gameData', _game );
+			var card = GameStoreOffline.getGameProperty('cardPlayed');
+			GameStoreOffline.updateCardState(card, 'PLAYED');
+			GameStoreOffline.checkTurnEnd();
+			if(GameStoreOffline.getGameProperty('state') == 'MOVE_HAND'){
+					GameStoreOffline.setGameState('MOVE_HAND');
+					GameStoreOffline.setCardPositionByState();
+					GameStoreOffline.fireMoveHand();
+			 		GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			}else{
-				GameStore.updatePlayedCards(card);
-				GameStore.updateBotState('BOT_READY');
-				GameStore.setGameState('NOW_NEXT_TURN');
-				GameStore.setCardPositionByState();
-				GameStore.fireNextTurn();
-				GameStore.emitAndSaveChange( 'gameData', _game );
+				GameStoreOffline.updatePlayedCards(card);
+				GameStoreOffline.updateBotState('BOT_READY');
+				GameStoreOffline.setGameState('NOW_NEXT_TURN');
+				GameStoreOffline.setCardPositionByState();
+				GameStoreOffline.fireNextTurn();
+				GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			}
 			break;
 		case 'GAME325_SKIP_TURN':
@@ -512,39 +534,37 @@ GameStore.dispatchToken = register(action=>{
 		 case 'GAME325_TURN_SKIPPED':
 		 	break;
 		 case 'GAME325_NOW_NEXT_TURN':
-	 		GameStore.nextTurn();
-			// GameStore.updatePlayersArray();
-			GameStore.updatePlayableCards();
-			GameStore.checkBotPlay();
-			GameStore.setCardPositionByState();
-		 	GameStore.emitChange();
+	 		GameStoreOffline.nextTurn();
+			GameStoreOffline.updatePlayableCards();
+			GameStoreOffline.checkBotPlay();
+			GameStoreOffline.setCardPositionByState();
+		 	GameStoreOffline.emitChange();
 		 	break;
 		 case 'GAME325_MOVE_HAND':
-		 	GameStore.moveHandMade();
-		 	GameStore.setGameState('MOVE_HAND')
-		 	GameStore.setCardPositionByState();
-		 	GameStore.emitChange();
+		 	GameStoreOffline.moveHandMade();
+		 	GameStoreOffline.setGameState('MOVE_HAND')
+		 	GameStoreOffline.setCardPositionByState();
+		 	GameStoreOffline.emitChange();
 		 	break;
 		 case 'GAME325_MOVE_HAND_SUCCESS':
-		 	// GameStore.hideMovedCards();
-		 	GameStore.checkRoundEnd();
-		 	if(GameStore.getGameProperty('state') == 'ROUND_END'){
-		 		GameStore.roundEnd();
-				GameStore.setRoundEndPos();
-				GameStore.emitAndSaveChange( 'gameData', _game );
+		 	GameStoreOffline.checkRoundEnd();
+		 	if(GameStoreOffline.getGameProperty('state') == 'ROUND_END'){
+		 		GameStoreOffline.roundEnd();
+				GameStoreOffline.setRoundEndPos();
+				GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 		 	}else{
-		 		GameStore.fireNextTurn();
+		 		GameStoreOffline.fireNextTurn();
 		 	}
 		 	break;
 		 case 'GAME325_SHOW_SCORES':
-		 	GameStore.showScores();
-			GameStore.setRoundEndPos();
-			GameStore.setGameState('ROUND_END_SHOW_SCORES');
-		 	GameStore.emitChange();
+		 	GameStoreOffline.showScores();
+			GameStoreOffline.setRoundEndPos();
+			GameStoreOffline.setGameState('ROUND_END_SHOW_SCORES');
+		 	GameStoreOffline.emitChange();
 		 	break;
 		 case 'GAME325_BOT_WILL_PLAY':
 		 	break;
 		 }
 });
 
-export default GameStore;
+export default GameStoreOffline;

@@ -103,6 +103,13 @@ export default class Game325{
 		this.state = 'INIT_PLAYERS';
 		this.botState = 'BOT_READY';
 	}
+	reInitDeck(){
+		for(let deckcard of this.deck){
+			deckcard.state = 'IN_DECK';
+			deckcard.ownerPos = null;
+		}
+		this.state = 'DEALER_SELECTION_SUCCESS';
+	}
 	distributeCards(){
 		let cardDistributionStartFrom = this.dealerPos+1;
 		if(cardDistributionStartFrom === this.players.length){

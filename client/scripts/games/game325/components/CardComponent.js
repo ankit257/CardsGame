@@ -64,8 +64,8 @@ export default class CardComponent extends Component {
 	render() {
         const { card } = this.state;
         const { x, y, theta, animTime, delay, zIndex, bgColor } = card;
-        let cardimg      = gamePathConstants.CARD_ASSETS + card.rank + card.suit + '.svg';
-        let cardbackimg  = gamePathConstants.CARD_BACK_IMG;
+        let cardimg      = '/'+gamePathConstants.CARD_ASSETS + card.rank + card.suit + '.svg';
+        let cardbackimg  = '/'+gamePathConstants.CARD_BACK_IMG;
         let style = {
             zIndex             : zIndex
         }

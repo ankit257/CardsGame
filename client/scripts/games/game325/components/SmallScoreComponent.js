@@ -28,9 +28,6 @@ export default class SmallScoreComponent extends Component {
 			case 3:
 				rankToShow = '3rd';
 				break;
-			case 4:
-				rankToShow = '4th';
-				break; 
 		}
 		let rankdelay = 750 + 300*rank;
 		let rankClass = "rank-container"

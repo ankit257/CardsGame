@@ -46,6 +46,8 @@ export default keyMirror({
 
   CHANGE_SETTINGS: null,
 
-  GAME325 : null
+  UPDATE_SELECTED_GAME : null,
+  
+  GAME325 : null,
 });
       

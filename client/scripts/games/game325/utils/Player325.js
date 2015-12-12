@@ -25,8 +25,8 @@ export default class Player325{
 					delay				: 0
 		});
 	}
-	updatePosition(activePlayerPos, touched, showScores){
-		if(!showScores){
+	updatePosition(activePlayerPos, touched, showScores, ifWaiting, showTable){
+		if(!showScores && !ifWaiting){
 			this.delay 			= 50;
 			this.animTime       = 200;
 			this.width			= gameCSSConstants.player.largeDim;
@@ -67,7 +67,7 @@ export default class Player325{
 			this.animTime       = 200;
 			this.width 			= gameCSSConstants.score.width;
 			this.height			= gameCSSConstants.score.height;
-			let boundSep		= (gameCSSConstants.gameBody.width - 4*gameCSSConstants.score.width - 3*gameCSSConstants.score.sep)/2;
+			let boundSep		= (gameCSSConstants.gameBody.width - 3*gameCSSConstants.score.width)/4;
 			this.y				= gameCSSConstants.gameBody.height/2 - gameCSSConstants.score.height/2;
 			this.theta 			= 0;
 			let switchvar;
@@ -78,13 +78,13 @@ export default class Player325{
 			}
 			switch(switchvar){
 				case 2: 
-					this.x 	 	= boundSep + this.width + gameCSSConstants.score.sep;
+					this.x 	 	= 2*boundSep + this.width;
 					break;
 				case 1:
 					this.x 		= boundSep;
 					break;
 				case 3:
-					this.x 		= boundSep + 2*this.width + 2*gameCSSConstants.score.sep;
+					this.x 		= 3*boundSep + 2*this.width;
 					break;
 			}
 		}

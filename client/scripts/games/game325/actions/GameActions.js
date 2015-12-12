@@ -15,6 +15,15 @@ export function selectDealer(){
 export function distributeOneCardEach(){
 	dispatch(Actions.GAME325_DISTRIBUTE_ONE_CARD_EACH, {});	
 }
+export function selectDealerSuccess(){
+	dispatch(Actions.GAME325_SELECT_DEALER_SUCCESS, {});
+}
+export function distributingCardsZeroSuccess(){
+	dispatch(Actions.GAME325_DISTRIBUTE_CARDS_ZERO_SUCCESS, {});
+}
+export function startGame(){
+	dispatch(Actions.GAME325_START_GAME, {});
+}
 export function initRound(){
 	dispatch(Actions.GAME325_INIT_ROUND, {});
 }
@@ -25,7 +34,9 @@ export function setTrump(trump){
 export function initRoundSuccess(){
 	dispatch(Actions.GAME325_INIT_ROUND_SUCCESS, {});
 }
-
+export function initRoundOnlineSuccess(){
+	dispatch(Actions.GAME325_ONLINE_INIT_ROUND_SUCCESS, {});	
+}
 export function distributeCards(){
 	dispatch(Actions.GAME325_DISTRIBUTE_CARDS, {});
 }
@@ -77,11 +88,12 @@ export function showScores(){
 export function nextTurn(gameTurn){
 	dispatch(Actions.GAME325_NOW_NEXT_TURN, {gameTurn});
 }
-
 export function togglePauseGame(){
 	dispatch(Actions.GAME325_TOGGLE_PAUSE, {});	
 }
-
+export function distributingCardsZeroOnlineSuccess(){
+	dispatch(Actions.GAME325_ONLINE_DISTRIBUTE_CARDS_ZERO_SUCCESS, {});
+}
 export function moveHand(){
 	dispatch(Actions.GAME325_MOVE_HAND, {});
 }
@@ -93,4 +105,42 @@ export function withdrawCardSuccess(card){
 }
 export function returnCardSuccess(card){
 	dispatch(Actions.GAME325_RETURN_CARD_SUCCESS, {card});
+}
+export function setTrumpOnline(){
+	dispatch(Actions.GAME325_ONLINE_SET_TRUMP, {card});
+}
+export function playCardOnline(){
+	dispatch(Actions.GAME325_ONLINE_PLAY_CARD, {card});
+}
+export function returnCardOnline(){
+	dispatch(Actions.GAME325_ONLINE_RETURN_CARD, {card});
+}
+export function withdrawCardOnline(){
+	dispatch(Actions.GAME325_ONLINE_WITHDRAW_CARD, {card});
+}
+export function gameStateReceived(clientData){
+	dispatch(Actions.GAME325_ONLINE_GAME_STATE_RECEIVED, {clientData});
+}
+export function playedWaitForServer()
+{
+	dispatch(Actions.GAME325_ONLINE_PLAYED_WAIT_FOR_SERVER, {});
+}
+export function showScoresOnline(){
+	dispatch(Actions.GAME325_ONLINE_SHOW_SCORES, {});
+}
+
+export function onlineInitRoundSuccess(){
+	dispatch(Actions.GAME325_ONLINE_INIT_ROUND_SUCCESS, {});
+}
+
+export function playerChanged(players){
+	dispatch(Actions.GAME325_ONLINE_PLAYER_CHANGED, {players});
+}
+
+export function requestServerBot(){
+	dispatch(Actions.GAME325_ONLINE_REQUEST_SERVER_BOT, {});
+}
+
+export function requestDistribution(){
+	dispatch(Actions.GAME325_ONLINE_ADMIN_REQUEST_DISTRIBUTION, {});
 }

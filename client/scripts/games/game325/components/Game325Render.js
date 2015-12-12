@@ -11,12 +11,14 @@ import DeckComponent from './DeckComponent';
 import StatusComponent from './StatusComponent';
 import TrumpComponent from './TrumpComponent';
 
-import GameStore from '../stores/GameStore';
 import * as GameActions from '../actions/GameActions';
 
 export default class Game325Render extends Component {
 	state = {
 		zoomStyle : {}
+	}
+	static contextTypes = {
+		ifOnline: PropTypes.bool
 	}
 	constructor(props){
 		super(props);
@@ -42,7 +44,7 @@ export default class Game325Render extends Component {
 		else if(window.addEventListener) {
 			window.addEventListener('resize', this.handleResize);
 		}
-		GameActions.initGame();
+		// GameActions.initGame();
 	}
 	handleResize(e){
 		this.setState({

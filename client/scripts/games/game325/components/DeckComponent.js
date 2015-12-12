@@ -1,31 +1,41 @@
 import React, { Component, PropTypes, findDOMNode } from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import connectToStores from '../../../../scripts/utils/connectToStores';
-
+import connectToGameStores from '../../../../scripts/utils/connectToGameStores';
 // import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 import CardComponent from './CardComponent';
 
-import GameStore from '../stores/GameStore';
+import GameStoreOffline from '../stores/GameStore';
+import GameStoreOnline from '../stores/GameStoreOnline';
+
 
 import AnimEngine from '../utils/AnimEngine'
 
-function getState(props){
+function getState(props, ifOnline){
+	let GameStore;
+	if(ifOnline){
+		GameStore = GameStoreOnline;
+	}else{
+		GameStore = GameStoreOffline;
+	}
 	let deck = GameStore.getGameProperty('deck');
 	let activePlayerPos = GameStore.getGameProperty('activePlayerPos');
 	let otherPlayerId = GameStore.getGameProperty('otherPlayerId');
 	let gameState = GameStore.getGameProperty('state');
 	let botState = GameStore.getGameProperty('botState');
+	let ifIAmBot = GameStore.ifIAmSpectatorOrBot();
 	return {
 		deck,
 		gameState,
 		botState,
 		activePlayerPos,
-		otherPlayerId
+		otherPlayerId,
+		ifIAmBot
 	};
 }
 
-@connectToStores([GameStore], getState)
+@connectToGameStores([GameStoreOffline, GameStoreOnline], getState)
 export default class DeckComponent extends Component {
 	state = {
 		deck 		: [],
@@ -34,6 +44,9 @@ export default class DeckComponent extends Component {
 	// static contextTypes = {
  //    	color: PropTypes.string
  //  	}
+ 	static contextTypes = {
+		ifOnline: PropTypes.bool
+	}
 	componentDidMount(){
 		AnimEngine.startListening();
 		// AnimEngine.startAnimation(this.state.deck, this.state.gameState);	
@@ -61,7 +74,7 @@ export default class DeckComponent extends Component {
 	}
 	componentDidUpdate(){
 		// console.log('component Updated ' + this.props.gameState );
-		AnimEngine.startAnimation(this.state.deck, this.state.gameState, this.state.botState);
+		AnimEngine.startAnimation(this.state.deck, this.state.gameState, this.state.botState, this.context.ifOnline);
 	}
 	// toggleAnimEnginePause(){
 	// 	AnimEngine.setPauseState(this.state.gamePause);
@@ -72,9 +85,10 @@ export default class DeckComponent extends Component {
 		let otherPlayerId = this.state.otherPlayerId;
 		let gameState = this.state.gameState;
 		let cardsToDistribute = [];
+		let ifIAmBot = this.props.ifIAmBot;
 		return(
 			<div className="playingCards">
-				{deck.map(card => <CardComponent key={card.key} card={card} activePlayerPos={activePlayerPos} otherPlayerId={otherPlayerId} gameState={gameState}/>)}
+				{deck.map(card => <CardComponent key={card.key} card={card} activePlayerPos={activePlayerPos} otherPlayerId={otherPlayerId} gameState={gameState}  ifIAmBot={ifIAmBot}/>)}
 			</div>
 			)
 	}

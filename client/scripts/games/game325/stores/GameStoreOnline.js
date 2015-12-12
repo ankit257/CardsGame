@@ -1,19 +1,22 @@
 import React from 'react';
 import { register, waitFor } from '../../../../scripts/AppDispatcher';
 import { createStore, mergeIntoBag, isInBag } from '../../../../scripts/utils/StoreUtils';
-import { Howl } from "howler";
 import selectn from 'selectn';
+
+import { Howl } from "howler";
 
 import * as GameActions from '../actions/GameActions';
 import GameRoomStore from '../../../stores/GameRoomStore';
 import { timeConstants, gameVars } from '../constants/SattiHelper'
 
 import PlayingCard from '../utils/PlayingCard';
-import GameSatti from '../utils/GameSatti';
-import PlayerSatti from '../utils/PlayerSatti';
-import BotSatti from '../utils/BotSatti';
-import ScoreSatti from '../utils/ScoreSatti';
+import Game325 from '../utils/Game325';
+import Player325 from '../utils/Player325';
+import Bot325 from '../utils/Bot325';
+import Score325 from '../utils/Score325';
 
+// let distributeAudio = new Audio('../../assets/sounds/distribute.mp3');
+// let playAudio = new Audio('../../assets/sounds/play.mp3');
 let passAudio = new Howl({
 	urls: ['../../assets/sounds/pass.mp3'],
 	autoplay: false
@@ -49,8 +52,9 @@ var _ifEmit = true;           // bool to control if Store will emit change on da
 var _playersFromServer = [];  // to store the scores from server at round end 
 var _scoreUpdated = false;    // to show a red dot over scores in view once scores are received from server
 var _ifWaiting = true;        // ifWaiting bool stores the state of client: whether it is waiting for more players to join or whether game is running and new users will be treated as spectators
+var _game = new Game325();
 
-const GameStoreOnline = createStore( {
+const GameStoreOnline = createStore({
 	type : 'online',
 	getGameObj(){
 		return _game;
@@ -63,6 +67,9 @@ const GameStoreOnline = createStore( {
 	},
 	ifGameWaiting(){
 		return _ifWaiting;
+	},
+	getScoreUpdated(){
+		return {};
 	},
 	makeGameRunning(){
 		_ifWaiting = false;
@@ -103,24 +110,18 @@ const GameStoreOnline = createStore( {
 	getIfEmit(){
 		return _ifEmit;
 	},
-	updateBotState(botState){ 					//same
+	updateBotState(botState){
 		_game.botState = botState;
 	},
-	updatePlayedCards(card){ 					//same
+	updatePlayedCards(card){
 		delete _game.cardPlayed;
 		_game.addPlayedCard(card);
 	},
-	updatePlayableCards(){ 					//same
-		_game.deck.map(deckcard=>{
-			_next.playableCards.map(shortCard=>{
-				if(deckcard.rank == shortCard.rank && deckcard.suit == shortCard.suit){
-					_game.addPlayableCard(deckcard);
-				}
-			})
-		})
+	updatePlayableCards(){
+		_game.updatePlayableCards();
 		this.setPlayableCount();
 	},
-	updatePlayerScores(playerpos, penalty){ 					//same
+	updatePlayerScores(playerpos, penalty){
 		_game.players[playerpos].score.penalty.push(penalty);
 	},
 	getXP(){
@@ -128,45 +129,41 @@ const GameStoreOnline = createStore( {
 		_game.players.map(player=>{
 			if(player.id == _myid && player.type == 'HUMAN'){
 				let score = player.score;
-				let penalty = score.penalty[score.penalty.length-1];
-				if(penalty) {
-					xp = Math.round((100-penalty)/10);
-				}else{
-					xp = 0;
-				}
+				//Calculate For 325
 			}
 		})
 		return xp;
 	},
-	setPlayerState(pos, state){ 					//same... position handling. Earlier _game.players[playerPos] gave the position. Now it has to be checked explicitly
-			if(state == 'CLEARED'){
-				_game.players.map(player=>{
-					if(player.position == pos && player.state != 'CLEARED'){
-						bellAudio.play();
-					}
-				})
+	setPlayerState(pos, state){
+		// _game.players[pos].state = state;
+		_game.players.map(player=> {
+			if(player.position == pos){
+				player.state = state;
 			}
-			_game.players.map(player=> {
-				if(player.position == pos){
-					player.state = state;
-				}
-			})
+		})
 	},
-	setCardPositionByState(){ 					//same
-		_game.deck.map(deckcard=> {deckcard.setPositionByState();});
+	setCardPositionByState(){
+		_game.deck.map(deckcard=> {deckcard.setPositionByState()});
 	},
-	setRoundEndPos(){ 					//same
+	setRoundEndPos(){
 		_game.deck.map(deckcard=> deckcard.setRoundEndPosition());
 	},
 	setMyId(id){   // id setter
+		console.log(id);
 		_myid = id;
 	},
 	initGame(){
-		_game = new GameSatti();
+		_game = new GAME325_ONLINE();
 		_game.initPlayers();
 	},
 	initDeck(){
 		_game.initDeck();
+	},
+	getTrump(){
+		return _game.trump;
+	},
+	setTrump(trump){
+		_game.trump = trump
 	},
 	initRound(){
 		_game.initRound();
@@ -180,10 +177,17 @@ const GameStoreOnline = createStore( {
 	checkBotPlay(){
 		_game.checkBotPlay();
 	},
+	hideMovedCards(){
+		_game.hideMovedCards();
+	},
 	checkTurnSkip(){
-		if(!this.ifIAmSpectatorOrBot() && _game.activePlayerId == _myid){
-			_game.checkTurnSkip('online');
-		}
+		_game.checkTurnSkip();
+	},
+	isWithdrawCard(){
+		return _game.isWithdrawCard();
+	},
+	moveHandMade(){
+		_game.assignPosToCardsToBeMoved()
 	},
 	playBot(){
 		return _game.playBot(_playersCards[_game.activePlayerPos]);
@@ -197,14 +201,26 @@ const GameStoreOnline = createStore( {
 			}
 		}
 	},
+	getTurnWinner(){
+		_game.getTurnWinner();
+	},
 	nextTurn(){
-		_game.gameTurn = _next.gameTurn;
-		this.setActivePlayerPos();
-		_game.state = 'READY_TO_PLAY_NEXT';
+		_game.nextTurn();
+	},
+	moveHand(){
+		return _game.shouldMoveHand();
+	},
+	reInitDeck(){
+		_game.reInitDeck()
 	},
 	roundEnd(){
 		tadaAudio.play();
 		_game.roundEnd();
+	},
+	fireMoveHand(){
+		setTimeout(function(){
+			GameActions.moveHand();
+		}, timeConstants.DISPATCH_DELAY);
 	},
 	fireInitRound(){
 		setTimeout(function(){
@@ -218,18 +234,23 @@ const GameStoreOnline = createStore( {
 	},
 	fireShowScores(){
 		setTimeout(function(){
-			GameActions.showScoresOnline();
+			GameActions.showScores();
 		}, timeConstants.DISPATCH_DELAY);
+	},
+	fireSetTrump(){
+		setTimeout(function(){
+			// GameActions.setTrump();
+		}, timeConstants.DISPATCH_DELAY);
+	},
+	fireReturnCard(){
+		setTimeout(function(){
+			GameActions.returnCard();
+		}, timeConstants.DISPATCH_DELAY);	
 	},
 	fireNextTurn(){
 		setTimeout(function(){
-			GameActions.nowNextTurn();
+			GameActions.nextTurn(_game.gameTurn);
 		}, timeConstants.DISPATCH_DELAY);	
-	},
-	fireTurnSkipped(){
-		setTimeout(function(){
-			GameActions.onlineSkipTurn();
-		}, timeConstants.DISPATCH_DELAY);
 	},
 	fireInitStartGame(){
 		setTimeout(function(){
@@ -238,13 +259,13 @@ const GameStoreOnline = createStore( {
 	},
 	firePlayCardSuccess(){
 		setTimeout(function(){
-			GameActions.playCardSuccessOnline();
+			GameActions.playCardSuccess();
 		}, timeConstants.DISPATCH_DELAY);
 	},
-	fireCardPlayed(){
+	fireDistributeOneCardEach(){
 		setTimeout(function(){
-			GameActions.cardPlayed();
-		}, timeConstants.DISPATCH_DELAY);
+			GameActions.distributeOneCardEach();
+		}, timeConstants.DISPATCH_DELAY);	
 	},
 	initPlayersArray(){
 		_playersCards = new Array();
@@ -262,19 +283,20 @@ const GameStoreOnline = createStore( {
 			}
 		}
 	},
+	distributeOneCardEach(){
+		_game.distributeOneCardEach()
+	},
+	getGameObj(){
+		return _game;
+	},
 	checkRoundEnd(){
 		this.updatePlayersArray();
 		if(_game.state == 'PLAYING_CARD' || _game.state == 'PLAYING_PLAYED_CARD' || _game.state == 'PLAY_DATA_RECEIVED'){
-				for (var i = 0; i < gameVars.noOfPlayers; i++) {
-					if(_playersCards[i].length == 0){
-						this.setGameState('ROUND_END');
-						continue;
-					}
-				};
-			}
+			_game.checkRoundEnd();
+		}
 	},
 	setPlayableCount(){
-		_playableCount = [0, 0, 0, 0];
+		_playableCount = [0, 0, 0];
 		for (var playerPos = 0; playerPos < gameVars.noOfPlayers; playerPos++) {
 			for (var j = 0; j < _playersCards[playerPos].length; j++) {
 				let card = _playersCards[playerPos][j];
@@ -285,15 +307,7 @@ const GameStoreOnline = createStore( {
 		};
 		for (var playerPos = 0; playerPos < _playableCount.length; playerPos++) {
 			let count = _playableCount[playerPos];
-			if(count == 0){
-				this.setPlayerState(playerPos, 'SKIP_TURN');
-			}else{
-				_game.players.map(player=>{
-					if(player.position == playerPos && player.state != 'CLEARED'){
-						this.setPlayerState(playerPos, 'CAN_PLAY');	
-					}
-				})
-			}
+			this.setPlayerState(playerPos, 'CAN_PLAY');
 		};
 	},
 	setClearedPlayers(){
@@ -342,10 +356,12 @@ const GameStoreOnline = createStore( {
 	},
 	updateCardIndex(){
 		for(let deckcard of _game.deck){
-			let index = this.setIndexFromArray(deckcard);
-			let similar = _playersCards[deckcard.ownerPos].length;
-			deckcard.index = index;
-			deckcard.similar = similar;
+			if(deckcard.ownerPos){ //In case All the deck is not to be distributed at once
+				let index = this.setIndexFromArray(deckcard);
+				let similar = _playersCards[deckcard.ownerPos].length;
+				deckcard.index = index;
+				deckcard.similar = similar;	
+			}
 		}
 	},
 	setIndexFromArray(card){
@@ -370,7 +386,7 @@ const GameStoreOnline = createStore( {
 	},
 	setGameObj(gameObj){
 		_game = gameObj;
-		this.setPlayerPositionById();
+		this.setPlayerPositionById()
 	},
 	showScores(){
 		_showScore = true;
@@ -381,23 +397,25 @@ const GameStoreOnline = createStore( {
 	getShowScore(){
 		return _showScore;
 	},
-	scoreUpdatedTrue(){
-		_scoreUpdated = true;
+	checkTurnEnd(){
+		return _game.checkTurnEnd();
 	},
-	scoreUpdatedFalse(){
-		_scoreUpdated = false;
+	setActivePlayerId(){
+		for(let player of _game.players){
+			if(player.handsToMake == 5){
+				_game.activePlayerId = player.id;
+				_game.activePlayerPos = player.id;
+			}
+		}
 	},
-	getScoreUpdated(){
-		// return true;
-		return _scoreUpdated;
-	},
-	makeGameObj(gameData){						// daddy function to take gameData as input and return gameObj with all its prototype functions. Similar function exists on server side
-		let newGameData = new GameSatti();
+	makeGameObj(gameData){
+		let newGameData = new Game325();
 		Object.assign(newGameData, gameData);
 		// copy deck
 		delete newGameData['deck'];
 		newGameData.deck = new Array();
 		gameData.deck.map(deckcard => {
+			console.log(deckcard.suit+'-'+deckcard.rank);
 			newGameData.deck.push(Object.assign(new PlayingCard(deckcard), deckcard));
 		})
 		// copy players
@@ -408,9 +426,9 @@ const GameStoreOnline = createStore( {
 				player.name = player.profile.profile.first_name;
 			}
 			if(player.type == 'HUMAN' || player.type == 'ADMIN'){
-				newGameData.players.push(Object.assign(new PlayerSatti(player), player));
+				newGameData.players.push(Object.assign(new Player325(player), player));
 			}else if(player.type == 'BOT' || player.type == 'SPECTATOR'){
-				newGameData.players.push(Object.assign(new BotSatti(player), player));
+				newGameData.players.push(Object.assign(new Bot325(player), player));
 			}else{
 				console.log('Weird');
 			}
@@ -419,7 +437,7 @@ const GameStoreOnline = createStore( {
 			delete player.score;
 		})
 		for (var i = 0; i < gameData.players.length; i++) {
-			newGameData.players[i].score = Object.assign(new ScoreSatti(), gameData.players[i].score);
+			newGameData.players[i].score = Object.assign(new Score325(), gameData.players[i].score);
 		};
 		return newGameData;
 	},
@@ -475,6 +493,13 @@ const GameStoreOnline = createStore( {
 				break;
 			}
 		};
+	},
+	assignCardsForDealerSelection(){
+		_game.deck.map(card=>{
+			if(card.ownerPos && card.ownerPos!==null){
+				card.state = 'SELECT_DEALER';
+			}
+		})
 	},
 	setCardOwnerPosition(){				// _game.deck from server side has all ownerIds set. This function converts it to ownerPos. 
 		let playerids = this.getPlayerIds();
@@ -649,13 +674,20 @@ const GameStoreOnline = createStore( {
 		})
 		_game.adminId = newAdminId;
 
-	},
-	takeAction(socketdata){  // switch for acting upon data being received from server
+	},takeAction(socketdata){  // switch for acting upon data being received from server
 		switch(socketdata.action){
 			case 'SET_ID':   // sent as soon as a player gets connected to socket.
+				// console.log(socketdata)
 				this.setMyId(socketdata.id);
 				this.initPlayersArray();
 				this.ifEmitFalse();
+				break;
+			case 'SELECT_DEALER': //3 cards and Make dealer as Player with Biggest Card
+				console.log('SELECT_DEALER')
+				break;
+			case 'DISTRIBUTE_CARDS_FIRST': //Distribute Cards and Ask active player to Set Trump
+				break;
+			case 'SET_TRUMP': // Set trump and fire distribution cards second and ask active player play card;
 				break;
 			case 'START_NEW_ROUND': // New gameObj from server received at the start of every round.
 				if(this.ifGameWaiting) this.makeGameRunning();
@@ -665,9 +697,10 @@ const GameStoreOnline = createStore( {
 				_next.playableCards = socketdata.gameData.playableCards;
 				_game.initDeck(); // Save server gameObj in temporary variable and initDeck here which has all _game.deck[i].state == 'IN_DECK' <- To bring deck to centre of board
 				this.setGameState('INIT_ROUND');
+				// this.assignCardsForDealerSelection();
 				this.ifEmitTrue();   // <- This received event and its changes will be emitted from store 
 				break;
-			case 'NEXT_TURN': 
+			case 'NEXT_TURN':  //if gameWinner -> MoveHand and ask active player to play card
 			// Server sends 'NEXT_TURN' when client either plays card or skips turn. Save temporary values in _next and consume after render_success.
 				_next.activePlayerId = socketdata.gameData.nextActivePlayerId;
 				_next.gameTurn = socketdata.gameData.nextGameTurn;
@@ -721,6 +754,10 @@ const GameStoreOnline = createStore( {
 					}
 				}
 				break;
+			case 'WITHDRAW_CARD':
+				break;
+			case 'RETURN_CARD':
+				break;
 			case 'SERVER_STATE_RECEIVED':
 				this.ifEmitFalse();
 				break;
@@ -752,139 +789,196 @@ GameStoreOnline.dispatchToken = register(action=>{
 				console.log('Someone joined');
 			}
 			break;
-		case 'GAME7_ONLINE_GAME_STATE_RECEIVED':   
+		case 'GAME325_ONLINE_GAME_STATE_RECEIVED':   
 			GameStoreOnline.takeAction(action.clientData);
 			if(GameStoreOnline.getIfEmit()){  // -> Whether or not to emit the change 
 				GameStoreOnline.emitChange();
 			}
 			break;
-		case 'GAME_7_ONLINE_INIT_ROUND_SUCCESS': 
-		// Server sends 'START_NEW_ROUND' - (use false deck) -> 'INIT_ROUND' -> 'INIT_ROUND_SUCCESS' - (consume server gameObj using setNextGameObj) -> 'DISTRIBUTING_CARDS'
+		case 'GAME325_ONLINE_DISPLAY_GAME_STATE':
+			break;
+		case 'GAME325_ONLINE_INIT_GAME':
+			let gameData;
+			gameData = localStorage.getItem('gameData');
+			if(gameData){
+				gameData = JSON.parse(gameData);
+				let newGameData = GameStoreOnline.makeGameObj(gameData);
+				GameStoreOnline.setGameObj(newGameData);
+				GameStoreOnline.actOnState();
+			}else{
+				GameStoreOnline.initGame();
+				GameStoreOnline.initDeck();
+				GameStoreOnline.setCardPositionByState();
+				GameStoreOnline.fireInitStartGame();
+			}
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case '':
+			GameStoreOnline.reInitDeck();
+			GameStoreOnline.setCardPositionByState();
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case 'GAME325_ONLINE_DISTRIBUTE_ONE_CARD_EACH':
+			console.log(action);
+			GameStoreOnline.distributeOneCardEach();
+			GameStoreOnline.setCardPositionByState();
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case 'GAME325_ONLINE_INIT_START_GAME':
+			GameStoreOnline.hideScores();
+			GameStoreOnline.setCardPositionByState();
+			GameStoreOnline.setGameState('GAME_STARTED');
+			GameStoreOnline.fireInitRound();
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case 'GAME325_ONLINE_START_GAME':
+			GameStoreOnline.fireDistributeCards();
+			GameStoreOnline.setGameState('INIT_ROUND_SUCCESS');
+			GameStoreOnline.emitChange();
+			break;
+		case 'GAME325_ONLINE_INIT_ROUND':
+			GameStoreOnline.initRound();
+			GameStoreOnline.setCardPositionByState();
+			GameStoreOnline.emitChange();
+			break;
+		case 'GAME325_ONLINE_INIT_ROUND_SUCCESS':
 			GameStoreOnline.setNextGameObj();
-			// GameStoreOnline.setPlayerPositionById();
-			GameStoreOnline.setCardOwnerPosition();
+			if(_game.state == 'SELECT_DEALER'){
+					GameStoreOnline.assignCardsForDealerSelection();
+					GameStoreOnline.setCardPositionByState();
+					GameStoreOnline.setGameState('DISTRIBUTING_CARDS_0');
+			}
+			for (var i = 0; i < _game.deck.length; i++) {
+				console.log(_game.deck[i].suit+'-'+_game.deck[i].rank);
+			};
+			GameStoreOnline.emitChange();
+			break;
+		case 'GAME325_ONLINE_DISTRIBUTE_CARDS_ZERO_SUCCESS':
+			console.log(123);
+			break;
+		case 'GAME325_ONLINE_DISTRIBUTE_CARDS':
+			GameStoreOnline.distributeCards();
 			GameStoreOnline.updatePlayersArray();
 			GameStoreOnline.sortDeck(0);
 			GameStoreOnline.updateCardIndex();
-			GameStoreOnline.setGameState('DISTRIBUTING_CARDS');
 			GameStoreOnline.setCardPositionByState();
 			GameStoreOnline.emitChange();
 			break;
-		case 'GAME7_ONLINE_DISTRIBUTE_CARDS_SUCCESS':
-		// 'DISTRIBUTING_CARDS' - (AnimEngine) -> 'DISTRIBUTION_SUCCESS' -> 'NOW_NEXT_TURN' -> gamestate == 'READY_TO_PLAY_NEXT' -> waitForClientInput
+		case 'GAME325_ONLINE_DISTRIBUTE_CARDS_FIRST_SUCCESS':
 			GameStoreOnline.distributionDone();
-			GameStoreOnline.setGameState('NOW_NEXT_TURN');
-			GameStoreOnline.fireNextTurn();
-			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.emitChange();
-			break;
-		case 'GAME7_ONLINE_NOW_NEXT_TURN':
-		// Universal next_turn event fired after PLAY_CARD_SUCCESS and SKIP_TURN_DONE
-			GameStoreOnline.nextTurn();
-			GameStoreOnline.updatePlayersArray();
-			GameStoreOnline.updatePlayableCards();
-			GameStoreOnline.setClearedPlayers();
-			GameStoreOnline.checkTurnSkip();
+			GameStoreOnline.sortDeck(0);
+			GameStoreOnline.setActivePlayerId();
+			GameStoreOnline.setGameState('SET_TRUMP');
 			GameStoreOnline.checkBotPlay();
 			GameStoreOnline.setCardPositionByState();
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case 'GAME325_ONLINE_DISTRIBUTE_CARDS_SECOND_SUCCESS':
+			GameStoreOnline.distributionDone();
+			GameStoreOnline.sortDeck(0);
+			GameStoreOnline.setCardPositionByState();
+			if(GameStoreOnline.isWithdrawCard()){
+				GameStoreOnline.setGameState('GAME325_ONLINE_WITHDRAW_CARD');
+				GameStoreOnline.checkBotPlay();
+				GameStoreOnline.setCardPositionByState();
+			 	GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			}else{
+				GameStoreOnline.setGameState('GAME325_ONLINE_PLAY_CARD');
+				GameStoreOnline.fireNextTurn();
+			}
+			break;
+		case 'GAME325_ONLINE_WITHDRAW_CARD_SUCCESS':
+			GameStoreOnline.setGameState('GAME325_ONLINE_RETURN_CARD');
+			GameStoreOnline.checkBotPlay();
+			GameStoreOnline.setCardPositionByState();
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case 'GAME325_ONLINE_RETURN_CARD_SUCCESS':
+			if(GameStoreOnline.isWithdrawCard()){
+				GameStoreOnline.setGameState('GAME325_ONLINE_WITHDRAW_CARD');
+				GameStoreOnline.checkBotPlay();
+				GameStoreOnline.setCardPositionByState();
+			}else{
+				GameStoreOnline.setGameState('READY_TO_PLAY_NEXT');
+				GameStoreOnline.setActivePlayerId();
+				GameStoreOnline.checkBotPlay();
+				GameStoreOnline.setCardPositionByState();
+			}
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case 'GAME325_ONLINE_SET_TRUMP':
+			var trump = action.trump;
+			GameStoreOnline.setTrump(trump);
+			GameStoreOnline.distributeCards();
+			GameStoreOnline.updatePlayersArray();
+			GameStoreOnline.sortDeck(0);
+			GameStoreOnline.updateCardIndex();
+			GameStoreOnline.setCardPositionByState();
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case 'GAME325_ONLINE_BOT_HAS_PLAYED':
+			GameStoreOnline.playBot();
+			GameStoreOnline.setCardPositionByState();
 			GameStoreOnline.emitChange();
 			break;
-		case 'GAME7_ONLINE_PLAY_CARD':
-		// If I am active player and I played this card. Rendering independant from server.
+		case 'GAME325_ONLINE_PLAY_CARD':
 			var card = action.card;
-			GameStoreOnline.playCard(card, 'client');
+			GameStoreOnline.playCard(card);
 			GameStoreOnline.updatePlayersArray();
 			GameStoreOnline.sortDeck(0);
 			GameStoreOnline.updateCardIndex();
 			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.emitPlayCardFromSocket('CARD_PLAYED', {card});
-			GameStoreOnline.emitChange();
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			break;
-		case 'GAME7_ONLINE_CARD_PLAYED':
-		// If I am not active player and someone played this card. Rendered after data received from server.
-			var card = GameStoreOnline.getGameProperty('cardPlayed');
-			GameStoreOnline.playCard(card, 'server');
-			GameStoreOnline.updatePlayersArray();
-			GameStoreOnline.sortDeck(0);
-			GameStoreOnline.updateCardIndex();
-			GameStoreOnline.setGameState('PLAYING_PLAYED_CARD');
-			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.emitChange();
-			break;
-		case 'GAME7_ONLINE_PLAY_CARD_SUCCESS':
-		// Fired after both the PLAY_CARD events -> Next event is NOW_NEXT_TURN
+		case 'GAME325_ONLINE_PLAY_CARD_SUCCESS':
 			var card = GameStoreOnline.getGameProperty('cardPlayed');
 			GameStoreOnline.updateCardState(card, 'PLAYED');
-			GameStoreOnline.updatePlayedCards(card);
-			GameStoreOnline.checkRoundEnd();
-			if(GameStoreOnline.getGameProperty('state') == 'ROUND_END'){
-				GameStoreOnline.roundEnd();
-				GameStoreOnline.setRoundEndPos();
+			GameStoreOnline.checkTurnEnd();
+			if(GameStoreOnline.getGameProperty('state') == 'MOVE_HAND'){
+					GameStoreOnline.setGameState('MOVE_HAND');
+					GameStoreOnline.setCardPositionByState();
+					GameStoreOnline.fireMoveHand();
+			 		GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			}else{
+				GameStoreOnline.updatePlayedCards(card);
 				GameStoreOnline.updateBotState('BOT_READY');
 				GameStoreOnline.setGameState('NOW_NEXT_TURN');
 				GameStoreOnline.setCardPositionByState();
-				GameStoreOnline.fireNextTurn();	
-			}
-			GameStoreOnline.emitChange();
-			break;
-		case 'GAME_7_ONLINE_PLAYED_WAIT_FOR_SERVER':
-		// I have played card during my turn - (AnimEngine) -> WAIT_FOR_SERVER
-			var sync = GameStoreOnline.getSyncState();
-			if(sync.serverFirst){  // <-  If server already sent next_turn data while I was animating.
-				GameStoreOnline.firePlayCardSuccess();
-				GameStoreOnline.clearSyncState();
-			}else{
-				GameStoreOnline.setSyncState('client', 'PLAY_CARD_DONE', {});
+				GameStoreOnline.fireNextTurn();
+				GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			}
 			break;
-		case 'GAME_7_ONLINE_SKIP_TURN':
-		// If I skipped my turn
-			var id = action.id;
-			GameStoreOnline.emitPlayCardFromSocket('SKIP_TURN', {id});
-			break;
-		case 'GAME_7_ONLINE_TURN_SKIPPED':
-		// If skip turn data received from server
-			passAudio.play();
-			break;
-		case 'GAME_7_ONLINE_SKIP_TURN_DONE':
-		// Fired after both skip turn events. Next event is NOW_NEXT_TURN
-			GameStoreOnline.setGameState('NOW_NEXT_TURN');
-			GameStoreOnline.fireNextTurn();
-			GameStoreOnline.emitChange();
-			break;
-		case 'GAME_7_ONLINE_SHOW_SCORES':
-		// Sets the dot above score button on the view to show scores have been updated
-			GameStoreOnline.setNewScores();
-			GameStoreOnline.adminRequestsDistribution(GameStoreOnline.getGameProperty('adminId'));
+		case 'GAME325_ONLINE_NOW_NEXT_TURN':
+	 		GameStoreOnline.nextTurn();
+			GameStoreOnline.updatePlayableCards();
+			GameStoreOnline.checkBotPlay();
+			GameStoreOnline.setCardPositionByState();
+		 	GameStoreOnline.emitChange();
+		 	break;
+		 case 'GAME325_ONLINE_MOVE_HAND':
+		 	GameStoreOnline.moveHandMade();
+		 	GameStoreOnline.setGameState('MOVE_HAND')
+		 	GameStoreOnline.setCardPositionByState();
+		 	GameStoreOnline.emitChange();
+		 	break;
+		 case 'GAME325_ONLINE_MOVE_HAND_SUCCESS':
+		 	GameStoreOnline.checkRoundEnd();
+		 	if(GameStoreOnline.getGameProperty('state') == 'ROUND_END'){
+		 		GameStoreOnline.roundEnd();
+				GameStoreOnline.setRoundEndPos();
+				GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+		 	}else{
+		 		GameStoreOnline.fireNextTurn();
+		 	}
+		 	break;
+		 case 'GAME325_ONLINE_SHOW_SCORES':
+		 	GameStoreOnline.showScores();
+			GameStoreOnline.setRoundEndPos();
 			GameStoreOnline.setGameState('ROUND_END_SHOW_SCORES');
-			GameStoreOnline.emitChange();
-			break;
-		case 'GAME_7_ONLINE_HIDE_SCORE_UPDATED':
-			GameStoreOnline.scoreUpdatedFalse();
-			break;
-		case 'GAME_7_ONLINE_PLAYER_CHANGED':
-		// In case a player leaves the game. Emit is true when game is waiting, false when game is running
-			let players = action.players;
-			GameStoreOnline.refreshPlayers(players);
-			if(GameStoreOnline.ifGameWaiting()){
-				GameStoreOnline.emitChange();
-			}else{
-				console.log('player_changed');
-				GameStoreOnline.gameIsIdleFor(6000)
-				.then(function(){
-					GameStoreOnline.adminCheckAndAct();
-				}, function(){
-					console.log('Running');
-				})
-			}
-			break;
-		case 'GAME_7_ONLINE_REQUEST_SERVER_BOT':
-			GameStoreOnline.adminRequestServerBot(GameStoreOnline.getGameProperty('adminId'));
-			break;
-		case 'GAME7_ONLINE_ADMIN_REQUEST_DISTRIBUTION':
-			GameStoreOnline.adminRequestsDistribution(GameStoreOnline.getGameProperty('adminId'));
-			break;
+		 	GameStoreOnline.emitChange();
+		 	break;
+		 case 'GAME325_ONLINE_BOT_WILL_PLAY':
+		 	break;
 		 }
 });
 

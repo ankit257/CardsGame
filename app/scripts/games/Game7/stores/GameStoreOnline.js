@@ -6,6 +6,7 @@ import selectn from 'selectn';
 
 import * as GameActions from '../actions/GameActions';
 import GameRoomStore from '../../../stores/GameRoomStore';
+import PauseStore from '../stores/PauseStore';
 import { timeConstants, gameVars } from '../constants/SattiHelper'
 
 import PlayingCard from '../utils/PlayingCard';
@@ -61,6 +62,37 @@ const GameStoreOnline = createStore( {
 	type : 'online',
 	getGameObj(){
 		return _game;
+	},
+	refreshStore(){
+		_game = {}
+		_myid = ''               // Permanent storage of my id
+		_playersCards = []
+		_playableCount = []
+		_showScore = false;
+		_pauseState = false;
+		_next ={                 // temporary storage of value from server till it is needed in the course of actions at client
+			activePlayerId : '',
+			gameTurn: 0,
+			playableCards : [],
+			gameData: {}
+		}
+		_serverData = [];
+		_globalSync = {
+			serverFirst : false,
+			clientFirst : false,
+			event: '',
+			data: {}
+		}
+		_playCardSync = {               // object to store the value and allow function flow on the basis of whether client calculated first or server sent data first
+			clientFirst : false,
+			serverFirst : false,
+			event		: '',
+			data 		: {}
+		}
+		_ifEmit = true;           // bool to control if Store will emit change on data being received from server
+		_playersFromServer = [];  // to store the scores from server at round end 
+		_scoreUpdated = false;    // to show a red dot over scores in view once scores are received from server
+		_ifWaiting = true;        // ifWaiting bool stores the state of client: whether it is waiting for more players to join or whether game is running and new users will be treated as spectators
 	},
 	getCardState(card){
 		return _game.getCardState(card);
@@ -157,13 +189,13 @@ const GameStoreOnline = createStore( {
 				let score = player.score;
 				let penalty = score.penalty[score.penalty.length-1];
 				if(penalty) {
-					xp = Math.round((100-penalty)/10);
+					xp = Math.round((30-penalty)/3);
 				}else{
 					xp = 0;
 				}
 			}
 		})
-		console.log(xp);
+		if(xp<0) xp = 0;
 		return xp;
 	},
 	setPlayerState(pos, state){ 					//same... position handling. Earlier _game.players[playerPos] gave the position. Now it has to be checked explicitly
@@ -187,6 +219,7 @@ const GameStoreOnline = createStore( {
 		_game.deck.map(deckcard=> deckcard.setRoundEndPosition());
 	},
 	setMyId(id){   // id setter
+		this.refreshStore();
 		_myid = id;
 	},
 	initGame(){
@@ -979,6 +1012,11 @@ GameStoreOnline.dispatchToken = register(action=>{
 			break;
 		case 'GAME7_ONLINE_ADMIN_REQUEST_DISTRIBUTION':
 			GameStoreOnline.adminRequestsDistribution(GameStoreOnline.getGameProperty('adminId'));
+			break;
+		case 'GAME_7_REFRESH_STORE':
+			waitFor([PauseStore.dispatchToken]);
+			GameStoreOnline.refreshStore();
+			// GameStoreOnline.emitChange();
 			break;
 		 }
 });

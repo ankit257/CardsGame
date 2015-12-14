@@ -5,7 +5,7 @@ import connectToGameStores from '../../../../scripts/utils/connectToGameStores';
 // import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 import CardComponent from './CardComponent';
-
+import * as GameActions from '../actions/GameActions';
 import GameStoreOffline from '../stores/GameStore';
 import GameStoreOnline from '../stores/GameStoreOnline';
 
@@ -42,15 +42,15 @@ export default class DeckComponent extends Component {
 		ifOnline: PropTypes.bool
 	}
 	componentDidMount(){
+		// AnimEngine.mount = true;
 		AnimEngine.startListening();
 	}
 
 	componentWillUnmount(){
-        delete this.props.deck;
-        delete this.props.gameState;
+        delete this.props;
         delete this.state;
+        AnimEngine.stopListening();
         AnimEngine.cancelAnimationFrame();
-        this.props = {};
 	}
 	componentWillReceiveProps(nextProps){
 		this.setState({

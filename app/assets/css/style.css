@@ -945,7 +945,7 @@ section.radio-container {
     -webkit-justify-content: space-between;
 }
 .face-div .nav-bar-left{
-  margin-left: 10px;
+  margin-left: 20px;
 }
 .face-div .heading {
     font-size: 21px;
@@ -1878,3 +1878,127 @@ form.auth-form footer a:hover {
     -webkit-border-radius: 8px;
     color: #fff;
 }
+/*Page Transitions*/
+/*.page-transition-enter {
+  -webkit-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+  position: absolute;
+}
+.page-transition-enter.page-transition-enter-active {
+  opacity: 1;
+}*/
+/*.page-transition-leave {
+  -webkit-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 1;
+  position: absolute;
+}
+.page-transition-leave.page-transition-leave-active {
+  opacity: 0;
+}*/
+.page-transition-appear  { 
+    transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+    -moz-transform: translateX(100%);
+}
+.page-transition-appear.page-transition-appear-active  { 
+    transform: translateX(0);
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    transition: transform 0.5s ease-out 0s;
+    -webkit-transition: -webkit-transform 0.5s ease-out 0s;
+    -moz-transition: -moz-transform 0.5s ease-out 0s;
+}
+.page-transition-enter  { 
+    transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+    -moz-transform: translateX(100%);
+}
+.page-transition-enter.page-transition-enter-active  { 
+    transform: translateX(0);
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    transition: transform 0.5s ease-out 0s;
+    -webkit-transition: -webkit-transform 0.5s ease-out 0s;
+    -moz-transition: -moz-transform 0.5s ease-out 0s;
+}
+.page-transition-leave  { 
+    transform: translateX(0);
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+}
+.page-transition-leave.page-transition-leave-active  { 
+    transform: translateX(-100%);
+    -webkit-transform: translateX(-100%);
+    -moz-transform: translateX(-100%);
+    transition: transform 0.5s ease-out 0s;
+    -webkit-transition: -webkit-transform 0.5s ease-out 0s;
+    -moz-transition: -moz-transform 0.5s ease-out 0s;
+}
+.element-transition-appear  { 
+    transform: translateY(150%);
+    -webkit-transform: translateY(150%);
+    -moz-transform: translateY(150%);
+}
+.element-transition-appear.element-transition-appear-active  { 
+    transform: translateY(0);
+    -webkit-transform: translateY(0);
+    -moz-transform: translateY(0);
+    transition: transform 0.3s ease-out 0.5s;
+    -webkit-transition: -webkit-transform 0.3s ease-out 0.5s;
+    -moz-transition: -moz-transform 0.3s ease-out 0.5s;
+}
+.element-transition-enter  { 
+    transform: translateY(150%);
+    -webkit-transform: translateY(150%);
+    -moz-transform: translateY(150%);
+}
+.element-transition-enter.element-transition-enter-active  { 
+    transform: translateY(0);
+    -webkit-transform: translateY(0);
+    -moz-transform: translateY(0);
+    transition: transform 0.5s ease-out 0s;
+    -webkit-transition: -webkit-transform 0.5s ease-out 0s;
+    -moz-transition: -moz-transform 0.5s ease-out 0s;
+}
+.element-transition-leave  { 
+    transform: translateY(0);
+    -webkit-transform: translateY(0);
+    -moz-transform: translateY(0);
+}
+.element-transition-leave.element-transition-leave-active  { 
+    transform: translateY(150%);
+    -webkit-transform: translateY(150%);
+    -moz-transform: translateY(150%);
+    transition: transform 0.5s ease-out 0s;
+    -webkit-transition: -webkit-transform 0.5s ease-out 0s;
+    -moz-transition: -moz-transform 0.5s ease-out 0s;
+}
+/* slide in from the right */
+/*@keyframes slideInRight {
+    from    { transform:translateX(100%); }
+    to      { transform: translateX(0); }
+}
+@-moz-keyframes slideInRight {
+    from    { -moz-transform:translateX(100%); }
+    to      { -moz-transform: translateX(0); }
+}
+@-webkit-keyframes slideInRight {
+    from    { -webkit-transform:translateX(100%); }
+    to      { -webkit-transform: translateX(0); }
+}*/
+
+/* slide in from the bottom */
+/*@keyframes slideOutLeft {
+    from    { transform: translateX(0); }
+    to      { transform: translateX(-100%); }
+}
+@-moz-keyframes slideOutLeft {  
+    from    { transform: translateX(0); }
+    to      { -moz-transform: translateX(-100%); }
+}
+@-webkit-keyframes slideOutLeft {
+    from    { transform: translateX(0); }
+    to      { -webkit-transform: translateX(-100%); }
+}*/

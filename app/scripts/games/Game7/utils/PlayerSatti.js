@@ -65,8 +65,8 @@ export default class PlayerSatti{
 			if(showTable){
 				let miny = gameCSSConstants.score.sep;
 				let maxh = gameCSSConstants.gameBody.height - 2*gameCSSConstants.score.sep;
-				this.y			= this.y - (1+this.score.penalty.length)*15 + 20;
-				this.height     = this.height + (1+this.score.penalty.length)*15 + 20;
+				this.y			= this.y + 23  - (1+this.score.penalty.length)*15 + 10;
+				this.height     = this.height + 26 + (1+this.score.penalty.length)*15 + 10;
 				this.delay 		= 50;
 				this.animTime   = 50;
 				if(this.y < miny || this.height > maxh){

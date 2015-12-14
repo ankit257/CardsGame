@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import selectn from 'selectn';
 import classNames from 'classnames/dedupe';
-
+import * as LoginActions from '../actions/LoginActions';
 
 
 

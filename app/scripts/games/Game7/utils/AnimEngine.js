@@ -5,6 +5,8 @@ import { getItemFromLocalStorage } from '../../../utils/LocalStorageUtils';
 import SettingsStore from '../../../stores/SettingsStore';
 import { Howl }  from 'howler';
 
+window.requestId = undefined;
+
 let distributeAudio = new Howl({
 	urls: ['../../assets/sounds/distribute.mp3'],
 	autoplay: false
@@ -71,40 +73,41 @@ window.cancelAnimFrame = (function(){
 })();
 
 export default class AnimEngine{
+	// static mount = false;
 	static pause = {
 		state : false,
 		start : 0,
 		end   : 0
 	}
 	static audio = new Howl({});
-	static requestId = undefined;
 	static makeReadyForNext(){
-		this.pause = {
-			start : 0,
-			end   : 0
-		}
+		this.pause.start = 0;
+		this.pause.end = 0;
 	}
 	static setPauseState(gamePause){
 		this.pause.state = gamePause;
 	}
 	static cancelAnimationFrame(){
-		window.cancelAnimFrame(this.requestId);
-		this.requestId = undefined;
+		window.cancelAnimFrame(window.requestId);
+		window.requestId = undefined;
 	}
 	static startListening(){
-		let self = this;
-		PauseStore.addChangeListener(function(){
-			self.setPauseState(PauseStore.getPauseState());
-			if(PauseStore.getPauseState()){
-				pauseAudio.play();
-				self.audio.pause();
-				self.pause.start = performance.now() + performance.timing.navigationStart;
-			}else{
-				unPauseAudio.play();
-				self.audio.play();
-				self.pause.end = performance.now() + performance.timing.navigationStart;
-			}
-		})
+		PauseStore.addChangeListener(AnimEngine.handlePause);
+	}
+	static stopListening(){
+		PauseStore.removeChangeListener(AnimEngine.handlePause);	
+	}
+	static handlePause(e){
+		AnimEngine.setPauseState(PauseStore.getPauseState());
+		if(PauseStore.getPauseState()){
+			pauseAudio.play();
+			AnimEngine.audio.pause();
+			AnimEngine.pause.start = performance.now() + performance.timing.navigationStart;
+		}else{
+			unPauseAudio.play();
+			AnimEngine.audio.play();
+			AnimEngine.pause.end = performance.now() + performance.timing.navigationStart;
+		}
 	}
 	static startAnimation(deck, gameState, botState, ifOnline){
 		this.audio = new Howl({});
@@ -136,6 +139,7 @@ export default class AnimEngine{
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
+			case 'GAME_END':
 			case 'ROUND_END':
 				duration = timeConstants.ROUND_END_WAIT;
 				action   = ifOnline ? GameActions.showScoresOnline : GameActions.showScores;
@@ -170,7 +174,7 @@ export default class AnimEngine{
 		}
 		
 	}
-	static animateCards(deck, duration, action, gameState){	
+	static animateCards(deck, duration, action, gameState){
 		if(this.pause.state){
 			this.cancelAnimationFrame();
 		}else{
@@ -191,7 +195,10 @@ export default class AnimEngine{
 		let start = performance.now() + performance.timing.navigationStart;
 		let end =  start + duration;
 		function step(){
-			if(!self.pause.state){
+			// if(AnimEngine.mount == false){
+			// 	AnimEngine.cancelAnimationFrame();
+			// }
+			if(!AnimEngine.pause.state){
 				current 	= performance.now() + performance.timing.navigationStart;
 				remaining 	= end - current + (self.pause.end - self.pause.start);
 				spent 		= current - start - (self.pause.end - self.pause.start);
@@ -261,7 +268,7 @@ export default class AnimEngine{
 					}) // deckcard map end
 				}
 			}
-			self.requestId = window.requestAnimFrame(step);
+			window.requestId = window.requestAnimFrame(step);
 		}
 		step();
 	}

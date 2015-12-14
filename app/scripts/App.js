@@ -1,12 +1,11 @@
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import DocumentTitle from 'react-document-title';
 import Index from './components/Index'
 
-export default class App {
+export default class App extends Component{
   static propTypes = {
     children: PropTypes.object
   };
-
   render() {
     let title = this.props.route.title;
     return (

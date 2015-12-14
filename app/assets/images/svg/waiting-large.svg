@@ -5,8 +5,6 @@
 	 width="30px" height="8px" viewBox="0 0 30 8" enable-background="new 0 0 30 8" xml:space="preserve">
 <path fill="#1F1F1F" d="M29,4.5c0,1.657-1.343,3-3,3H4c-1.657,0-3-1.343-3-3l0,0c0-1.657,1.343-3,3-3h22C27.657,1.5,29,2.843,29,4.5
 	L29,4.5z">
-<animate  fill="remove" restart="always" calcMode="linear" additive="replace" accumulate="none" repeatCount="indefinite" values="#1f1f1f;#1f1f1f;#616161;#1f1f1f;#1f1f1f" keytimes="0;0.05;0.06;0.07;1" dur="2s" to="#283593" from="#1f1f1f" attributeName="fill" attributeType="XML">
-		</animate>
 </path>
 <text transform="matrix(1 0 0 1 8.1816 5.7407)" fill="#FFFFFF" font-family="'TFFFranklinGothicDemi'" font-size="4">Waiting</text>
 </svg>

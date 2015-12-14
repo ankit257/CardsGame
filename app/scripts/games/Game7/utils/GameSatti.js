@@ -160,11 +160,13 @@ export default class GameSatti{
 		}
 	}
 	updateCardState(card, state){
-		this.deck.map(deckcard=>{
-			if(deckcard.rank == card.rank && deckcard.suit == card.suit){
-				deckcard.state = state;
-			}
-		})
+		if(card !== undefined && this.deck){
+			this.deck.map(deckcard=>{
+				if(deckcard.rank == card.rank && deckcard.suit == card.suit){
+					deckcard.state = state;
+				}
+			})
+		}
 	}
 	addPlayedCard(cardToAdd){
 		if(!cardToAdd) return false;
@@ -296,7 +298,7 @@ export default class GameSatti{
 			player.score.roundPenalty.total = 0;
 			player.score.roundPenalty.isNotPlayable = 0;
 			scores[player.position] = player.score.getTotalPenalty();
-			if(player.score.getTotalPenalty() > 100){
+			if(player.score.getTotalPenalty() >= 100){
 				gameEnd = true;
 			}
 		})
@@ -305,10 +307,15 @@ export default class GameSatti{
 		this.players.map(player=>{
 			player.rank = ranks[player.position];
 		})
+		return gameEnd;
 	}
 	roundEnd(){
-		this.state = 'ROUND_END';
-		this.updatePenalties();	
+		let gameEnd = this.updatePenalties();
+		if(gameEnd){
+			this.state = 'GAME_END';
+		}else{
+			this.state = 'ROUND_END';
+		}
 	}
 	getCardState(card){
 		for(let deckcard of this.deck){

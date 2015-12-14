@@ -14,7 +14,7 @@ export function createStore(spec) {
     },
 
     emitAndSaveChange(name, data) {
-      // localStorage.setItem(name, JSON.stringify(data));
+      localStorage.setItem(name, JSON.stringify(data));
       emitter.emit(CHANGE_EVENT);
     },
 

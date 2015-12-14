@@ -120,7 +120,7 @@ export default class PlayerInfoComponent extends Component {
 					break;
 			}	
 		}else if(showTable){
-			playerNameStyle.height = 30;
+			playerNameStyle.height = 40;
 			playerTypeClass = 'player-type player-type-waiting';
 			switch(player.type){
 				case 'BOT':

@@ -60,6 +60,13 @@ const SettingsStore = createStore({
 			saveItemInLocalStorage('user', user);
 			user.settings = _currentSettings;
 		}
+	},
+	getBckClassName(){
+		if(!_currentSettings.activeColor){
+			this.setDefaultSettings();
+		}
+		let bkgClassName = _currentSettings.activeColor.name+'-img fixed-bkg';
+		return bkgClassName;
 	}
 })
 SettingsStore.dispatchToken = register(action => {

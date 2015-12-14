@@ -129,7 +129,6 @@ register(action => {
 				break;
 			case 'LOGGED_IN_WITH_FB':
 				waitFor([AuthStore.dispatchToken]);
-				// ScoresStore.fetchScoresFromServer();
 				ScoresStore.fetchScoresFromServer('game7');
 				break;
 			case 'GAME_7_ONLINE_SHOW_SCORES':

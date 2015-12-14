@@ -1,12 +1,18 @@
 import React, { Component, PropTypes } from 'react';
+import { getItemFromLocalStorage } from '../utils/LocalStorageUtils'
 import DocumentTitle from 'react-document-title';
 import connectToStores from '../utils/connectToStores';
 import GameRoomStore from '../stores/GameRoomStore';
 import AuthStore from '../stores/AuthStore';
 import SettingsStore from '../stores/SettingsStore';
 import * as GameRoomActions from '../actions/GameRoomActions';
-
+import * as GameActions from './Game7/actions/GameActions';
+import { timeConstants } from './Game7/constants/SattiHelper'
+import Modal from 'react-modal'
 import Game7Render from './Game7/components/GameRender'
+import ConfirmGameExitModal from './Game7/components/ConfirmGameExitModal'
+import GameInitModal from './Game7/components/GameInitModal'
+import { Howler } from "howler"
 
 function parseLogin(params) {
   return params.login;
@@ -39,6 +45,24 @@ function getState(props) {
     activeColor
   }
 }
+// const GameInterface = React.createClass({
+//   mixins: [ Lifecycle ],
+//   componentWillMount(){
+//     console.log(1);
+//   },
+//   routerWillLeave(nextLocation) {
+//     // if (!this.state.isSaved)
+//       return 'Your work is not saved! Are you sure you want to leave?'
+//   },
+
+//   render(){
+//     return(
+//       <GameInterface1 {...this.props} {...this.state} {...this.context}/>
+//       )
+//   }
+// })
+
+// export default GameInterface;
 
 @connectToStores([GameRoomStore], getState)
 export default class GameInterface extends Component{
@@ -47,37 +71,28 @@ export default class GameInterface extends Component{
     params: PropTypes.shape({
       id: PropTypes.string
     }).isRequired,
-
-    // Injected by @connectToStores:
-    // user: PropTypes.object,
-    // starred: PropTypes.arrayOf(PropTypes.object).isRequired,
-    // starredOwners: PropTypes.arrayOf(PropTypes.object).isRequired,
-    // isLoadingStarred: PropTypes.bool.isRequired,
-    // isLastPageOfStarred: PropTypes.bool.isRequired
   };
   static childContextTypes = {
-    ifOnline: PropTypes.bool,
-    ifOverlayShown: PropTypes.func
+    ifOnline: PropTypes.bool
+  }
+  static contextTypes = {
+    history: PropTypes.object.isRequired,
   }
   getChildContext() {
     return { 
         ifOnline : this.props.params.id === undefined ? false : true,
-        ifOverlayShown : function(bool, zIndex, status){
-            if(!zIndex) zIndex = 600;
-            if(bool){
-              document.getElementById('game-overlay-screen').style.display = 'block';
-              document.getElementById('game-overlay-screen').style.zIndex = zIndex;
-            }else{
-              document.getElementById('game-overlay-screen').style.display = 'none';
-            }
-          }
       }
   }
   state = {
-    gamePause : false
+    gamePause : false,
+    gameExitModalIsOpen: false,
+    gameInitModalIsOpen: false,
+    offlineGameData: {}
   }
   constructor(props) {
     super(props);
+    this.changeGameInitModalState = this.changeGameInitModalState.bind(this);
+    this.changeGameExitModalState = this.changeGameExitModalState.bind(this);
     // this.pauseToggle = this.pauseToggle.bind(this);
     // this.renderStarredRepos = this.renderStarredRepos.bind(this);
     // this.handleLoadMoreClick = this.handleLoadMoreClick.bind(this);
@@ -92,16 +107,28 @@ export default class GameInterface extends Component{
   componentWillMount() {
     var id = this.props.params.id;
     var profile = this.props.profile;
+    let self = this;
     if(id){
-      GameRoomActions.joinGameRoom(id, profile, 'game7');
+      Howler.unmute();
+      setTimeout(function(){GameRoomActions.joinGameRoom(id, profile, 'game7')},timeConstants.DISPATCH_DELAY);
       socket.on('invalid_room', function(){
-        console.log('invalid_room')
+        self.context.history.go(-1);
       });
       socket.on('room_full', function(){
-        console.log('room_full')
+        self.context.history.go(-1);
       });  
     }else{
-      GameRoomActions.startGameWithBots('game7')
+      GameActions.refreshStore();
+      let gameData = getItemFromLocalStorage('gameData');
+      if(gameData && gameData.state){
+        Howler.mute();
+        this.setState({offlineGameData: gameData, gameInitModalIsOpen: true});
+      }else{
+        Howler.unmute();
+        setTimeout(function(){
+          GameActions.initGame();
+        },0);
+      }
     }
   }
   componentDidMount(){
@@ -109,42 +136,53 @@ export default class GameInterface extends Component{
       var clientData = data.clientData;
       GameRoomActions.gameStateReceived('game7', clientData);
     })
-    GameRoomActions.fetchScoresFromServer('game7');
+    setTimeout(function(){GameRoomActions.fetchScoresFromServer('game7')},timeConstants.DISPATCH_DELAY);
+    this._unlistenBeforeLeavingRoute = this.context.history.listenBeforeLeavingRoute(this.props.route, this.routerWillLeave.bind(this));
   }
   componentWillUnmount() {
+    if (this._unlistenBeforeLeavingRoute) this._unlistenBeforeLeavingRoute();
     var id = this.props.params.id;
-    // var profile = this.props.profile;
     GameRoomActions.leaveGameRoom(id, 'game7');
+    socket.removeAllListeners("invalid_room");
+    socket.removeAllListeners("room_full");
+    socket.removeAllListeners("play_card");
+    socket.removeAllListeners("room_joined");
+    socket.removeAllListeners("player_changed");
+  }
+  routerWillLeave(nextLocation) {
+      Howler.mute();
+      if(this.state.gameExitModalIsOpen){
+        this.changeGameExitModalState(false);
+        return true;
+      }else{
+        this.changeGameExitModalState(true);
+        return false;
+      }
   }
   componentWillReceiveProps(nextProps) {
-    // if (parseLogin(nextProps.params) !== parseLogin(this.props.params)) {
-    //   requestData(nextProps);
-    // }
-  }
 
+  }
+  changeGameExitModalState(state){
+    this.setState({gameExitModalIsOpen: state, gamePause: state});
+  }
+  changeGameInitModalState(state){
+    this.setState({gameInitModalIsOpen: state});
+  }
   render() {
-    let gamePause = this.state.gamePause;
+    let { gamePause, gameExitModalIsOpen, gameInitModalIsOpen, offlineGameData }  = this.state;
     let pauseButtonText, pauseButtonStyle, overlayMessage;
-    if(this.context.ifOnline){
-      pauseButtonStyle = {
-        display: 'none'
-      }
-    }else{
-      pauseButtonStyle = {
-        zIndex : 601
-      }
-      if(gamePause){
-        pauseButtonText = 'R'
-      }else{
-        pauseButtonText = 'P'
-      }
+    if(this.props.params.id){
+      gamePause = false;
     }
     return (
       <div>
         <div className={this.props.activeColor.name+' fixed-bkg'}></div>
-        <button onClick={this.pauseToggle.bind(this)} className = "distribute-button" style= {pauseButtonStyle}> {pauseButtonText} </button>
-        <div className={'overlay-screen'} id={'game-overlay-screen'}><span></span></div>
+        {/*<button onClick={ this.pauseToggle.bind(this)} style= {pauseButtonStyle} className="mdl-button mdl-js-button mdl-button--icon pause-button">
+                    <i className="material-icons">{pauseButtonText}</i>
+                </button>*/}
         <Game7Render gamePause={gamePause}/>
+        <GameInitModal gameInitModalIsOpen={gameInitModalIsOpen} changeGameInitModalState={this.changeGameInitModalState} offlineGameData={offlineGameData}/>
+        <ConfirmGameExitModal gameExitModalIsOpen={gameExitModalIsOpen} changeGameExitModalState={this.changeGameExitModalState}/>
       </div>
     );
   }

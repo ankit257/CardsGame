@@ -31,7 +31,7 @@ export const timeConstants = {
 	BOT_THINKING_DELAY	: 100,
 	SHOW_SCORE_DELAY	: 3000,
 	TOLERANCE			: 10,
-	DISPATCH_DELAY		: 100
+	DISPATCH_DELAY		: 0
 }
 export const gameVars = {
 	noOfPlayers			: 4,

@@ -47,7 +47,7 @@ function getState(props, ifOnline){
 }
 
 
-@connectToGameStores([GameStoreOffline, GameStoreOnline, ScoresStore], getState)
+@connectToGameStores([GameStoreOnline, ScoresStore], getState)
 export default class StatusComponent extends Component {
 	static contextTypes = {
 		ifOnline: PropTypes.bool
@@ -92,7 +92,12 @@ export default class StatusComponent extends Component {
 		})
 	}
 	startNextRound(){
-		GameActions.initStartGame();
+		let gameState = this.props.gameState;
+		if(gameState == 'ROUND_END_SHOW_SCORES'){
+			GameActions.initStartGame();
+		}else if(gameState == 'GAME_END_SHOW_SCORES'){
+			GameActions.initGame();
+		}
 		this.hideScore();
 	}
 	updateSelf(){
@@ -161,7 +166,6 @@ export default class StatusComponent extends Component {
 		let scoresUpdated = this.props.scoresUpdated;
 		let className = 'game-status';
 		let adminButtonStyle = {display: 'none'};
-		let tableButtonStyle = {zIndex: gameCSSConstants.zIndex.SCORE + 2};
 		let style = {
 			width: gameCSSConstants.gameBody.width - 2*(gameCSSConstants.cardSize.height - 2*gameCSSConstants.cardSize.height*gameCSSConstants.cardOffset.screenOut),
 			bottom: -gameCSSConstants.gameBody.height + gameCSSConstants.gameBody.padding + gameCSSConstants.cardSize.height + gameCSSConstants.player.statusOffset
@@ -169,6 +173,11 @@ export default class StatusComponent extends Component {
 		let scoreButtonStyle ={
 			bottom: gameCSSConstants.cardSize.height + gameCSSConstants.player.statusOffset
 		}
+		let nextButtonStyle = _.extend({}, scoreButtonStyle);
+		let tableButtonStyle = {
+			zIndex: gameCSSConstants.zIndex.SCORE + 2,
+			bottom: gameCSSConstants.cardSize.height + gameCSSConstants.player.statusOffset
+		};
 		let overlayStyle = {
 			width: 0,
 			height: 0,
@@ -185,6 +194,27 @@ export default class StatusComponent extends Component {
 			className = 'game-status score';
 			if(gameState == 'ROUND_END_SHOW_SCORES' && !this.context.ifOnline){
 				status = 'Well Played! Time for scores.';
+				nextButtonClass.show = true;
+				okButtonClass.show = false;
+			}else if(gameState == 'GAME_END_SHOW_SCORES' && !this.context.ifOnline){
+				players.map(player=>{
+					if(player.position == 0){
+						switch(player.rank){
+							case 1:
+								status = 'Congratulations! You won this game!'
+								break;
+							case 2:
+								status = 'Wow! 2nd'
+								break;
+							case 3:
+								status = 'Oops...better luck next time'
+								break;
+							case 4:
+								status = 'You lost!'
+								break;
+						}
+					}
+				})
 				nextButtonClass.show = true;
 				okButtonClass.show = false;
 			}else{
@@ -253,8 +283,8 @@ export default class StatusComponent extends Component {
 					If it's taking too long for other players to join, you can start now with bots. Players can join the same game later.
 					<button onClick={this.requestServerBots} className={'request-bot-button'}>Start Game </button>
 				</div>
-				<button onClick={this.startNextRound} onTouch={this.startNextRound} style={scoreButtonStyle} className={classNames(nextButtonClass)}>
-					<i className='material-icons'>check_circle</i>
+				<button onClick={this.startNextRound} onTouch={this.startNextRound} style={nextButtonStyle} className={classNames(nextButtonClass)}>
+					<i className='material-icons'>chevron_right</i>
 				</button>
 				<button onClick={this.showScore} onTouch={this.showScore} style={scoreButtonStyle} className={classNames(showScoreButtonClass)}>
 					<i className='material-icons'>toys</i>

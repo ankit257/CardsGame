@@ -90,6 +90,7 @@ export default class SettingsPage extends Component{
     }
   }
   componentWillMount() {
+    Howler.unmute();
     var newState = _.extend({}, this.state);
     newState.activeColor = this.props.settings.activeColor;
     newState.classes.activeCardBack = this.props.settings.activeCardBack;
@@ -110,6 +111,8 @@ export default class SettingsPage extends Component{
     },20);
   }
   componentDidMount(){
+    console.log('did mount');
+    console.log(this.props);
     setTimeout(function(){
       componentHandler.upgradeAllRegistered();
     },20);
@@ -250,7 +253,7 @@ export default class SettingsPage extends Component{
                   <i className="material-icons md-18">wallpaper</i>
                   Deck Back</a>
                 <a href="#sound-panel" className="mdl-tabs__tab">
-                  <i className="material-icons md-18">volume_down</i>
+                  <i className="material-icons md-18">hearing</i>
                   Sound
                 </a>
             </div>

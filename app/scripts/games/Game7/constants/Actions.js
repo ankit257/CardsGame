@@ -2,6 +2,7 @@ import keyMirror from 'keymirror';
 
 export default keyMirror({
 	GAME7_OFFLINE_INIT_GAME						: null,
+	GAME7_OFFLINE_INIT_GAME_FROM_LOCAL 			: null,
 	GAME7_OFFLINE_INIT_START_GAME					: null,
 	GAME7_OFFLINE_DISPLAY_GAME_STATE				: null,
 
@@ -59,6 +60,8 @@ export default keyMirror({
 	GAME_7_ONLINE_PLAYER_CHANGED: null,
 	GAME_7_ONLINE_REQUEST_SERVER_BOT: null,
 
-	GAME7_ONLINE_ADMIN_REQUEST_DISTRIBUTION: null
+	GAME7_ONLINE_ADMIN_REQUEST_DISTRIBUTION: null,
+
+	GAME_7_REFRESH_STORE: null
 
 });

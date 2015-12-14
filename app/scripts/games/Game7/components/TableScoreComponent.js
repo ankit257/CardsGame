@@ -34,23 +34,30 @@ export default class TableScoreComponent extends Component {
 		}
 		let t = '<table>' + this.getScoreTrs() + '</table>';
 		let style = {
-			maxHeight: gameCSSConstants.gameBody.height - 2*gameCSSConstants.score.sep - 36 - 40 - 40 -20,
+			maxHeight: gameCSSConstants.gameBody.height - 2*gameCSSConstants.score.sep - 46 - 40 - 40 -20,
 			overflow: 'auto'
+		}
+		if(score.penalty && score.penalty.length == 0){
+			style = {display: 'none'};
 		}
 
 		return(
 			<div className={className} style={style}>
 				<table>
+					<thead>
 						<tr>
 							<th> # </th>
 							<th> Penalty </th>
 						</tr>
+					</thead>
+					<tbody>
 					{score.penalty.map((penalty,index) => 
 						<tr key={index}>
 							<td> {index+1}. </td>
 							<td> {penalty} </td>
 						</tr>
 						)}
+					</tbody>
 				</table>
 			</div>
 			)

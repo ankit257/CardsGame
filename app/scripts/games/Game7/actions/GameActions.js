@@ -6,6 +6,10 @@ export function initGame(){
 	dispatch(Actions.GAME7_OFFLINE_INIT_GAME, {});
 }
 
+export function initGameFromLocal(data){
+	dispatch(Actions.GAME7_OFFLINE_INIT_GAME_FROM_LOCAL, {data});
+}
+
 export function initStartGame() {
 	dispatch(Actions.GAME7_OFFLINE_INIT_START_GAME, {});
 }
@@ -132,4 +136,8 @@ export function requestDistribution(){
 
 export function initRoundOnline(){
 	dispatch(Actions.GAME_7_ONLINE_INIT_ROUND, {});	
+}
+
+export function refreshStore(){
+	dispatch(Actions.GAME_7_REFRESH_STORE, {});		
 }

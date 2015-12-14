@@ -1,5 +1,9 @@
 import React, { PropTypes, Component } from 'react';
+import { Route } from 'react-router';
+// import TransitionGroup from  'react-addons-css-transition-group';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import AuthStore from '../stores/AuthStore';
+import SettingsStore from '../stores/SettingsStore';
 import DocumentTitle from 'react-document-title';
 import * as LoginActions from '../actions/LoginActions';
 import connectToStores from '../utils/connectToStores';
@@ -8,6 +12,7 @@ import classNames from 'classnames/dedupe';
 import selectn from 'selectn';
 import Loading from '../components/Loading';
 
+// console.log(Route);
 /**
  * Requests data from server for current props.
  */
@@ -20,9 +25,11 @@ function requestData(props) {
  */
 function getState(props) {
   const User = AuthStore.get();
+  let bckClassName = SettingsStore.getBckClassName()
   // const gameRoom = GameRoomStore.get();
   return {
     User,
+    bckClassName
     // gameRoom
   }
 }
@@ -54,14 +61,21 @@ export default class AuthHandler extends Component{
     // console.log(122);
   }
   render() {
+    let name = this.props.routes[this.props.routes.length-1].name;
+    // console.log(this.props.children);
+    // console.log(this.props.routes);
     return(
       <div>
-      <div className="loader-div" id="loader-div" style={{display:'none'}}>
-          <Loading style={{'zoom':0.75}}/>
-      </div>
-      <div {...this.props} {...this.context} {...this.state}>
-      {this.props.children}
-      </div>      
+        <div className={this.props.bckClassName}></div>
+        <div className="loader-div" id="loader-div" style={{display:'none'}}>
+            <Loading style={{'zoom':0.75}}/>
+        </div>
+        <ReactCSSTransitionGroup component="div" transitionAppear={true} transitionName="page-transition" transitionAppearTimeout={500} transitionEnterTimeout={500} transitionLeaveTimeout={500}>
+          <div {...this.props} {...this.context} {...this.state}  key={name}>
+            {this.props.children}
+          </div> 
+        </ReactCSSTransitionGroup>
+        
       </div>
       )
     }

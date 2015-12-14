@@ -17,15 +17,11 @@ export default class GameRender extends Component {
 		zoomStyle : {}
 	}
 	static contextTypes = {
-		ifOnline: PropTypes.bool,
-		ifOverlayShown: PropTypes.func
+		ifOnline: PropTypes.bool
 	}
 	constructor(props){
 		super(props);
 		this.handleResize = this.handleResize.bind(this);
-	}
-	componentWillMount(){
-		
 	}
 	componentWillUnmount(){
 		if(window.detachEvent) {
@@ -45,9 +41,6 @@ export default class GameRender extends Component {
 		else if(window.addEventListener) {
 			window.addEventListener('resize', this.handleResize);
 		}
-		if(!this.context.ifOnline){
-			// GameActions.initGame();	
-		}
 	}
 	handleResize(e){
 		this.setState({
@@ -61,8 +54,6 @@ export default class GameRender extends Component {
 		if(this.props.gamePause != nextProps.gamePause){
 			GameActions.togglePauseGame();
 		}
-		if(nextProps.gamePause) this.context.ifOverlayShown(true);
-			else this.context.ifOverlayShown(false);
 	}
 	deleteLocalStore(){
 		localStorage.removeItem('gameData');

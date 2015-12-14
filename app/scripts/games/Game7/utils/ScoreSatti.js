@@ -5,7 +5,7 @@ export default class ScoreSatti{
 						total: 0,
 						isNotPlayable: 0
 					},
-					penalty			: [],
+					penalty			: [0,10,14,25,3,24,10],
 					xpgain			: []
 		})
 	}

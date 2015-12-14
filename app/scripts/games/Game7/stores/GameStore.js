@@ -1,9 +1,10 @@
 import React from 'react';
-import { register } from '../../../../scripts/AppDispatcher';
+import { register, waitFor } from '../../../../scripts/AppDispatcher';
 import { createStore, mergeIntoBag, isInBag } from '../../../../scripts/utils/StoreUtils';
 import selectn from 'selectn';
 import { Howl } from "howler"
 import * as GameActions from '../actions/GameActions';
+import PauseStore from '../stores/PauseStore';
 import { timeConstants, gameVars } from '../constants/SattiHelper'
 
 import PlayingCard from '../utils/PlayingCard';
@@ -36,6 +37,14 @@ const GameStore = createStore( {
 	type : 'offline',
 	getGameObj(){
 		return _game;
+	},
+	refreshStore(){
+		_game = {}
+		_playersCards = []
+		_playableCount = []
+		_showScore = false
+		_pauseState = false;
+		_scoreUpdated = false;
 	},
 	ifGameWaiting(){
 		return false;
@@ -162,12 +171,13 @@ const GameStore = createStore( {
 				let score = player.score;
 				let penalty = score.penalty[score.penalty.length-1];
 				if(penalty) {
-					xp = Math.round((100-penalty)/10);
+					xp = Math.round((30-penalty)/3);
 				}else{
 					xp = 0;
 				}
 			}
 		})
+		if(xp<0) xp = 0;
 		return xp;
 	},
 	updatePlayersArray(){
@@ -333,6 +343,7 @@ const GameStore = createStore( {
 			case 'PLAYING_CARD':
 				GameStore.firePlayCardSuccess();
 				break;
+			case 'GAME_END':
 			case 'ROUND_END':
 				GameStore.fireShowScores();
 				break;
@@ -368,21 +379,22 @@ GameStore.dispatchToken = register(action=>{
 			// GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_INIT_GAME':
-			let gameData;
-			gameData = localStorage.getItem('gameData');
-			if(gameData){
-				gameData = JSON.parse(gameData);
-				let newGameData = GameStore.makeGameObj(gameData);
-				GameStore.setGameObj(newGameData);
-				GameStore.actOnState();
-			}else{
-				GameStore.initGame();
-				GameStore.initDeck();
-				GameStore.setCardPositionByState();
-				GameStore.fireInitStartGame();
-			}
-			
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStore.refreshStore();
+			GameStore.initGame();
+			GameStore.initDeck();
+			GameStore.setCardPositionByState();
+			GameStore.fireInitStartGame();			
+			GameStore.emitAndSaveChange( 'gameData', {} );
+			// GameStore.emitChange();
+			break;
+		case 'GAME7_OFFLINE_INIT_GAME_FROM_LOCAL':
+			GameStore.refreshStore();
+			let gameData = action.data;
+			// console.log(gameData)
+			let newGameData = GameStore.makeGameObj(gameData);
+			GameStore.setGameObj(newGameData);
+			GameStore.actOnState();
+			// GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_INIT_START_GAME':
 			GameStore.hideScores();
@@ -390,6 +402,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setGameState('GAME_STARTED');
 			GameStore.fireInitRound();
 			GameStore.emitAndSaveChange( 'gameData', _game );
+			// GameStore.emitChange();
 			break;
 		case 'GAME7_OFFLINE_INIT_ROUND':
 			GameStore.initRound();
@@ -401,7 +414,6 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 			GameStore.fireDistributeCards();
 			GameStore.setGameState('INIT_ROUND_SUCCESS');
-			
 			GameStore.emitChange();
 			break;
 		case 'GAME7_OFFLINE_DISTRIBUTE_CARDS':
@@ -454,12 +466,12 @@ GameStore.dispatchToken = register(action=>{
 		case 'GAME7_OFFLINE_SKIP_TURN':
 			passAudio.play();
 			break;
-		 case 'GAME7_OFFLINE_TURN_SKIPPED':
+		case 'GAME7_OFFLINE_TURN_SKIPPED':
 		 	GameStore.setGameState('NOW_NEXT_TURN');
 		 	GameStore.fireNextTurn();		 	
 		 	GameStore.emitAndSaveChange( 'gameData', _game );
 		 	break;
-		 case 'GAME7_OFFLINE_NOW_NEXT_TURN':
+		case 'GAME7_OFFLINE_NOW_NEXT_TURN':
 		 	GameStore.nextTurn();
 			GameStore.updatePlayersArray();
 			GameStore.updatePlayableCards();
@@ -469,14 +481,19 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 		 	GameStore.emitChange();
 		 	break;
-		 case 'GAME7_OFFLINE_SHOW_SCORES':
+		case 'GAME7_OFFLINE_SHOW_SCORES':
 		 	GameStore.showScores();
 			GameStore.setRoundEndPos();
-			GameStore.setGameState('ROUND_END_SHOW_SCORES');
+			GameStore.setGameState(GameStore.getGameProperty('state')+'_SHOW_SCORES');
 		 	GameStore.emitChange();
 		 	break;
-		 case 'GAME_7_OFFLINE_HIDE_SCORE_UPDATED':
+		case 'GAME_7_OFFLINE_HIDE_SCORE_UPDATED':
 			GameStore.scoreUpdatedFalse();
+			break;
+		case 'GAME_7_REFRESH_STORE':
+			waitFor([PauseStore.dispatchToken]);
+			GameStore.refreshStore();
+			GameStore.emitChange();
 			break;
 		 }
 });

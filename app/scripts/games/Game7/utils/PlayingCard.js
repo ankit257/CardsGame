@@ -93,9 +93,9 @@ export default class PlayingCard{
 				this.dx = 0;
 				this.dy = 0;
 				this.showFace = false;
+				this.calculateActualPosition();
 				break;
 		}
-		this.calculateActualPosition();
 	}
 	setPositionByState(){
 		this.oldShowFace = this.showFace;

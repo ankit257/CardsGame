@@ -37,6 +37,7 @@ export default class SmallScoreComponent extends Component {
 		let style = {
 			zIndex : gameCSSConstants.zIndex.STATUS - 1
 		}
+		if(totalPenalty>=100) totalPenalty = 100;
 		let barStyle ={
 			width : totalPenalty + '%'
 		}

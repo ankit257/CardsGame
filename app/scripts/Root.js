@@ -1,11 +1,12 @@
 import React, { PropTypes, Component } from 'react';
-import { Router, Route } from 'react-router';
+import { Route, RouteHandler, Router } from 'react-router';
 
 import App from './App';
 import SettingsPage from './pages/SettingsPage';
 import AuthHandler from './pages/AuthHandler';
 
 import GamePage from './pages/GamePage';
+import GamePageMulti from './pages/GamePageMulti';
 import Game325 from './games/Game325';
 import GameInterface from './games/GameInterface';
 
@@ -15,6 +16,9 @@ export default class Root extends Component {
   }
   static childContextTypes = {
     showLoader: PropTypes.func.isRequired
+  }
+  static contextTypes = {
+    router: PropTypes.func
   }
   getChildContext() {
     return { 
@@ -37,7 +41,8 @@ export default class Root extends Component {
         <Route name='auth' path='/' component={AuthHandler}>
           <Route name='settings' path='/settings' component={SettingsPage} />
           <Route name='games' path='/games' component={GamePage} />
-          <Route name='game7' path='/game7' component={GameInterface} /> 
+          <Route name='gamesmulti' path='/gamesmulti' component={GamePageMulti} />
+          <Route name='game7' path='/game7' component={GameInterface}/> 
           <Route name='game7multi' path='/game7/(:id)' component={GameInterface} />
           <Route name='game325' path='/game325(/)(:id)' component={Game325} />
         </Route>

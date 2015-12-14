@@ -129,11 +129,12 @@ img.player-type.player-type-waiting {
 }
 .player-info .table-score {
     position: absolute;
-    top: 76px;
+    top: 86px;
     left: 0;
     width: 100%;
     opacity: 0;
     transition: all 100ms ease-in 0ms;
+    padding: 5px 2px;
 }
 .player-info .table-score.show {
     opacity: 1;
@@ -159,20 +160,16 @@ img.player-type.player-type-waiting {
 }
 button.table-button {
     position: fixed;
-    left: 450px;
-    bottom: 80px;
-    opacity: 0;
-    transition: all 0 linear 0ms;
-    background-color: #FF9800;
+    right: 30px;
+    display: none;
+    color: #fff;
 }
 button.table-button.show{
-    opacity: 1;
-    transition: all 200ms ease-out 500ms;
+    display: block;
+    right: 80px;
 }
 button.table-button.show.shown{
-    background-color: rgba(200,200,200,0.3);
-    color: #111;
-    transition: all 200ms ease-out 0ms;
+    color: rgba(255,255,255,0.5);
 }
 /*button.next-button {
     position: absolute;
@@ -315,7 +312,7 @@ button.ok-button.show{
     -webkit-transition: 300ms all ease-in-out 0s;
     transition: 300ms all ease-in-out 0s;
 }*/
-.distribute-button{
+/*.distribute-button{
     position: fixed;
     top: 5px;
     left: 5px;
@@ -329,6 +326,13 @@ button.ok-button.show{
 }
 .display-button{
     left: 80%;
+}*/
+.pause-button.mdl-button{
+    position: fixed;
+    top: 10px;
+    right: 30px;
+    font-size: 24px;
+    color: #111;
 }
 .overlay-screen {
     display: none;

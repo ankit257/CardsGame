@@ -80,6 +80,7 @@ export default class AnimEngine{
 	static requestId = undefined;
 	static makeReadyForNext(){
 		this.pause = {
+			state : false,
 			start : 0,
 			end   : 0
 		}
@@ -127,9 +128,9 @@ export default class AnimEngine{
 				break;
 			case 'DEALER_SELECTION_SUCCESS':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
-				action   = GameActions.startGame;
+				action   = ifOnline ? GameActions.onlineStartGame : GameActions.startGame;
 				this.audio 	 = distributeAudio;
-				this.audio.play();
+				// this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'SELECT_DEALER':
@@ -139,16 +140,25 @@ export default class AnimEngine{
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
+			case 'SET_TRUMP_SUCCESS':
+				console.log(123)
+				// duration = timeConstants.TOTAL_DISTR_DELAY;
+				// action   = ifOnline ? GameActions.onlineTrumpSetSuccess : GameActions.trumpSetSuccess;
+				// this.audio 	 = distributeAudio;
+				// this.audio.play();
+				// this.animateCards(deck, duration, action, gameState);
+				break;
 			case 'DISTRIBUTING_CARDS_1':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
-				action   = GameActions.distributionFirstSuccess;
+				// action   = GameActions.distributionFirstSuccess;
+				action   = ifOnline ? GameActions.onlineDistributionFirstSuccess : GameActions.distributionFirstSuccess;
 				this.audio 	 = distributeAudio;
-				this.audio.play();
+				// this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'DISTRIBUTING_CARDS_2':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
-				action   = GameActions.distributionSecondSuccess;
+				action   = ifOnline ? GameActions.onlineDistributionSecondSuccess : GameActions.distributionSecondSuccess;
 				this.audio 	 = distributeAudio;
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
@@ -194,7 +204,7 @@ export default class AnimEngine{
 			case 'SET_TRUMP':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-					action = GameActions.botWillPlay;
+					action = ifOnline ? '' : GameActions.botWillPlay;
 				}else if(botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 					action = null;
@@ -202,7 +212,10 @@ export default class AnimEngine{
 					duration = 0;
 					action = null;
 				}
-				this.animateCards(deck, duration, action, gameState);
+				if(!ifOnline){
+					this.animateCards(deck, duration, action, gameState); // Animate only qith bots. While rendering from server 	
+				}														  // Its already handled
+				
 				break;
 			case 'GAME325_WITHDRAW_CARD':
 				if(botState == 'BOT_SHOULD_PLAY'){

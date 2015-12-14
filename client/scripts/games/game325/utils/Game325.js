@@ -262,6 +262,9 @@ export default class Game325{
 			}
 		}
 	}
+	setTrump(trump){
+		this.trump = trump;
+	}
 	playCard(card){
 		if(card.ownerPos == this.activePlayerPos && this.state == 'READY_TO_PLAY_NEXT'){
 			for(let deckcard of this.deck){

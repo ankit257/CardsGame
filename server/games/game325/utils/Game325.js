@@ -61,7 +61,8 @@ var Game325 = (function () {
 			otherPlayerId: 0,
 			pauseState: false,
 			dealerId: null,
-			playerPosArray: [0, 1, 2]
+			playerPosArray: [0, 1, 2],
+			playerIds : [],
 		});
 	}
 
@@ -92,7 +93,9 @@ var Game325 = (function () {
 				card.setDefaultState();
 				// card.setPositionByState();
 			});
-			this.updateHandsToMake();
+			// if(this.gameRound%30 == 0){
+			// 	this.updateHandsToMake();
+			// }
 			// this.setDeckIndex();
 			this.state = 'INIT_ROUND';
 			this.playedCards = {
@@ -158,6 +161,7 @@ var Game325 = (function () {
 				player.position = i;
 				this.players.push(player);
 			};
+			
 			this.state = 'INIT_PLAYERS';
 			this.botState = 'BOT_READY';
 		}
@@ -195,7 +199,12 @@ var Game325 = (function () {
 	}, {
 		key: 'distributeCards',
 		value: function distributeCards() {
-			var cardDistributionStartFrom = this.dealerPos + 1;
+			for (var i = 0; i < this.deck.length; i++) {
+				if(this.deck[i].state == 'SELECT_DEALER'){
+					this.deck[i].state = 'IN_DECK';	
+				}
+			};
+			var cardDistributionStartFrom = this.dealerId + 1;
 			if (cardDistributionStartFrom === this.players.length) {
 				cardDistributionStartFrom = 0;
 			}
@@ -213,6 +222,7 @@ var Game325 = (function () {
 						card.animTime = _constantsSattiHelper.timeConstants.SINGLE_DISTR_ANIM;
 						card.delay = _constantsSattiHelper.timeConstants.SINGLE_DISTR_DELAY * (n * playersLength * (this.distributionState + 1) - this.distributionIndex);
 						card.ownerPos = this.playerPosArray[_j]; //this.players[j].position;
+						card.ownerId = this.playerIds[this.playerPosArray[_j]]
 						this.distributionIndex++;
 						card.zIndex = _constantsSattiHelper.gameCSSConstants.zIndex.DISTR + _i;
 						card.index = n * [this.distributionState] + _i;
@@ -235,11 +245,14 @@ var Game325 = (function () {
 	}, {
 		key: 'distributeOneCardEach',
 		value: function distributeOneCardEach() {
+			for(let player of this.players){
+				this.playerIds.push(player.id);
+			}
 			var biggestCard;
 			for (var i = 0; i < this.players.length; i++) {
 				this.deck[i].ownerPos = i;
+				this.deck[i].ownerId = this.playerIds[i];
 				this.deck[i].state = 'SELECT_DEALER';
-
 				this.deck[i].animTime = _constantsSattiHelper.timeConstants.SINGLE_DISTR_ANIM;
 				this.deck[i].delay = _constantsSattiHelper.timeConstants.SINGLE_DISTR_DELAY * (i + 1);
 
@@ -295,7 +308,7 @@ var Game325 = (function () {
 		value: function checkBotPlay() {
 			var activePlayer = this.players[this.activePlayerPos];
 			if (activePlayer.type == 'BOT') {
-				console.log(this.state);
+				// console.log(this.state);
 				this.botState = 'BOT_SHOULD_PLAY';
 				setTimeout(function () {
 					GameActions.playBot();
@@ -401,7 +414,14 @@ var Game325 = (function () {
 				}
 			}
 		}
-	}, {
+	}, 
+	{
+		key : 'setTrump',
+		value : function setTrump(trump){
+			this.trump = trump;
+		}
+	},
+	{
 		key: 'playCard',
 		value: function playCard(card) {
 			if (card.ownerPos == this.activePlayerPos && this.state == 'READY_TO_PLAY_NEXT') {
@@ -515,26 +535,47 @@ var Game325 = (function () {
 			var _iteratorNormalCompletion7 = true;
 			var _didIteratorError7 = false;
 			var _iteratorError7 = undefined;
-
+			
 			try {
+				if(this.gameRound == 1){
+						var x = this.dealerId;
+						this.players[x].handsToMake = 2;
+						x++;
+						if(x == 3){
+							x = 0;
+						}
+						this.players[x].handsToMake = 5;
+						x++;
+						if(x == 3){
+							x = 0;
+						}
+						this.players[x].handsToMake = 3;
+					}
 				for (var _iterator7 = this.players[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
 					var player = _step7.value;
-
-					var scoreObj = new _utilsScore3252['default']();
+					// var scoreObj = new _utilsScore3252['default']();
+					var scoreObj = {
+						handsToMake : 0,
+						handsMade : 0
+					}
 					player.score.push(scoreObj);
-					player.score[this.gameRound].handsToMake = player.handsToMake;
+					
+					if(this.gameRound != 1){
+						var c = arrHands.indexOf(player.handsToMake);
+						if (c == 2) {
+							c = 0;
+						} else {
+							c++;
+						}
+						player.handsToMake = arrHands[c];	
+					}
+					var k = this.gameRound - 1;
 					player.handsMadeInLR = player.handsMade;
 					player.handsToMakeInLR = player.handsToMake;
-					player.score[this.gameRound].handsMade = player.handsMade;
-					player.score[this.gameRound].handsToMake = player.handsToMake;
+					player.score[k].handsMade = player.handsMade;
+					player.score[k].handsToMake = player.handsToMake;
 					player.handsMade = 0;
-					var c = arrHands.indexOf(player.handsToMake);
-					if (c == 2) {
-						c = 0;
-					} else {
-						c++;
-					}
-					player.handsToMake = arrHands[c];
+					
 				}
 			} catch (err) {
 				_didIteratorError7 = true;
@@ -1387,6 +1428,15 @@ var Game325 = (function () {
 		key: 'getPlayerByID',
 		value: function getPlayerByID() {}
 	}, {
+		key: 'setActivePlayerPosOnNewRound',
+		value: function setActivePlayerPosOnNewRound() {
+			for (var i = 0; i < this.players.length; i++) {
+				if(this.players[i].handsToMake == 5){
+					this.activePlayerPos = i;
+				}
+			};
+		}
+	},{
 		key: 'setNextActivePlayerPos',
 		value: function setNextActivePlayerPos() {
 			if (this.gameTurn > 3 && this.gameTurn % 3 == 1) {

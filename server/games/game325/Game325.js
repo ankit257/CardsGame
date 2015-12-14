@@ -22,20 +22,31 @@ module.exports = {
 			case 'START_NEW_ROUND':
 				this.handleSpectators(gameObj);
 				gameObj.initDeck();
-				gameObj.initRound();
-				if(gameObj.dealerId){
+				if(gameObj.gameRound % 30 == 0){
+					gameObj.initRound();	
+				}
+				if(gameObj.dealerId && gameObj.dealerId != null){
 					gameObj.distributeCards();                  // (D1) assign ownerPos to cards in deck
-					this.addIdToDeck(gameObj);                  // (D2) assign ownerIds according to ownerPos before sending to client
+					gameObj.updateHandsToMake();
+					// this.addIdToDeck(gameObj);                  // (D2) assign ownerIds according to ownerPos before sending to client
 					gameObj.setNextActivePlayerPos();           // (A1) set next activePlayerPos
+					gameObj.setActivePlayerPosOnNewRound();
 					this.setNextActivePlayerId(gameObj);        // (A2) transform activePlayerPos to activePlayerId before sending to client
 					gameObj.updatePlayableCards();				// (U after D2) Only use this after deckcards have appropriate ownerIds assigned otherwise problem on client side
 					this.updatePlayersArrayOnServer(gameObj);   // This array resides on server. Is of no use to client. Will be used for bot-logic	
 				}else{
-					console.log(123);
 					gameObj.distributeOneCardEach();
-					this.addIdToDeck(gameObj);
+					// this.addIdToDeck(gameObj);
 				}
 				return this.makeReturnObj('START_NEW_ROUND', gameObj, gameObj);
+				break;
+			case 'SET_TRUMP':
+				var trump = clientData.gameData.trump;
+				gameObj.setTrump(trump);
+				gameObj.distributeCards();                  // (D1) assign ownerPos to cards in deck
+				// this.addIdToDeck(gameObj);                  // (D2) assign ownerIds according to ownerPos before sending to client
+				// gameObj.getActiveplayerPos()
+				return this.makeReturnObj('SET_TRUMP_SUCCESS', gameObj, gameObj);
 				break;
 			case 'CARD_PLAYED':
 				var card = clientData.gameData.card;
@@ -48,7 +59,7 @@ module.exports = {
 				gameObj.updateCardState(deckcard, 'BEING_PLAYED');
 				gameObj.playCard(deckcard, 'server');
 				this.updatePlayersArrayOnServer(gameObj);   // This array resides on server. Is of no use to client. Will be used for bot-logic
-				this.updateRoundPenalty(gameObj);			// Updates round Penalties of all players according to id. To be called only after updating PlayersArrayOnServer
+				this.updateRoundScores(gameObj);			// Updates round Penalties of all players according to id. To be called only after updating PlayersArrayOnServer
 				gameObj.cardPlayed = deckcard;
 				gameObj.updateCardState(deckcard, 'PLAYED');    // This adjusts z-index. Handle it separately on client-side
 				gameObj.addPlayedCard(deckcard);
@@ -188,7 +199,7 @@ module.exports = {
 			};
 		}
 	},
-	updateRoundPenalty: function(gameObj){
+	updateRoundScores: function(gameObj){
 		/*
 			Updates round penalties of all players according to their ids
 		*/
@@ -302,7 +313,6 @@ module.exports = {
 		delete newGameData['deck'];
 		newGameData.deck = new Array();
 		gameData.deck.map(function (deckcard) {
-			console.log(deckcard.rank+'-'+deckcard.suit)
 			newGameData.deck.push(Object.assign(new PlayingCard(deckcard), deckcard));
 		});
 		// copy players

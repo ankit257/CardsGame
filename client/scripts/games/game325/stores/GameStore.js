@@ -85,7 +85,7 @@ const GameStoreOffline = createStore({
 		return _game.trump;
 	},
 	setTrump(trump){
-		_game.trump = trump
+		_game.setTrump(trump)
 	},
 	initRound(){
 		_game.initRound();

@@ -18,19 +18,34 @@ export function distributeOneCardEach(){
 export function selectDealerSuccess(){
 	dispatch(Actions.GAME325_SELECT_DEALER_SUCCESS, {});
 }
+export function onlineSelectDealerSuccess(){
+	dispatch(Actions.GAME325_ONLINE_SELECT_DEALER_SUCCESS, {});
+}
 export function distributingCardsZeroSuccess(){
 	dispatch(Actions.GAME325_DISTRIBUTE_CARDS_ZERO_SUCCESS, {});
 }
 export function startGame(){
 	dispatch(Actions.GAME325_START_GAME, {});
 }
+export function onlineStartGame(){
+	dispatch(Actions.GAME325_ONLINE_START_GAME, {});
+}
+
 export function initRound(){
 	dispatch(Actions.GAME325_INIT_ROUND, {});
+}
+export function onlineTrumpSetSuccess(trump){
+	dispatch(Actions.GAME325_ONLINE_SET_TRUMP_SUCCESS, {trump})
 }
 export function setTrump(trump){
 	dispatch(Actions.GAME325_SET_TRUMP, {trump});
 }
-
+export function onlineSetTrump(trump){
+	dispatch(Actions.GAME325_ONLINE_SET_TRUMP, {trump});
+}
+export function requestServerBot(){
+	dispatch(Actions.GAME325_ONLINE_REQUEST_SERVER_BOT, {});
+}
 export function initRoundSuccess(){
 	dispatch(Actions.GAME325_INIT_ROUND_SUCCESS, {});
 }
@@ -40,12 +55,17 @@ export function initRoundOnlineSuccess(){
 export function distributeCards(){
 	dispatch(Actions.GAME325_DISTRIBUTE_CARDS, {});
 }
-
 export function distributionFirstSuccess(){
 	dispatch(Actions.GAME325_DISTRIBUTE_CARDS_FIRST_SUCCESS, {});
 }
+export function onlineDistributionFirstSuccess(){
+	dispatch(Actions.GAME325_ONLINE_DISTRIBUTE_CARDS_FIRST_SUCCESS, {});
+}
 export function distributionSecondSuccess(){
 	dispatch(Actions.GAME325_DISTRIBUTE_CARDS_SECOND_SUCCESS, {});
+}
+export function onlineDistributionSecondSuccess(){
+	dispatch(Actions.GAME325_ONLINE_DISTRIBUTE_CARDS_SECOND_SUCCESS, {});
 }
 export function playCard(card){
 	dispatch(Actions.GAME325_PLAY_CARD, {card});

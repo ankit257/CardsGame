@@ -1,24 +1,38 @@
 import React, { Component, PropTypes, findDOMNode } from 'react';
 import connectToStores from '../../../../scripts/utils/connectToStores';
+import connectToGameStores from '../../../../scripts/utils/connectToGameStores';
+
 // import shouldPureComponentUpdate from 'react-pure-render/function';
 
 // import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 import {gameCSSConstants, gamePathConstants, trumps} from '../constants/SattiHelper'
 import * as GameActions from '../actions/GameActions';
-import GameStore from '../stores/GameStore';
+import GameStoreOffline from '../stores/GameStore';
+import GameStoreOnline from '../stores/GameStoreOnline';
 
 // import PauseStore from '../stores/PauseStore';
 
-function getState(props){
+function getState(props, ifOnline){
+    let GameStore;
+    if(ifOnline){
+        GameStore = GameStoreOnline;
+    }else{
+        GameStore = GameStoreOffline;
+    }
     let trump = GameStore.getTrump();
+    
     return {
-        trump
+        trump,
+        ifOnline
     }
 }
 
-@connectToStores([GameStore], getState)
+@connectToGameStores([GameStoreOffline, GameStoreOnline], getState)
 export default class TrumpComponent extends Component {
+    static contextTypes = {
+        ifOnline: PropTypes.bool
+    }
     state = {
         trump : null,
     }
@@ -45,14 +59,20 @@ export default class TrumpComponent extends Component {
     }
     setTrump(trumpKey){
         if(!this.state.trump){
-            GameActions.setTrump(trumpKey);
+            if(this.context.ifOnline){
+                GameActions.onlineSetTrump(trumpKey)
+            }else{
+                GameActions.setTrump(trumpKey)
+            }
+            // this.props.ifOnline ?  : ;
         }
     }
     handleTouch(){
     }
     componentWillReceiveProps(nextProps) {
+        console.log(nextProps)
         this.setState({
-            trump : nextProps.trum
+            trump : nextProps.trump
         })
         this.props = nextProps;
     }	

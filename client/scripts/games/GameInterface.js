@@ -103,6 +103,11 @@ export default class GameInterface extends Component{
     var id = this.props.params.id;
     // var profile = this.props.profile;
     GameRoomActions.leaveGameRoom(id, game);
+    socket.removeAllListeners('invalid_room');
+    socket.removeAllListeners('room_full');
+    socket.removeAllListeners('room_joined');
+    socket.removeAllListeners('player_changed');
+    socket.removeAllListeners('game_state');
     // socket.removeAllListeners();
   }
   componentWillReceiveProps(nextProps) {

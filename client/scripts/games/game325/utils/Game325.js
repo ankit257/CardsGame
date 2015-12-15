@@ -164,7 +164,7 @@ export default class Game325{
 			}else{
 				if(this.deck[i].rank > biggestCard.rank){
 					biggestCard = this.deck[i];
-				}else if(this.deck[i].rank = biggestCard.rank){
+				}else if(this.deck[i].rank == biggestCard.rank){
 					var suitOrder = ['C','D','H','S'];
 					if(suitOrder.indexOf(this.deck[i].suit) > suitOrder.indexOf(biggestCard.suit)){
 						biggestCard = this.deck[i];
@@ -174,7 +174,7 @@ export default class Game325{
 		}
 		this.dealerPos = biggestCard.ownerPos;
 		this.state ='SELECT_DEALER';
-		console.log(this.dealerPos);
+		// console.log(this.dealerPos);
 	}
 	distributionDone(){
 		for(let deckcard of this.deck){

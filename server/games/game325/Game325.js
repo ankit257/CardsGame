@@ -13,16 +13,22 @@ module.exports = {
 		*/
 		var clientData = data.clientData, gameData = data.gameData, gameObj = {};
 		var gameObj = this.makeGameObj(gameData);
-		var ifAdminChanged = this.assignAdmin(gameObj);
-		if(ifAdminChanged){
-			console.log('admin changed');
-			console.log(gameObj.adminId);
-		}
+		console.log(clientData.action);
+		console.log(gameObj.state);
+		console.log(gameObj.dealerId);
+		console.log(gameObj.gameRound);
+		// this.checkCards(gameObj);
+		// var ifAdminChanged = this.assignAdmin(gameObj);
+		// if(ifAdminChanged){
+		// 	console.log('admin changed');
+		// 	console.log(gameObj.adminId);
+		// }
 		switch(clientData.action){
 			case 'START_NEW_ROUND':
 				this.handleSpectators(gameObj);
 				gameObj.initDeck();
 				if(gameObj.gameRound % 30 == 0){
+					console.log('here');
 					gameObj.initRound();	
 				}
 				if(gameObj.dealerId && gameObj.dealerId != null){
@@ -107,6 +113,18 @@ module.exports = {
 				break;
 		}
 	},
+	checkCards: function(gameObj){
+		var cardkeys = [];
+		gameObj.deck.map(function(deckcard){
+			cardkeys.push(deckcard.key);
+		})
+		cardkeys.sort(function(a,b){
+			if(a>b) return -1;
+			if(a<b) return 1;
+			if(a==b) return 0;
+		})
+		// console.log(cardkeys);
+	},
 	handleSpectators: function(gameObj){
 		gameObj.players.map(function(player){
 			if(player.type == 'SPECTATOR'){
@@ -122,28 +140,28 @@ module.exports = {
 			}
 		};
 	},
-	assignAdmin: function(gameObj){
-		// var currentAdminId = gameObj.adminId;
-		// var newAdminId = '';
-		// var playerIds = this.getPlayerIds(gameObj);
-		// for (var i = 0; i < playerIds.length; i++) {
-		// 	for (var j = 0; j < gameObj.players.length; j++) {
-		// 		if(newAdminId == '' && gameObj.players[j].id == playerIds[i] && (gameObj.players[j].type == 'HUMAN' || gameObj.players[j].type == 'ADMIN')){
-		// 			newAdminId = playerIds[i];
-		// 			gameObj.players[j].type = 'ADMIN';
-		// 			break;
-		// 		}
-		// 	};
-		// 	if(newAdminId != '') break;
-		// };
-		// gameObj.adminId = newAdminId;
-		// if(currentAdminId == '' || currentAdminId == newAdminId){
-		// 	return false;  // Same Admin
-		// }else{
-		// 	return true;   // Different Admin
-		// }
-		return false;
-	},
+	// assignAdmin: function(gameObj){
+	// 	// var currentAdminId = gameObj.adminId;
+	// 	// var newAdminId = '';
+	// 	// var playerIds = this.getPlayerIds(gameObj);
+	// 	// for (var i = 0; i < playerIds.length; i++) {
+	// 	// 	for (var j = 0; j < gameObj.players.length; j++) {
+	// 	// 		if(newAdminId == '' && gameObj.players[j].id == playerIds[i] && (gameObj.players[j].type == 'HUMAN' || gameObj.players[j].type == 'ADMIN')){
+	// 	// 			newAdminId = playerIds[i];
+	// 	// 			gameObj.players[j].type = 'ADMIN';
+	// 	// 			break;
+	// 	// 		}
+	// 	// 	};
+	// 	// 	if(newAdminId != '') break;
+	// 	// };
+	// 	// gameObj.adminId = newAdminId;
+	// 	// if(currentAdminId == '' || currentAdminId == newAdminId){
+	// 	// 	return false;  // Same Admin
+	// 	// }else{
+	// 	// 	return true;   // Different Admin
+	// 	// }
+	// 	return false;
+	// },
 	checkRoundEnd: function(gameObj){
 		this.updatePlayersArrayOnServer(gameObj);
 		var playersCards = gameObj.playersCardsServer;

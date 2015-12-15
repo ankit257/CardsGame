@@ -40,7 +40,7 @@ export function dispatch(type, action = {}) {
     if (action.error) {
       console.error(type, action);
     } else {
-      // console.log(type, action);
+      console.log(type, action);
     }
   }
 

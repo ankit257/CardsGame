@@ -28,22 +28,22 @@ exports.gamePathConstants = gamePathConstants = {
 };
 exports.gamePathConstants = _temporalAssertDefined(gamePathConstants, 'gamePathConstants', _temporalUndefined) && gamePathConstants;
 exports.timeConstants = timeConstants = {
-	TOTAL_DISTR_DELAY: 50 * 52 + 1000, // = SINGLE_DISTR_DELAY*52 + SINGLE_DISTR_ANIM
-	TOTAL_PLAY_DELAY: 500 + 0, // = PLAY_ANIM + PLAY_DELAY
-	TOTAL_DECK_DELAY: 100 + 200 + 500, // = DECK_ANIM + DECK_DELAY + 500
-	SINGLE_DISTR_DELAY: 50,
-	SINGLE_DISTR_ANIM: 1000,
-	PLAY_ANIM: 500,
-	PLAY_DELAY: 0,
-	DECK_DELAY: 100,
-	DECK_ANIM: 200,
-	REARRANGE_ANIM: 100,
-	SKIP_TURN_DELAY: 1000,
-	ROUND_END_WAIT: 2000,
-	BOT_THINKING_DELAY: 100,
-	SHOW_SCORE_DELAY: 3000,
-	TOLERANCE: 10,
-	DISPATCH_DELAY: 100
+	TOTAL_DISTR_DELAY 	: 500*15 + 500, 			// = SINGLE_DISTR_DELAY*52 + SINGLE_DISTR_ANIM
+	TOTAL_PLAY_DELAY	: 500 + 0,				// = PLAY_ANIM + PLAY_DELAY
+	TOTAL_DECK_DELAY	: 100 + 200 + 500, 			// = DECK_ANIM + DECK_DELAY + 500
+	SINGLE_DISTR_DELAY	: 500,
+	SINGLE_DISTR_ANIM	: 500,
+	PLAY_ANIM			: 500,
+	PLAY_DELAY			: 0,
+	DECK_DELAY			: 100,
+	DECK_ANIM			: 200,
+	REARRANGE_ANIM		: 100,
+	SKIP_TURN_DELAY		: 1000,
+	ROUND_END_WAIT		: 2000,
+	BOT_THINKING_DELAY	: 100,
+	SHOW_SCORE_DELAY	: 3000,
+	TOLERANCE			: 10,
+	DISPATCH_DELAY		: 100
 };
 exports.timeConstants = _temporalAssertDefined(timeConstants, 'timeConstants', _temporalUndefined) && timeConstants;
 exports.gameVars = gameVars = {

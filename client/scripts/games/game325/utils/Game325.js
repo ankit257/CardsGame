@@ -119,7 +119,6 @@ export default class Game325{
 			var c = this.playerPosArray.pop();
 			this.playerPosArray.unshift(c);
 		}
-		console.log(this.playerPosArray)
 		let n = this.distributionArray[this.distributionState];
 		let playersLength = this.players.length;
 		for (let i = 0; i < n; i++) {
@@ -164,7 +163,7 @@ export default class Game325{
 			}else{
 				if(this.deck[i].rank > biggestCard.rank){
 					biggestCard = this.deck[i];
-				}else if(this.deck[i].rank = biggestCard.rank){
+				}else if(this.deck[i].rank == biggestCard.rank){
 					var suitOrder = ['C','D','H','S'];
 					if(suitOrder.indexOf(this.deck[i].suit) > suitOrder.indexOf(biggestCard.suit)){
 						biggestCard = this.deck[i];

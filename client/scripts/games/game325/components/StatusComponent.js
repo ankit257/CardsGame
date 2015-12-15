@@ -92,7 +92,7 @@ export default class StatusComponent extends Component {
 		let activePlayerName = this.getPlayerName(activePlayerPos);
 		let otherPlayerName = this.getPlayerName(otherPlayerId);
 		let playableCount = this.props.playableCount[activePlayerPos];
-		console.log('GameStatus:'+gameState+'___ActivePlayer:'+activePlayerPos)
+		// console.log('GameStatus:'+gameState+'___ActivePlayer:'+activePlayerPos)
 		switch(gameState){
 			case 'INIT_DECK':
 			case 'INIT_PLAYERS':

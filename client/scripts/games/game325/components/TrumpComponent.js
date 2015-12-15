@@ -69,8 +69,7 @@ export default class TrumpComponent extends Component {
     }
     handleTouch(){
     }
-    componentWillReceiveProps(nextProps) {
-        console.log(nextProps)
+    componentWillReceiveProps(nextProps){
         this.setState({
             trump : nextProps.trump
         })

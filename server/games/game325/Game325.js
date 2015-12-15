@@ -25,6 +25,9 @@ module.exports = {
 				if(gameObj.gameRound % 30 == 0){
 					gameObj.initRound();	
 				}
+				for (var i = 0; i < gameObj.deck.length; i++) {
+					console.log(gameObj.deck[i].rank+'-'+gameObj.deck[i].suit)
+				};
 				if(gameObj.dealerId && gameObj.dealerId != null){
 					gameObj.distributeCards();                  // (D1) assign ownerPos to cards in deck
 					gameObj.updateHandsToMake();
@@ -38,6 +41,9 @@ module.exports = {
 					gameObj.distributeOneCardEach();
 					// this.addIdToDeck(gameObj);
 				}
+				for (var i = 0; i < gameObj.deck.length; i++) {
+					console.log(gameObj.deck[i].rank+'-'+gameObj.deck[i].suit)
+				};
 				return this.makeReturnObj('START_NEW_ROUND', gameObj, gameObj);
 				break;
 			case 'SET_TRUMP':
@@ -312,6 +318,9 @@ module.exports = {
 		// copy deck
 		delete newGameData['deck'];
 		newGameData.deck = new Array();
+		for (var i = 0; i < gameData.deck.length; i++) {
+			console.log(gameData.deck[i].suit+'-'+gameData.deck[i].rank)
+		};
 		gameData.deck.map(function (deckcard) {
 			newGameData.deck.push(Object.assign(new PlayingCard(deckcard), deckcard));
 		});

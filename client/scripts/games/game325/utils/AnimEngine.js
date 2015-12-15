@@ -160,7 +160,7 @@ export default class AnimEngine{
 				duration = timeConstants.TOTAL_DISTR_DELAY;
 				action   = ifOnline ? GameActions.onlineDistributionSecondSuccess : GameActions.distributionSecondSuccess;
 				this.audio 	 = distributeAudio;
-				this.audio.play();
+				// this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'PLAYING_CARD':

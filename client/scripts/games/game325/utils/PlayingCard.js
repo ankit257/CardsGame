@@ -123,21 +123,21 @@ export default class PlayingCard{
 				switch(this.ownerPos){
 					case 0:
 						this.ox 		= gameCSSConstants.gameBody.width/2 -gameCSSConstants.cardSize.width/2;
-						this.oy 		= gameCSSConstants.gameBody.height;
+						this.oy 		= gameCSSConstants.gameBody.height - gameCSSConstants.cardSize.height - gameCSSConstants.gameBody.padding;
 						this.zIndex 	= -1;
 						this.index 		= 0;
 						this.showFace	= true;
 						break;
 					case 1:
 						this.ox 		=  gameCSSConstants.cardSize.width/2;
-						this.oy 		=  0;
+						this.oy 		=  screenOutOffset + gameCSSConstants.cardSize.height/2;
 						this.zIndex 	= -1;
 						this.index 		= 4;
 						this.showFace	= true;
 						break;
 					case 2:
 						this.ox 		= gameCSSConstants.gameBody.width - gameCSSConstants.cardSize.width;
-						this.oy 		=  0;
+						this.oy 		=  screenOutOffset + gameCSSConstants.cardSize.height/2;
 						this.zIndex 	= -1;
 						this.index 		= 8;
 						this.showFace	= true;

@@ -149,11 +149,10 @@ const GameStoreOnline = createStore({
 		_game.deck.map(deckcard=> deckcard.setRoundEndPosition());
 	},
 	setMyId(id){   // id setter
-		console.log(id);
 		_myid = id;
 	},
 	initGame(){
-		_game = new GAME325_ONLINE();
+		_game = new Game325();
 		_game.initPlayers();
 	},
 	initDeck(){
@@ -697,7 +696,12 @@ const GameStoreOnline = createStore({
 				_next.gameData = socketdata.gameData; // Save a copy of gameData here. Use during distribution
 				setTimeout(function(){
 					GameActions.onlineTrumpSetSuccess(socketdata.gameData.trump);	
+					for (var i = 0; i < _next.gameData.deck.length; i++) {
+						console.log(_next.gameData.deck[i].state)
+					};
 				},0);
+				// this.ifEmitTrue();
+				this.ifEmitFalse();
 				break;
 			case 'START_NEW_ROUND': // New gameObj from server received at the start of every round.
 				// console.log(socketdata)
@@ -824,11 +828,6 @@ GameStoreOnline.dispatchToken = register(action=>{
 			}
 			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			break;
-		case '':
-			GameStoreOnline.reInitDeck();
-			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
-			break;
 		case 'GAME325_ONLINE_DISTRIBUTE_ONE_CARD_EACH':
 			GameStoreOnline.distributeOneCardEach();
 			GameStoreOnline.setCardPositionByState();
@@ -843,7 +842,6 @@ GameStoreOnline.dispatchToken = register(action=>{
 			break;
 		case 'GAME325_ONLINE_START_GAME':
 			GameStoreOnline.adminRequestsDistribution(GameStoreOnline.getGameProperty('adminId'));
-			// GameStoreOnline.emitChange();
 			break;
 		case 'SET_TRUMP_SUCCESS':
 			GameStoreOnline.setNextGameObj();
@@ -885,15 +883,8 @@ GameStoreOnline.dispatchToken = register(action=>{
 			GameStoreOnline.emitChange();
 			break;
 		case 'GAME325_ONLINE_DISTRIBUTE_CARDS_FIRST_SUCCESS':
-			// GameStoreOnline.distributionDone();
-			// GameStoreOnline.sortDeck(0);
-			// GameStoreOnline.setActivePlayerId();
-			// console.log('SET_TRUMP')
 			GameStoreOnline.setGameState('SET_TRUMP');
-			// GameStoreOnline.checkBotPlay();
-			// GameStoreOnline.setCardPositionByState();
 			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
-			// console.log(_game.state);
 			break;
 		case 'GAME325_ONLINE_WITHDRAW_CARD_SUCCESS':
 			GameStoreOnline.setGameState('GAME325_ONLINE_RETURN_CARD');
@@ -923,14 +914,17 @@ GameStoreOnline.dispatchToken = register(action=>{
 			var trump = action.trump;
 			_game.setTrump(trump);
 			GameStoreOnline.setNextGameObj();
+			for (var i = 0; i < _game.deck.length; i++) {
+				console.log(_game.deck[i].state);
+			};
 			GameStoreOnline.setCardOwnerPosition();
 			GameStoreOnline.setCardPositionByState();
 			GameStoreOnline.emitChange();
 			break;
 		case 'GAME325_ONLINE_DISTRIBUTE_CARDS_SECOND_SUCCESS':
 			// GameStoreOnline.setCardPositionByState();
-			// GameStoreOnline.setGameState('PLAY_CARD');
-			// GameStoreOnline.emitChange();
+			GameStoreOnline.setGameState('PLAY_CARD');
+			GameStoreOnline.emitChange();
 			break;
 		case 'GAME325_ONLINE_BOT_HAS_PLAYED':
 			GameStoreOnline.playBot();

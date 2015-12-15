@@ -261,7 +261,7 @@ var Game325 = (function () {
 				} else {
 					if (this.deck[i].rank > biggestCard.rank) {
 						biggestCard = this.deck[i];
-					} else if (this.deck[i].rank = biggestCard.rank) {
+					} else if (this.deck[i].rank == biggestCard.rank) {
 						var suitOrder = ['C', 'D', 'H', 'S'];
 						if (suitOrder.indexOf(this.deck[i].suit) > suitOrder.indexOf(biggestCard.suit)) {
 							biggestCard = this.deck[i];

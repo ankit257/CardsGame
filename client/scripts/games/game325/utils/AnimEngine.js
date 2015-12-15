@@ -119,7 +119,7 @@ export default class AnimEngine{
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'DISTRIBUTING_CARDS_0':
-				duration = timeConstants.TOTAL_DISTR_DELAY;
+				duration = timeConstants.TOTAL_DISTR_DELAY/15*7;
 				// action   = GameActions.distributingCardsZeroSuccess;
 				action   = ifOnline ? GameActions.distributingCardsZeroOnlineSuccess : GameActions.distributingCardsZeroSuccess;
 				this.audio 	 = distributeAudio;
@@ -127,7 +127,7 @@ export default class AnimEngine{
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'DEALER_SELECTION_SUCCESS':
-				duration = timeConstants.TOTAL_DISTR_DELAY;
+				duration = timeConstants.TOTAL_DECK_DELAY;
 				action   = ifOnline ? GameActions.onlineStartGame : GameActions.startGame;
 				this.audio 	 = distributeAudio;
 				// this.audio.play();
@@ -205,10 +205,10 @@ export default class AnimEngine{
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
 					action = ifOnline ? '' : GameActions.botWillPlay;
-				}else if(botState == 'BOT_CANNOT_PLAY'){
+				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 					action = null;
-				}else if(botState == 'BOT_PLAYING_CARD'){
+				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
 					duration = 0;
 					action = null;
 				}
@@ -263,6 +263,7 @@ export default class AnimEngine{
 			case 'GAME_STARTED':
 			case 'INIT_DECK':
 			case 'DISTRIBUTE_CARDS_SUCCESS':
+			case 'NOW_NEXT_TURN':
 				break;
 		}
 	}
@@ -287,6 +288,7 @@ export default class AnimEngine{
 		let start = performance.now() + performance.timing.navigationStart;
 		let end =  start + duration;
 		function step(){
+			console.log(gameState);
 			if(!self.pause.state){
 				current 	= performance.now() + performance.timing.navigationStart;
 				remaining 	= end - current + (self.pause.end - self.pause.start);

@@ -173,7 +173,7 @@ export default class Game325{
 		}
 		this.dealerPos = biggestCard.ownerPos;
 		this.state ='SELECT_DEALER';
-		console.log(this.dealerPos);
+		// console.log(this.dealerPos);
 	}
 	distributionDone(){
 		for(let deckcard of this.deck){

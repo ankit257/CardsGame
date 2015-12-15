@@ -167,7 +167,7 @@ module.exports = function (io, app) {
 				redisClient.get('roomData', function (err, roomData){
 					roomData = JSON.parse(roomData);
 					if(!gameData || gameData == null || activePlayers == 0){
-						if(roomData){
+						if(roomData && roomData[game] && roomData[game][roomId]){
 							delete roomData[game][roomId];	
 						}
 						

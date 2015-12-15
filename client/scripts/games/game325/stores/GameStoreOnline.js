@@ -854,15 +854,6 @@ GameStoreOnline.dispatchToken = register(action=>{
 			console.log(GameStoreOnline.getGameProperty('state'));
 			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			break;
-<<<<<<< HEAD
-=======
-		case '':
-			GameStoreOnline.reInitDeck();
-			GameStoreOnline.setCardPositionByState();
-			console.log(GameStoreOnline.getGameProperty('state'));
-			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
-			break;
->>>>>>> f967533ca661a75066ac4757775389deb01ab8fe
 		case 'GAME325_ONLINE_DISTRIBUTE_ONE_CARD_EACH':
 			GameStoreOnline.distributeOneCardEach();
 			GameStoreOnline.setCardPositionByState();
@@ -926,12 +917,9 @@ GameStoreOnline.dispatchToken = register(action=>{
 			break;
 		case 'GAME325_ONLINE_DISTRIBUTE_CARDS_FIRST_SUCCESS':
 			GameStoreOnline.setGameState('SET_TRUMP');
-<<<<<<< HEAD
-=======
 			// GameStoreOnline.checkBotPlay();
 			// GameStoreOnline.setCardPositionByState();
 			console.log(GameStoreOnline.getGameProperty('state'));
->>>>>>> f967533ca661a75066ac4757775389deb01ab8fe
 			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_ONLINE_WITHDRAW_CARD_SUCCESS':
@@ -978,11 +966,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 			break;
 		case 'GAME325_ONLINE_DISTRIBUTE_CARDS_SECOND_SUCCESS':
 			// GameStoreOnline.setCardPositionByState();
-<<<<<<< HEAD
-			GameStoreOnline.setGameState('PLAY_CARD');
-=======
 			GameStoreOnline.setGameState('NOW_NEXT_TURN');
->>>>>>> f967533ca661a75066ac4757775389deb01ab8fe
 			GameStoreOnline.emitChange();
 			break;
 		case 'GAME325_ONLINE_BOT_HAS_PLAYED':

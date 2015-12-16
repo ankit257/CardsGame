@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom'
+require('file?name=[name].[ext]!../index.html');
 import { createHistory, createHashHistory } from 'history';
 import Root from './Root';
 

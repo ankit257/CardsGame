@@ -1,6 +1,7 @@
 /* eslint-disable no-var */
 var path = require('path');
 var webpack = require('webpack');
+var CordovaPlugin = require('webpack-cordova-plugin');
 
 module.exports = {
   entry: [
@@ -15,7 +16,13 @@ module.exports = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin()
+    new webpack.NoErrorsPlugin(),
+    new CordovaPlugin({
+        config: 'config.xml',  // Location of Cordova' config.xml (will be created if not found)
+        src: 'index.html',     // Set entry-point of cordova in config.xml
+        platform: 'android', // Set `webpack-dev-server` to correct `contentBase` to use Cordova plugins.
+        version: true,         // Set config.xml' version. (true = use version from package.json)
+      })
   ],
   module: {
     loaders: [{

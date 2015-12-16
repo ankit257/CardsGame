@@ -34,7 +34,8 @@ mongoose.connect(configDB.url);
 
 var app = express();
 
-var corsOptions = { origin: 'http://localhost:3000', 'credentials' : true }
+// var corsOptions = { origin: 'http://localhost:3000', 'credentials' : true }
+var corsOptions = { origin: '*', 'credentials' : false }
 app.use(cors(corsOptions));
 
 

@@ -60,13 +60,13 @@ function postFetch(url, data) {
   if (url.indexOf(API_ROOT) === -1) {
     url = API_ROOT + url;
   }
-  fetch.withCredentials = true;
+  fetch.withCredentials = false;
   return fetch(url, {
       method : 'POST',
       headers : {
         'Content-Type' : 'application/json',
       },
-      credentials: 'include',
+      // credentials: 'include',
       body : JSON.stringify(data)
     }).then(response =>
     response.json().then(json => {

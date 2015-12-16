@@ -7,22 +7,22 @@ import { Howl }  from 'howler';
 
 window.requestId = undefined;
 
-let distributeAudio = new Howl({
-	urls: ['../../assets/sounds/distribute.mp3'],
-	autoplay: false
-}),
-playAudio = new Howl({
-	urls: ['../../assets/sounds/play.mp3'],
-	autoplay: false
-}),
-pauseAudio = new Howl({
-	urls: ['../../assets/sounds/pause.mp3'],
-	autoplay: false
-}),
-unPauseAudio = new Howl({
-	urls: ['../../assets/sounds/unpause.mp3'],
-	autoplay: false
-})
+// let distributeAudio = new Howl({
+// 	urls: ['assets/sounds/distribute.mp3'],
+// 	autoplay: false
+// }),
+// playAudio = new Howl({
+// 	urls: ['assets/sounds/play.mp3'],
+// 	autoplay: false
+// }),
+// pauseAudio = new Howl({
+// 	urls: ['assets/sounds/pause.mp3'],
+// 	autoplay: false
+// }),
+// unPauseAudio = new Howl({
+// 	urls: ['assets/sounds/unpause.mp3'],
+// 	autoplay: false
+// })
 window.requestAnimFrame = (function(){
         return  window.requestAnimationFrame || 
         window.webkitRequestAnimationFrame   || 
@@ -79,7 +79,7 @@ export default class AnimEngine{
 		start : 0,
 		end   : 0
 	}
-	static audio = new Howl({});
+	// static audio = new Howl({});
 	static makeReadyForNext(){
 		this.pause.start = 0;
 		this.pause.end = 0;
@@ -100,17 +100,17 @@ export default class AnimEngine{
 	static handlePause(e){
 		AnimEngine.setPauseState(PauseStore.getPauseState());
 		if(PauseStore.getPauseState()){
-			pauseAudio.play();
-			AnimEngine.audio.pause();
+			// pauseAudio.play();
+			// AnimEngine.audio.pause();
 			AnimEngine.pause.start = performance.now() + performance.timing.navigationStart;
 		}else{
-			unPauseAudio.play();
-			AnimEngine.audio.play();
+			// unPauseAudio.play();
+			// AnimEngine.audio.play();
 			AnimEngine.pause.end = performance.now() + performance.timing.navigationStart;
 		}
 	}
 	static startAnimation(deck, gameState, botState, ifOnline){
-		this.audio = new Howl({});
+		// this.audio = new Howl({});
 		let duration = 0, action, audio;
 		switch(gameState){
 			case 'INIT_ROUND':
@@ -121,22 +121,22 @@ export default class AnimEngine{
 			case 'DISTRIBUTING_CARDS':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
 				action   = ifOnline ? GameActions.onlineDistributionSuccess : GameActions.distributionSuccess;
-				this.audio 	 = distributeAudio;
-				this.audio.play();
+				// this.audio 	 = distributeAudio;
+				// this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'PLAYING_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
 				action   = ifOnline ? GameActions.playedWaitForServer : GameActions.playCardSuccess;
-				this.audio 	 = playAudio;
-				this.audio.play();
+				// this.audio 	 = playAudio;
+				// this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'PLAYING_PLAYED_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
 				action   = ifOnline ? GameActions.playCardSuccessOnline : '';
 				// this.audio 	 = playAudio;
-				this.audio.play();
+				// this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'GAME_END':
@@ -206,7 +206,7 @@ export default class AnimEngine{
 				if(remaining < 0){
 					if (typeof action === "function") {
 							action();
-							self.audio = new Howl({});
+							// self.audio = new Howl({});
 						}
 					return;
 				}else{

@@ -133,7 +133,7 @@ export default class GamaPage extends Component{
     var commonComponent = this.showRoomsComponent.call(this);
     let heading = {};
     heading['icon'] = this.state.showMultiplayerOpts ? 'people_outline' : '';
-    heading['text'] = this.state.showMultiplayerOpts ? 'Play with other online players' : 'Badam Satti';
+    heading['text'] = this.state.showMultiplayerOpts ? 'Play with other online players' : 'Satti Centre';
     return (
       <div className={''}>        
         <div className="no-overflow-div">

@@ -16,10 +16,10 @@ import NavBarComponent from '../components/NavBarComponent'
 var style={
   fontColor : '#bebebe'
 } 
-let tadaAudio = new Howl({
-  urls: ['../assets/sounds/tada.mp3'],
-  autoplay: false
-})
+// let tadaAudio = new Howl({
+//   urls: ['assets/sounds/tada.mp3'],
+//   autoplay: false
+// })
 /**
  * Requests data from server for current props.
  */
@@ -183,7 +183,7 @@ export default class SettingsPage extends Component{
     var newState = _.extend({}, this.state);
     newState.volume = e.target.value;
     Howler.volume(e.target.value);
-    tadaAudio.play();
+    // tadaAudio.play();
     e.target.MaterialSlider.change(e.target.value);
     this.reRender(newState);
   }

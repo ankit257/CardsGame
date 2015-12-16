@@ -61,8 +61,8 @@ export default class PlayerInfoComponent extends Component {
 			popup.src = 'game7-popup-you.svg';
 			popup.show = true;	
 		}
-		if(this.context.ifOnline) popup.src = '../' + gamePathConstants.SVG_ASSETS + popup.src;
-			else popup.src = gamePathConstants.SVG_ASSETS +  popup.src;
+		// if(this.context.ifOnline) popup.src = '../' + gamePathConstants.SVG_ASSETS + popup.src;
+			popup.src = gamePathConstants.SVG_ASSETS +  popup.src;
 		return popup;
 	}
 	render() {
@@ -70,9 +70,9 @@ export default class PlayerInfoComponent extends Component {
 			text : '',
 			color: 'rgba(0,0,0,0)'
 		}, playerTypeSrc = gamePathConstants.SVG_ASSETS;
-		if(this.context.ifOnline){
-			playerTypeSrc = '../' + playerTypeSrc;
-		}
+		// if(this.context.ifOnline){
+		// 	playerTypeSrc = '../' + playerTypeSrc;
+		// }
 		let ifWaiting = this.props.ifWaiting;
 		let showTable = this.props.showTable;
 		let player = this.props.player;

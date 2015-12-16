@@ -5,7 +5,7 @@ var CordovaPlugin = require('webpack-cordova-plugin');
 
 module.exports = {
   entry: [
-    'webpack-hot-middleware/client?http://localhost:3000',
+    // 'webpack-hot-middleware/client?http://localhost:3000',
     './scripts/index',
   ],
   devtool: 'eval-source-map',

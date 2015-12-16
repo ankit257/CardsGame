@@ -71,8 +71,8 @@ export default class CardComponent extends Component {
         let cardimg      = gamePathConstants.CARD_ASSETS + card.rank + card.suit + '.svg';
         let cardbackimg  = this.props.cardbackimg;
         if(this.context.ifOnline){
-            cardimg = '../'+cardimg;
-            cardbackimg = '../'+cardbackimg;
+            // cardimg = '../'+cardimg;
+            // cardbackimg = '../'+cardbackimg;
         }
         // let style = Object.assign(initialstyle, {
         //                                 zIndex : zIndex

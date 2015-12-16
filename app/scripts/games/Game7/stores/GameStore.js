@@ -13,18 +13,18 @@ import PlayerSatti from '../utils/PlayerSatti';
 import BotSatti from '../utils/BotSatti';
 import ScoreSatti from '../utils/ScoreSatti';
 
-let passAudio = new Howl({
-	urls: ['../../assets/sounds/pass.mp3'],
-	autoplay: false
-}),
-bellAudio = new Howl({
-	urls: ['../../assets/sounds/bell.mp3'],
-	autoplay: false
-}),
-tadaAudio = new Howl({
-	urls: ['../../assets/sounds/tada.mp3'],
-	autoplay: false
-})
+// let passAudio = new Howl({
+// 	urls: ['assets/sounds/pass.mp3'],
+// 	autoplay: false
+// }),
+// bellAudio = new Howl({
+// 	urls: ['assets/sounds/bell.mp3'],
+// 	autoplay: false
+// }),
+// tadaAudio = new Howl({
+// 	urls: ['assets/sounds/tada.mp3'],
+// 	autoplay: false
+// })
 
 var _game = {}
 var _playersCards = []
@@ -80,7 +80,7 @@ const GameStore = createStore( {
 	},
 	setPlayerState(pos, state){
 			if(_game.players[pos].state != 'CLEARED' && state=='CLEARED'){
-				bellAudio.play();
+				// bellAudio.play();
 			}
 			_game.players[pos].state = state;
 	},
@@ -125,7 +125,7 @@ const GameStore = createStore( {
 		_game.nextTurn();
 	},
 	roundEnd(){
-		tadaAudio.play();
+		// tadaAudio.play();
 		_game.roundEnd();
 	},
 	fireInitRound(){
@@ -464,7 +464,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_SKIP_TURN':
-			passAudio.play();
+			// passAudio.play();
 			break;
 		case 'GAME7_OFFLINE_TURN_SKIPPED':
 		 	GameStore.setGameState('NOW_NEXT_TURN');

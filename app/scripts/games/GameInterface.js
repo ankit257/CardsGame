@@ -160,7 +160,6 @@ export default class GameInterface extends Component{
       }
   }
   componentWillReceiveProps(nextProps) {
-
   }
   changeGameExitModalState(state){
     this.setState({gameExitModalIsOpen: state, gamePause: state});

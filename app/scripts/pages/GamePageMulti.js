@@ -190,6 +190,7 @@ export default class GamaPage extends Component{
     super(props)
 
     this.state = {
+      routeChanged: false,
       selectedGame: 'game7',
       showPublicRooms : true,
       showMultiplayerOpts: true,
@@ -203,20 +204,26 @@ export default class GamaPage extends Component{
       }
     }
   }
-  componentWillReceiveProps(nextProps){
+  componentWillReceiveProps(nextProps, nextState){
     let self = this;
-    if(!nextProps.User.profile.id){
-      this.context.history.pushState(null, `/`, null);
-    }else if(nextProps.gameRoom.game && nextProps.gameRoom.roomId !== undefined){
-      window.clearInterval(this.intervalId);
-      let { gameRoom } = this.props;
-      setTimeout(function(){
-          if(gameRoom.roomId != undefined){
-            self.context.history.pushState(null, `/${gameRoom.game}/${gameRoom.roomId}`, null);
-          }
-        },0);
-    }else{
+    if(!this.state.routeChanged){
+      if(!nextProps.User.profile.id){
+        this.changeRoute('/');
+      }else if(nextProps.gameRoom.game && nextProps.gameRoom.roomId !== undefined){
+        window.clearInterval(this.intervalId);
+        let { gameRoom } = this.props;
+        setTimeout(function(){
+            if(gameRoom.roomId != undefined){
+              let route = `/${gameRoom.game}/${gameRoom.roomId}`;
+              self.changeRoute(route);
+            }
+          },0);
+      }
     }
+  }
+  changeRoute(route){
+    this.setState({routeChanged: true});
+    this.context.history.pushState(null, route, null);
   }
   componentDidMount(){
     this.intervalId = this.getRoomFromServer();
@@ -233,6 +240,7 @@ export default class GamaPage extends Component{
     window.clearInterval(this.intervalId);
   }
   componentWillMount(){
+    console.log('will_mount');
     Howler.mute();
     // console.log(this.props);
     if(window.requestId) window.cancelAnimFrame(window.requestId);

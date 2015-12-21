@@ -1,7 +1,6 @@
 import React, { Component, PropTypes, findDOMNode } from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-
-import { gameCSSConstants, timeConstants } from '../constants/SattiHelper'
+import { gameCSSConstants, timeConstants, gamePathConstants } from '../constants/SattiHelper'
 // import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 export default class PopUpComponent extends Component {
@@ -16,7 +15,7 @@ export default class PopUpComponent extends Component {
 		let showScores = this.props.showScores;
 		let position = this.props.position;
 		let show = true;
-		if(popup.src=='' || !popup.show || showScores){
+		if(popup.src.localeCompare(gamePathConstants.SVG_ASSETS) == 0 || !popup.show || showScores){
 			show = false;
 		}
 		let opacity = show=='' ? 0 : 1;

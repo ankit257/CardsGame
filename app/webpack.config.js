@@ -15,7 +15,7 @@ module.exports = {
     publicPath: '/static/'
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
+    // new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
     new CordovaPlugin({
         config: 'config.xml',  // Location of Cordova' config.xml (will be created if not found)

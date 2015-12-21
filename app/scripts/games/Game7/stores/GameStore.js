@@ -433,8 +433,8 @@ GameStore.dispatchToken = register(action=>{
 			break;
 		case 'GAME7_OFFLINE_BOT_HAS_PLAYED':
 			GameStore.playBot();
-			GameStore.setCardPositionByState();
-			GameStore.emitChange();
+			// GameStore.setCardPositionByState();
+			// GameStore.emitChange();
 			break;
 		case 'GAME7_OFFLINE_PLAY_CARD':
 			var card = action.card;
@@ -444,6 +444,8 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.sortDeck(0);
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
+			var date = new Date();
+       		console.log('GameStore '+date.getTime());
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_PLAY_CARD_SUCCESS':

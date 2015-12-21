@@ -53,6 +53,8 @@ export default class DeckComponent extends Component {
         AnimEngine.cancelAnimationFrame();
 	}
 	componentWillReceiveProps(nextProps){
+		var date = new Date();
+       	console.log('ReceiveProps '+date.getTime());
 		this.setState({
 				deck 			: nextProps.deck,
 				activePlayerPos	: nextProps.activePlayerPos,
@@ -64,6 +66,8 @@ export default class DeckComponent extends Component {
 
 	}
 	componentDidUpdate(){
+		var date = new Date();
+       	console.log('ComponentDidUpdate '+date.getTime());
 		AnimEngine.startAnimation(this.state.deck, this.state.gameState, this.state.botState, this.context.ifOnline);
 	}
 	render() {

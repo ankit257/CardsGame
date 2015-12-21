@@ -5,6 +5,24 @@ import { getItemFromLocalStorage } from '../../../utils/LocalStorageUtils';
 import SettingsStore from '../../../stores/SettingsStore';
 import { Howl }  from 'howler';
 
+window.requestId = undefined;
+
+// let distributeAudio = new Howl({
+// 	urls: ['assets/sounds/distribute.mp3'],
+// 	autoplay: false
+// }),
+// playAudio = new Howl({
+// 	urls: ['assets/sounds/play.mp3'],
+// 	autoplay: false
+// }),
+// pauseAudio = new Howl({
+// 	urls: ['assets/sounds/pause.mp3'],
+// 	autoplay: false
+// }),
+// unPauseAudio = new Howl({
+// 	urls: ['assets/sounds/unpause.mp3'],
+// 	autoplay: false
+// })
 let distributeAudio = new Howl({
 	urls: ['../../assets/sounds/distribute.mp3'],
 	autoplay: false
@@ -71,43 +89,45 @@ window.cancelAnimFrame = (function(){
 })();
 
 export default class AnimEngine{
+	// static mount = false;
 	static pause = {
 		state : false,
 		start : 0,
 		end   : 0
 	}
-	static audio = new Howl({});
-	static requestId = undefined;
+	// static audio = new Howl({});
 	static makeReadyForNext(){
-		this.pause = {
-			start : 0,
-			end   : 0
-		}
+		this.pause.start = 0;
+		this.pause.end = 0;
 	}
 	static setPauseState(gamePause){
 		this.pause.state = gamePause;
 	}
 	static cancelAnimationFrame(){
-		window.cancelAnimFrame(this.requestId);
-		this.requestId = undefined;
+		console.log('cancel');
+		window.cancelAnimFrame(window.requestId);
+		// window.requestId = undefined;
 	}
 	static startListening(){
-		let self = this;
-		PauseStore.addChangeListener(function(){
-			self.setPauseState(PauseStore.getPauseState());
-			if(PauseStore.getPauseState()){
-				pauseAudio.play();
-				self.audio.pause();
-				self.pause.start = performance.now() + performance.timing.navigationStart;
-			}else{
-				unPauseAudio.play();
-				self.audio.play();
-				self.pause.end = performance.now() + performance.timing.navigationStart;
-			}
-		})
+		PauseStore.addChangeListener(AnimEngine.handlePause);
+	}
+	static stopListening(){
+		PauseStore.removeChangeListener(AnimEngine.handlePause);	
+	}
+	static handlePause(e){
+		AnimEngine.setPauseState(PauseStore.getPauseState());
+		if(PauseStore.getPauseState()){
+			// pauseAudio.play();
+			// AnimEngine.audio.pause();
+			AnimEngine.pause.start = performance.now() + performance.timing.navigationStart;
+		}else{
+			// unPauseAudio.play();
+			// AnimEngine.audio.play();
+			AnimEngine.pause.end = performance.now() + performance.timing.navigationStart;
+		}
 	}
 	static startAnimation(deck, gameState, botState, ifOnline){
-		this.audio = new Howl({});
+		// this.audio = new Howl({});
 		let duration = 0, action, audio;
 		switch(gameState){
 			case 'INIT_ROUND':
@@ -132,10 +152,11 @@ export default class AnimEngine{
 			case 'PLAYING_PLAYED_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
 				action   = ifOnline ? GameActions.playCardSuccessOnline : '';
-				// this.audio 	 = playAudio;
+				this.audio 	 =  playAudio;
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
+			case 'GAME_END':
 			case 'ROUND_END':
 				duration = timeConstants.ROUND_END_WAIT;
 				action   = ifOnline ? GameActions.showScoresOnline : GameActions.showScores;
@@ -149,7 +170,7 @@ export default class AnimEngine{
 					duration = timeConstants.REARRANGE_ANIM;
 					action = null;
 				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
-					duration = 0;
+					duration = 10;
 					action = null;
 				}else if(ifOnline){
 					duration = 0;
@@ -170,12 +191,13 @@ export default class AnimEngine{
 		}
 		
 	}
-	static animateCards(deck, duration, action, gameState){	
-		if(this.pause.state){
-			this.cancelAnimationFrame();
-		}else{
-			this.makeReadyForNext();
-		}
+	static animateCards(deck, duration, action, gameState){
+		console.log('request'+ gameState + ' for ...'+duration);
+		// if(this.pause.state){
+		// 	this.cancelAnimationFrame();
+		// }else{
+		// 	this.makeReadyForNext();
+		// }
 		if(duration == 0){
 				deck.map(deckcard =>{
 				if(deckcard.animTime + deckcard.delay > duration){
@@ -184,86 +206,93 @@ export default class AnimEngine{
 			})
 		}
 		let self = this;
-		let current, remaining, rate, spent;
-		let cardRemainingTime;
-		let element, delX, delY, delZ, delTheta;
-		let x, y, z, theta, frontRotateY, backRotateY, oldFrontRotateY, oldBackRotateY, newBackRotateY, newFrontRotateY;
 		let start = performance.now() + performance.timing.navigationStart;
 		let end =  start + duration;
-		function step(){
-			if(!self.pause.state){
-				current 	= performance.now() + performance.timing.navigationStart;
-				remaining 	= end - current + (self.pause.end - self.pause.start);
-				spent 		= current - start - (self.pause.end - self.pause.start);
 
-				if(remaining < 0){
-					if (typeof action === "function") {
-							action();
-							self.audio = new Howl({});
-						}
-					return;
-				}else{
-					deck.map(deckcard => {
-						cardRemainingTime = deckcard.delay + deckcard.animTime - spent;
-						cardRemainingTime = cardRemainingTime>0 ? cardRemainingTime : 0;
-						if(spent > deckcard.delay && deckcard.animState <= 1){
-							deckcard.animState	= (deckcard.animTime - cardRemainingTime)/deckcard.animTime;
-							// rate = deckcard.animState; // linear
-							// rate = ( -Math.pow( 2, -8 * deckcard.animState ) + 1 ); // exp ease out
-							rate = -1 * deckcard.animState*(deckcard.animState-2);
-							element 	= document.getElementById(deckcard.key);
-							delX 		= deckcard.x - deckcard.oldX;
-							delY 		= deckcard.y - deckcard.oldY;
-							delZ 		= deckcard.z - deckcard.oldZ;
-							delTheta    = deckcard.theta - deckcard.oldTheta;
+		AnimEngine.stepPromise(deck, start, end)
+		          .then(function(){
+		          	console.log('resolved');
+		          	AnimEngine.cancelAnimationFrame();
+		          	if (typeof action === "function") {
+						action();
+						self.audio = new Howl({});
+					}
+		          });
+	}
+	static stepPromise(deck, start, end){
+	    return new Promise(function(resolve, reject){
+	   		function step(){
+		    	if(!AnimEngine.pause.state){
+					let current 	= performance.now() + performance.timing.navigationStart;
+					let remaining 	= end - current + (AnimEngine.pause.end - AnimEngine.pause.start);
+					let spent 		= current - start - (AnimEngine.pause.end - AnimEngine.pause.start);
+					// console.log(window.requestId + '-------' + remaining + '------' + gameState);
+					if(remaining <= 0){
+						resolve();
+					}else{
+						deck.map(deckcard => {
+							let cardRemainingTime = deckcard.delay + deckcard.animTime - spent;
+							cardRemainingTime = cardRemainingTime>0 ? cardRemainingTime : 0;
+							if(spent > deckcard.delay && deckcard.animState <= 1){
+								deckcard.animState	= (deckcard.animTime - cardRemainingTime)/deckcard.animTime;
+								// rate = deckcard.animState; // linear
+								// rate = ( -Math.pow( 2, -8 * deckcard.animState ) + 1 ); // exp ease out
+								let rate = -1 * deckcard.animState*(deckcard.animState-2),
+									element 	= document.getElementById(deckcard.key),
+									delX 		= deckcard.x - deckcard.oldX,
+									delY 		= deckcard.y - deckcard.oldY,
+								    delZ 		= deckcard.z - deckcard.oldZ,
+								    delTheta    = deckcard.theta - deckcard.oldTheta,
 
-							x = delX*rate + deckcard.oldX;
-							y = delY*rate + deckcard.oldY;
-							z = delZ*rate + deckcard.oldZ;
-							theta = delTheta*rate + deckcard.oldTheta;
-							if(deckcard.showFace != deckcard.oldShowFace){
-								if(deckcard.showFace){
-									frontRotateY = (0 - 180)*rate + 180;
-									backRotateY = (180 - 0)*rate + 0;
-								}else{
-									backRotateY = (0 - 180)*rate + 180;
-									frontRotateY = (180 - 0)*rate + 0;
-								}
-							}else{
-								if(deckcard.showFace){
-									frontRotateY = 0
-									backRotateY = 180
-								}else{
-									backRotateY = 0
-									frontRotateY = 180
-								}
-							}
-							if(element){
-								element.style.transform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)';
-								element.style.WebkitTransform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)';
-								Array.prototype.map.call(element.childNodes, child=>{
-									switch(child.className){
-										case "front":
-											child.style.transform = 'perspective(400px) rotateY('+ frontRotateY +'deg)';
-											child.style.WebkitTransform = 'perspective(400px) rotateY('+ frontRotateY +'deg)';
-											break;
-										case "back":
-											child.style.transform = 'perspective(400px) rotateY('+ backRotateY +'deg)';
-											child.style.WebkitTransform = 'perspective(400px) rotateY('+ backRotateY +'deg)';
-											break;
+									x = delX*rate + deckcard.oldX,
+									y = delY*rate + deckcard.oldY,
+								    z = delZ*rate + deckcard.oldZ,
+									theta = delTheta*rate + deckcard.oldTheta,
+									frontRotateY, backRotateY
+								if(deckcard.showFace != deckcard.oldShowFace){
+									if(deckcard.showFace){
+										frontRotateY = (0 - 180)*rate + 180;
+										backRotateY = (180 - 0)*rate + 0;
+									}else{
+										backRotateY = (0 - 180)*rate + 180;
+										frontRotateY = (180 - 0)*rate + 0;
 									}
-								}) //childNodes map end
-							}else{
-								self.cancelAnimationFrame();
+								}else{
+									if(deckcard.showFace){
+										frontRotateY = 0
+										backRotateY = 180
+									}else{
+										backRotateY = 0
+										frontRotateY = 180
+									}
+								}
+								if(element){
+									element.style.transform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)';
+									element.style.WebkitTransform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)';
+									Array.prototype.map.call(element.childNodes, child=>{
+										switch(child.className){
+											case "front":
+												child.style.transform = 'perspective(400px) rotateY('+ frontRotateY +'deg)';
+												child.style.WebkitTransform = 'perspective(400px) rotateY('+ frontRotateY +'deg)';
+												break;
+											case "back":
+												child.style.transform = 'perspective(400px) rotateY('+ backRotateY +'deg)';
+												child.style.WebkitTransform = 'perspective(400px) rotateY('+ backRotateY +'deg)';
+												break;
+										}
+									}) //childNodes map end
+								}else{
+									AnimEngine.cancelAnimationFrame();
+								}
+								
 							}
-							
-						}
-					}) // deckcard map end
+						}) // deckcard map end
+					}
 				}
+				window.requestId = window.requestAnimFrame(step);
 			}
-			self.requestId = window.requestAnimFrame(step);
-		}
-		step();
+			step();
+	    })			
 	}
 
 }

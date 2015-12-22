@@ -14,28 +14,7 @@ export default class PlayerInfoComponent extends Component {
 		ifOnline: PropTypes.bool
 	}
 	state = {
-		touched: false,
 		scoreHeight: gameCSSConstants.player.scoreHeight
-	}
-	constructor(props){
-		super(props);
-		this.onTouchStart = this.onTouchStart.bind(this);
-		this.onTouchEnd = this.onTouchEnd.bind(this);
-	}
-	componentWillReceiveProps(nextProps){
-		this.props = nextProps;
-	}
-	onTouchStart(){
-		this.setState({
-			touched: true,
-			scoreHeight: gameCSSConstants.player.scoreHeight + gameCSSConstants.player.screenOut*gameCSSConstants.player.smallDim
-		})
-	}
-	onTouchEnd(){
-		this.setState({
-			touched: false,
-			scoreHeight: gameCSSConstants.player.scoreHeight
-		})
 	}
 	getPopUp(){
 		let ifWaiting = this.props.ifWaiting;
@@ -65,6 +44,15 @@ export default class PlayerInfoComponent extends Component {
 			popup.src = gamePathConstants.SVG_ASSETS +  popup.src;
 		return popup;
 	}
+	getImg(src, classname){
+		if(src.localeCompare(gamePathConstants.SVG_ASSETS) == 0){
+			return
+		}else{
+			return (
+				<img className={classname} src={src}/> 
+			)
+		}
+	}
 	render() {
 		let playertype  = {
 			text : '',
@@ -78,12 +66,11 @@ export default class PlayerInfoComponent extends Component {
 		let player = this.props.player;
 		let score = player.score;
 		let scoreHeight = this.state.scoreHeight;
-		let touched = this.state.touched;
 		let activePlayerPos = this.props.activePlayerPos;
 		let showScores = this.props.showScores;
 		let popup = this.getPopUp();
 		let playerTypeClass;
-		player.updatePosition(activePlayerPos, this.state.touched, showScores, ifWaiting, showTable);
+		player.updatePosition(activePlayerPos, showScores, ifWaiting, showTable);
 		const { width, height, x, y, theta, animTime, delay, bgColor, name, id } = player
 		let style = {
             transform          	: 'translateX(' + x + 'px) translateY(' + y + 'px) rotate(' + theta + 'deg)',
@@ -165,9 +152,9 @@ export default class PlayerInfoComponent extends Component {
 			playerNameStyle.fontSize = 12;
 		}
 		return(
-			<div style={style} className="player-info" onTap={this.onTouchStart} onMouseDown={this.onTouchStart} onMouseUp={this.onTouchEnd} onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd} >
+			<div style={style} className="player-info">
 				<div className='player-name' style={playerNameStyle} >{id} 
-					<img className={playerTypeClass} src={playerTypeSrc}/> 
+					{this.getImg.bind(this, popup.src, playerTypeClass)}
 				</div>
 				<PopUpComponent popup={popup} position={player.position} showScores={showScores} ifWaiting={ifWaiting}/>
 				<SmallScoreComponent score={score} position={player.position} showScores={showScores} rank={player.rank} ifWaiting={ifWaiting}/>

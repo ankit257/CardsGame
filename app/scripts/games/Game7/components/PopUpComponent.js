@@ -10,6 +10,15 @@ export default class PopUpComponent extends Component {
 	doNotPropagate(e){
 		e.stopPropagation();
 	}
+	getImg(src){
+		if(src.localeCompare(gamePathConstants.SVG_ASSETS) == 0){
+			return;
+		}else{
+			return (
+				<img src={src}/>
+				)
+		}
+	}
 	render() {
 		let popup = this.props.popup;
 		let showScores = this.props.showScores;
@@ -31,7 +40,7 @@ export default class PopUpComponent extends Component {
 		}
 		return(
 			<div className="pop-up-msg" style={style} onTouchStart={this.doNotPropagate} onTouchEnd={this.doNotPropagate}>
-				<img src={popup.src} />
+				{this.getImg.bind(this, popup.src)}
 			</div>
 			)
 	}

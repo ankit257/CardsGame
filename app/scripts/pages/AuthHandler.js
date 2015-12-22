@@ -70,11 +70,11 @@ export default class AuthHandler extends Component{
         <div className="loader-div" id="loader-div" style={{display:'none'}}>
             <Loading style={{'zoom':0.75}}/>
         </div>
-        <ReactCSSTransitionGroup component="div" transitionAppear={true} transitionName="page-transition" transitionAppearTimeout={500} transitionEnterTimeout={500} transitionLeaveTimeout={500}>
+        {/*<ReactCSSTransitionGroup component="div" transitionAppear={true} transitionName="page-transition" transitionAppearTimeout={500} transitionEnterTimeout={500} transitionLeaveTimeout={500}>*/}
           <div {...this.props} {...this.context} {...this.state}  key={name}>
             {this.props.children}
           </div> 
-        </ReactCSSTransitionGroup>
+        {/*</ReactCSSTransitionGroup>*/}
         
       </div>
       )

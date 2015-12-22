@@ -1,6 +1,6 @@
 import React, { Component, PropTypes, findDOMNode } from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-import connectToStores from '../../../../scripts/utils/connectToStores';
+import connectToGameStores from '../../../../scripts/utils/connectToGameStores';
 import { scaleGameBody } from '../../../../scripts/utils/CommonGameUtils';
 
 // import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
@@ -12,6 +12,44 @@ import StatusComponent from './StatusComponent';
 
 import * as GameActions from '../actions/GameActions';
 
+import GameStoreOffline from '../stores/GameStore';
+import GameStoreOnline from '../stores/GameStoreOnline';
+import AnimEngine from '../utils/AnimEngine'
+
+function getState(props, ifOnline){
+	let GameStore;
+	if(ifOnline){
+		GameStore = GameStoreOnline;
+	}else{
+		GameStore = GameStoreOffline;
+	}
+	let activePlayerPos = GameStore.getGameProperty('activePlayerPos');
+	let gameState = GameStore.getGameProperty('state');
+	let botState = GameStore.getGameProperty('botState');
+	let players = GameStore.getGameProperty('players');
+	let gameTurn = GameStore.getGameProperty('gameTurn');
+	let playableCount = GameStore.getPlayableCount();
+	let requestShowScore = GameStore.getShowScore();
+	let scoresUpdated = GameStore.getScoreUpdated();
+	let ifWaiting = GameStore.ifGameWaiting();
+	let deck = GameStore.getGameProperty('deck');
+	let ifIAmBot = GameStore.ifIAmSpectatorOrBot();
+	return {
+		activePlayerPos,
+		gameState,
+		gameTurn,
+		botState,
+		players,
+		playableCount,
+		requestShowScore,
+		scoresUpdated,
+		ifWaiting,
+		deck,
+		ifIAmBot
+	};
+}
+
+@connectToGameStores([GameStoreOffline, GameStoreOnline], getState)
 export default class GameRender extends Component {
 	state = {
 		zoomStyle : {}
@@ -24,6 +62,51 @@ export default class GameRender extends Component {
 		super(props);
 		this.handleResize = this.handleResize.bind(this);
 	}
+	componentDidUpdate(){
+		let ifOnline = this.context.ifOnline;
+		let { gameState, botState } = this.props;
+		let action;
+		switch(gameState){
+			case 'INIT_ROUND':
+				action   = ifOnline ? GameActions.onlineInitRoundSuccess : GameActions.initRoundSuccess;
+				break;
+			case 'DISTRIBUTING_CARDS':
+				action   = ifOnline ? GameActions.onlineDistributionSuccess : GameActions.distributionSuccess;
+				break;
+			case 'PLAYING_CARD':
+				action   = ifOnline ? GameActions.playedWaitForServer : GameActions.playCardSuccess;
+				break;
+			case 'PLAYING_PLAYED_CARD':
+				action   = ifOnline ? GameActions.playCardSuccessOnline : '';
+				break;
+			case 'GAME_END':
+			case 'ROUND_END':
+				action   = ifOnline ? GameActions.showScoresOnline : GameActions.showScores;
+				break;
+			case 'READY_TO_PLAY_NEXT':
+				if(botState == 'BOT_SHOULD_PLAY'){
+					action = ifOnline ? GameActions.requestServerBot : GameActions.botWillPlay;
+				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
+					action = null;
+				}
+				break;
+			case 'ROUND_END_SHOW_SCORES':
+				this.cancelAnimationFrame();
+				break;
+			case 'INIT_ROUND_SUCCESS':
+			case 'GAME_STARTED':
+			case 'INIT_DECK':
+			case 'NOW_NEXT_TURN':
+			case 'PLAY_DATA_RECEIVED':
+			case 'SKIP_DATA_RECEIVED':
+				break;
+		}
+		if(typeof action == "function"){
+			setTimeout(function(){
+				action();
+			}, 0)
+		}
+	}
 	componentWillMount(){
 		
 	}
@@ -34,6 +117,7 @@ export default class GameRender extends Component {
 		else if(window.removeEventListener) {
 		    window.removeEventListener('resize', this.handleResize);
 		}
+		AnimEngine.cancelAnimationFrame();
 	}
 	componentDidMount(){
 		this.setState({
@@ -45,9 +129,7 @@ export default class GameRender extends Component {
 		else if(window.addEventListener) {
 			window.addEventListener('resize', this.handleResize);
 		}
-		if(!this.context.ifOnline){
-			// GameActions.initGame();	
-		}
+		AnimEngine.startListening();
 	}
 	handleResize(e){
 		this.setState({
@@ -78,8 +160,21 @@ export default class GameRender extends Component {
 		style = Object.assign(style, zoomStyle);
 		return (
 	      <div style={style}>
-	        <StatusComponent/>
-			<DeckComponent/>
+	        <StatusComponent 
+	        			activePlayerPos 	= {this.props.activePlayerPos}
+						gameState			= {this.props.gameState}
+						gameTurn			= {this.props.gameTurn}
+						botState			= {this.props.botState}
+						players 			= {this.props.players}
+						playableCount 		= {this.props.playableCount}
+						requestShowScore    = {this.props.requestShowScore}
+						scoresUpdated       = {this.props.scoresUpdated}
+						ifWaiting           = {this.props.ifWaiting}/>
+			<DeckComponent
+						deck                = {this.props.deck}
+						gameState			= {this.props.gameState}
+						activePlayerPos     = {this.props.activePlayerPos}
+						ifIAmBot            = {this.props.ifIAmBot}/>
 	      </div>
 	    )
 	}

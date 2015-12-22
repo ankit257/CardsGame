@@ -11,6 +11,7 @@ import GameSatti from '../utils/GameSatti';
 import PlayerSatti from '../utils/PlayerSatti';
 import BotSatti from '../utils/BotSatti';
 import ScoreSatti from '../utils/ScoreSatti';
+import AnimEngine from '../utils/AnimEngine'
 
 let passAudio = new Howl({
 	urls: ['../../assets/sounds/pass.mp3'],
@@ -358,6 +359,14 @@ const GameStore = createStore( {
 	},
 	getScoreUpdated(){
 		return _scoreUpdated;
+	},
+	getAnimEngineData(){
+		return {
+			deck: _game.deck,
+			gameState: _game.state,
+			botState: _game.botState,
+			ifOnline: false
+			}
 	}
 });
 GameStore.dispatchToken = register(action=>{
@@ -381,7 +390,6 @@ GameStore.dispatchToken = register(action=>{
 				GameStore.setCardPositionByState();
 				GameStore.fireInitStartGame();
 			}
-			
 			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_INIT_START_GAME':
@@ -394,14 +402,16 @@ GameStore.dispatchToken = register(action=>{
 		case 'GAME7_OFFLINE_INIT_ROUND':
 			GameStore.initRound();
 			GameStore.setCardPositionByState();
-			GameStore.emitChange();
+			AnimEngine.startAnimation(GameStore.getAnimEngineData())
+			.then(function(){
+				GameStore.emitChange();
+			});
 			break;
 		case 'GAME7_OFFLINE_INIT_ROUND_SUCCESS':
 			GameStore.initPlayersArray();
 			GameStore.setCardPositionByState();
 			GameStore.fireDistributeCards();
 			GameStore.setGameState('INIT_ROUND_SUCCESS');
-			
 			GameStore.emitChange();
 			break;
 		case 'GAME7_OFFLINE_DISTRIBUTE_CARDS':
@@ -410,7 +420,10 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.sortDeck(0);
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
-			GameStore.emitChange();
+			AnimEngine.startAnimation(GameStore.getAnimEngineData())
+			.then(function(){
+				GameStore.emitChange();
+			});
 			break;
 		case 'GAME7_OFFLINE_DISTRIBUTE_CARDS_SUCCESS':
 			GameStore.distributionDone();
@@ -432,7 +445,10 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.sortDeck(0);
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			AnimEngine.startAnimation(GameStore.getAnimEngineData())
+			.then(function(){
+				GameStore.emitAndSaveChange( 'gameData', _game );
+			});
 			break;
 		case 'GAME7_OFFLINE_PLAY_CARD_SUCCESS':
 			var card = GameStore.getGameProperty('cardPlayed');
@@ -442,22 +458,25 @@ GameStore.dispatchToken = register(action=>{
 			if(GameStore.getGameProperty('state') == 'ROUND_END'){
 				GameStore.roundEnd();
 				GameStore.setRoundEndPos();
+				AnimEngine.startAnimation(GameStore.getAnimEngineData())
+				.then(function(){
+					GameStore.emitAndSaveChange( 'gameData', _game );
+				});
 			}else{
-				// GameStore.updatePlayedCards(card);
 				GameStore.updateBotState('BOT_READY');
 				GameStore.setGameState('NOW_NEXT_TURN');
 				GameStore.setCardPositionByState();
 				GameStore.fireNextTurn();	
+				GameStore.emitAndSaveChange( 'gameData', _game );
 			}
-			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_SKIP_TURN':
 			passAudio.play();
 			break;
 		 case 'GAME7_OFFLINE_TURN_SKIPPED':
 		 	GameStore.setGameState('NOW_NEXT_TURN');
-		 	GameStore.fireNextTurn();		 	
-		 	GameStore.emitAndSaveChange( 'gameData', _game );
+		 	GameStore.fireNextTurn();	
+			GameStore.emitAndSaveChange( 'gameData', _game );
 		 	break;
 		 case 'GAME7_OFFLINE_NOW_NEXT_TURN':
 		 	GameStore.nextTurn();
@@ -467,13 +486,16 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.checkTurnSkip();
 			GameStore.checkBotPlay();
 			GameStore.setCardPositionByState();
-		 	GameStore.emitChange();
+			AnimEngine.startAnimation(GameStore.getAnimEngineData())
+			.then(function(){
+				GameStore.emitChange();
+			});
 		 	break;
 		 case 'GAME7_OFFLINE_SHOW_SCORES':
 		 	GameStore.showScores();
 			GameStore.setRoundEndPos();
 			GameStore.setGameState('ROUND_END_SHOW_SCORES');
-		 	GameStore.emitChange();
+			GameStore.emitChange();
 		 	break;
 		 case 'GAME_7_OFFLINE_HIDE_SCORE_UPDATED':
 			GameStore.scoreUpdatedFalse();

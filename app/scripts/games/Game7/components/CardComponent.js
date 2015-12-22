@@ -50,8 +50,8 @@ export default class CardComponent extends Component {
         this.props = {};
     }
     handleClick(){
-        var date = new Date();
-        console.log(date.getTime());
+        // var date = new Date();
+        // console.log(date.getTime());
         let card = this.state.card;
         let gameState = this.props.gameState;
         if(card.isPlayable && card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !this.props.pauseState && !this.props.ifIAmBot){

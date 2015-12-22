@@ -21,7 +21,7 @@ export default class PlayerSatti{
 					socket				: ''
 		});
 	}
-	updatePosition(activePlayerPos, touched, showScores, ifWaiting, showTable){
+	updatePosition(activePlayerPos, showScores, ifWaiting, showTable){
 		let hideEnlarged = !(showScores || ifWaiting);
 		if(hideEnlarged){
 			this.delay 			= 50;
@@ -34,25 +34,21 @@ export default class PlayerSatti{
 					this.x 				= gameCSSConstants.gameBody.width/2 - this.width/2;
 					this.y				= gameCSSConstants.gameBody.height - gameCSSConstants.player.smallDim + screenOut;
 					this.theta			= 0;
-					if(touched) { this.y -= screenOut }
 					break;
 				case 1:
 					this.x 				= this.height - screenOut;
 					this.y				= gameCSSConstants.gameBody.height/2 - this.width/2;
 					this.theta			= 90;
-					if(touched) { this.x += screenOut }
 					break;
 				case 2:
 					this.x 				= gameCSSConstants.gameBody.width/2 + this.width/2;
 					this.y				= this.height - screenOut;
 					this.theta			= 180;
-					if(touched) { this.y += screenOut }
 					break;
 				case 3:
 					this.x 				= gameCSSConstants.gameBody.width - this.height + screenOut;
 					this.y				= gameCSSConstants.gameBody.height/2 + this.width/2;
 					this.theta			= 270;
-					if(touched) { this.x  -= screenOut }
 					break;
 			}
 		}else{

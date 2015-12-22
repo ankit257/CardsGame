@@ -1,52 +1,25 @@
 import React, { Component, PropTypes, findDOMNode } from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import connectToGameStores from '../../../../scripts/utils/connectToGameStores';
-import ScoresStore from '../../../../scripts/stores/ScoresStore';
+// import ScoresStore from '../../../../scripts/stores/ScoresStore';
 import { gameCSSConstants, timeConstants } from '../constants/SattiHelper'
-// import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-
-import GameStoreOffline from '../stores/GameStore';
-import GameStoreOnline from '../stores/GameStoreOnline';
+import ScoresStore from '../../../../scripts/stores/ScoresStore';
+import connectToStores from '../../../../scripts/utils/connectToStores';
 
 import * as GameActions from '../actions/GameActions';
 
 import PlayerComponent from './PlayerComponent'
 import XPComponent from './XPComponent'
 
-function getState(props, ifOnline){
-	let GameStore;
-	if(ifOnline){
-		GameStore = GameStoreOnline;
-	}else{
-		GameStore = GameStoreOffline;
-	}
-	let activePlayerPos = GameStore.getGameProperty('activePlayerPos');
-	let gameState = GameStore.getGameProperty('state');
-	let botState = GameStore.getGameProperty('botState');
-	let players = GameStore.getGameProperty('players');
-	let gameTurn = GameStore.getGameProperty('gameTurn');
-	let playableCount = GameStore.getPlayableCount();
-	let requestShowScore = GameStore.getShowScore();
-	let scoresUpdated = GameStore.getScoreUpdated();
-	let ifWaiting = GameStore.ifGameWaiting();
+function getState(props){
 	let savedscore = ScoresStore.getScores('game7');
 	let xp = savedscore.stats.xp
 	return {
-		activePlayerPos,
-		gameState,
-		gameTurn,
-		botState,
-		players,
-		playableCount,
-		requestShowScore,
-		scoresUpdated,
-		xp,
-		ifWaiting
+		xp
 	};
 }
 
-
-@connectToGameStores([GameStoreOffline, GameStoreOnline, ScoresStore], getState)
+@connectToStores([ScoresStore], getState)
 export default class StatusComponent extends Component {
 	static contextTypes = {
 		ifOnline: PropTypes.bool
@@ -69,6 +42,9 @@ export default class StatusComponent extends Component {
 		if(nextProps.requestShowScore){
 			this.showScore();
 		}
+	}
+	shouldComponentUpdate(nextProps){
+		return this.props.xp === nextProps.xp;
 	}
 	requestServerBots(){
 		GameActions.requestDistribution();

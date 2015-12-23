@@ -93,8 +93,8 @@ export function showScores(){
 	}, {})
 }
 
-export function nextTurn(gameTurn){
-	dispatch(Actions.GAME7_OFFLINE_NOW_NEXT_TURN, {gameTurn});
+export function nextTurn(data){
+	dispatch(Actions.GAME7_OFFLINE_NOW_NEXT_TURN, {data});
 }
 
 export function togglePauseGame(){

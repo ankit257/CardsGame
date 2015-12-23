@@ -1,5 +1,6 @@
 import CardsSatti from '../utils/CardsSatti'
 import { gameCSSConstants, gameVars, timeConstants } from '../constants/SattiHelper'
+import { delay } from '../../../../scripts/AppDispatcher';
 import PlayerSatti from '../utils/PlayerSatti'
 import BotSatti from '../utils/BotSatti'
 import ScoreSatti from '../utils/ScoreSatti'
@@ -121,13 +122,13 @@ export default class GameSatti{
 		})
 		if(activePlayer.state == 'SKIP_TURN'){
 			if(gameType == 'offline'){
-				setTimeout(function(){
+				delay(timeConstants.DISPATCH_DELAY).then(function(){
 					GameActions.skipTurn(activePlayer.position);
-				}, timeConstants.DISPATCH_DELAY);
+				});
 			}else if(gameType == 'online'){
-				setTimeout(function(){
+				delay(timeConstants.DISPATCH_DELAY).then(function(){
 					GameActions.skipMyTurn(activePlayer.id);
-				}, timeConstants.DISPATCH_DELAY);
+				});
 			}else{
 				console.log('Weird');
 			}
@@ -142,7 +143,12 @@ export default class GameSatti{
 		})
 		if(activeBot.type == 'BOT' && this.botState == 'BOT_SHOULD_PLAY'){
 			this.botState = 'BOT_PLAYING_CARD';
-			return activeBot.playCard(botCards);
+			let card = activeBot.playCard(botCards);
+			if(typeof card === 'undefined'){
+
+			}else{
+				return card;
+			}
 		}
 	}
 	playCard(card, callerLocation){

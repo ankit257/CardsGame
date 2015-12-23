@@ -1,5 +1,5 @@
 import React from 'react';
-import { register, waitFor } from '../../../../scripts/AppDispatcher';
+import { register, waitFor, delay } from '../../../../scripts/AppDispatcher';
 import { createStore, mergeIntoBag, isInBag } from '../../../../scripts/utils/StoreUtils';
 import selectn from 'selectn';
 import { Howl } from "howler"
@@ -116,9 +116,11 @@ const GameStore = createStore( {
 	},
 	playBot(){
 		let card = _game.playBot(_playersCards[_game.activePlayerPos]);
-		setTimeout(function(){
+		if(typeof card != 'undefined'){
+			delay(timeConstants.DISPATCH_DELAY).then(function(){
 				GameActions.playCard(card);
-			}, timeConstants.DISPATCH_DELAY);
+			});
+		}
 	},
 	playCard(card){
 		_game.playCard(card, 'client');
@@ -131,34 +133,34 @@ const GameStore = createStore( {
 		_game.roundEnd();
 	},
 	fireInitRound(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.initRound();
-		}, timeConstants.DISPATCH_DELAY);
+		});
 	},
 	fireDistributeCards(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.distributeCards();
-		}, timeConstants.DISPATCH_DELAY);	
+		});	
 	},
 	fireShowScores(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.showScores();
-		}, timeConstants.DISPATCH_DELAY);
+		});
 	},
 	fireNextTurn(){
-		setTimeout(function(){
-			GameActions.nextTurn(_game.gameTurn);
-		}, timeConstants.DISPATCH_DELAY);	
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
+			GameActions.nextTurn({gameTurn: _game.gameTurn,botState: _game.botState});
+		});	
 	},
 	fireInitStartGame(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.initStartGame();
-		}, timeConstants.DISPATCH_DELAY);
+		});
 	},
 	firePlayCardSuccess(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.playCardSuccess();
-		}, timeConstants.DISPATCH_DELAY);
+		});
 	},
 	initPlayersArray(){
 		_playersCards = new Array();
@@ -400,11 +402,9 @@ GameStore.dispatchToken = register(action=>{
 		case 'GAME7_OFFLINE_INIT_GAME_FROM_LOCAL':
 			GameStore.refreshStore();
 			let gameData = action.data;
-			// console.log(gameData)
 			let newGameData = GameStore.makeGameObj(gameData);
 			GameStore.setGameObj(newGameData);
 			GameStore.actOnState();
-			// GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_INIT_START_GAME':
 			GameStore.hideScores();
@@ -416,10 +416,8 @@ GameStore.dispatchToken = register(action=>{
 		case 'GAME7_OFFLINE_INIT_ROUND':
 			GameStore.initRound();
 			GameStore.setCardPositionByState();
-			// startTime = (new Date()).getTime();
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
 			.then(function(){
-				// console.log((new Date()).getTime() - startTime);
 				AnimEngine.cancelAnimationFrame();
 				GameStore.emitChange();
 			});
@@ -437,10 +435,8 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.sortDeck(0);
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
-			// startTime = (new Date()).getTime();
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
 			.then(function(){
-				// console.log((new Date()).getTime() - startTime);
 				AnimEngine.cancelAnimationFrame();
 				GameStore.emitChange();
 			});
@@ -458,6 +454,7 @@ GameStore.dispatchToken = register(action=>{
 			// GameStore.emitChange();
 			break;
 		case 'GAME7_OFFLINE_PLAY_CARD':
+			// startTime = Date.now();
 			var card = action.card;
 			GameStore.playCard(card);
 			GameStore.updatePlayersArray();
@@ -465,10 +462,9 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.sortDeck(0);
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
-			// startTime = (new Date()).getTime();
+			// console.log('playcard calculation for :' + (Date.now()-startTime));
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
 			.then(function(){
-				// console.log((new Date()).getTime() - startTime);
 				AnimEngine.cancelAnimationFrame();
 				GameStore.emitAndSaveChange( 'gameData', _game );
 			});
@@ -481,10 +477,8 @@ GameStore.dispatchToken = register(action=>{
 			if(GameStore.getGameProperty('state') == 'ROUND_END'){
 				GameStore.roundEnd();
 				GameStore.setRoundEndPos();
-				// startTime = (new Date()).getTime();
 				AnimEngine.startAnimation(GameStore.getAnimEngineData())
 				.then(function(){
-					// console.log((new Date()).getTime() - startTime);
 					AnimEngine.cancelAnimationFrame();
 					GameStore.emitAndSaveChange( 'gameData', _game );
 				});
@@ -512,10 +506,8 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.checkTurnSkip();
 			GameStore.checkBotPlay();
 			GameStore.setCardPositionByState();
-			// startTime = (new Date()).getTime();
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
 			.then(function(){
-				// console.log((new Date()).getTime() - startTime);
 				AnimEngine.cancelAnimationFrame();
 				GameStore.emitChange();
 			});

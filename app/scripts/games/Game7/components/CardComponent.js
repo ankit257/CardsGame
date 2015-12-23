@@ -62,11 +62,12 @@ export default class CardComponent extends Component {
     }
     componentWillReceiveProps(nextProps) {
         this.setState({
-            card : nextProps.card,
-            initialstyle: {}
+            card : nextProps.card
         })
-        this.props = nextProps;
     }	
+    shouldComponentUpdate(nextProps){
+        return this.props.pauseState != nextProps.pauseState;
+    }
 	render() {
         const { card } = this.state;
         const { x, y, theta, animTime, delay, zIndex, bgColor } = card;
@@ -79,18 +80,16 @@ export default class CardComponent extends Component {
         // let style = Object.assign(initialstyle, {
         //                                 zIndex : zIndex
         //                         });
-        let style = {
-            zIndex: zIndex
-        };
-        let cardImgStyle ={
-            backgroundColor         : bgColor,
-            WebkitBackgroundColor   : bgColor
-        }
-        let cardfrontclass = card.showFace ? 'frontRotated' : 'front';
-        let cardbackclass  = card.showFace ? 'backRotated'  : 'back' ;
+        // let style = {
+        //     zIndex: zIndex
+        // };
+        // let cardImgStyle ={
+        //     backgroundColor         : bgColor,
+        //     WebkitBackgroundColor   : bgColor
+        // }
 		return (
-            <div id={card.key} className="card" style={style} onClick={this.handleClick}>
-                <img className="front" src={cardimg} style={cardImgStyle}   />
+            <div id={card.key} className="card" onClick={this.handleClick}>
+                <img className="front" src={cardimg}   />
                 <img className="back"  src={cardbackimg}/>
             </div>
 	    )

@@ -1,5 +1,5 @@
 import React from 'react';
-import { register } from '../../../../scripts/AppDispatcher';
+import { register, delay } from '../../../../scripts/AppDispatcher';
 import { createStore, mergeIntoBag, isInBag } from '../../../../scripts/utils/StoreUtils';
 import selectn from 'selectn';
 import { Howl } from "howler"
@@ -29,7 +29,7 @@ tadaAudio = new Howl({
 var _game = {}
 var _playersCards = []
 var _playableCount = []
-var _showScore = false
+var _showScore = false;
 var _pauseState = false;
 var _scoreUpdated = false;
 
@@ -106,9 +106,11 @@ const GameStore = createStore( {
 	},
 	playBot(){
 		let card = _game.playBot(_playersCards[_game.activePlayerPos]);
-		setTimeout(function(){
+		if(typeof card != 'undefined'){
+			delay(timeConstants.DISPATCH_DELAY).then(function(){
 				GameActions.playCard(card);
 			}, timeConstants.DISPATCH_DELAY);
+		}
 	},
 	playCard(card){
 		_game.playCard(card, 'client');
@@ -121,34 +123,34 @@ const GameStore = createStore( {
 		_game.roundEnd();
 	},
 	fireInitRound(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.initRound();
-		}, timeConstants.DISPATCH_DELAY);
+		})
 	},
 	fireDistributeCards(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.distributeCards();
-		}, timeConstants.DISPATCH_DELAY);	
+		})
 	},
 	fireShowScores(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.showScores();
-		}, timeConstants.DISPATCH_DELAY);
+		})
 	},
 	fireNextTurn(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.nextTurn(_game.gameTurn);
-		}, timeConstants.DISPATCH_DELAY);	
+		})
 	},
 	fireInitStartGame(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.initStartGame();
-		}, timeConstants.DISPATCH_DELAY);
+		})
 	},
 	firePlayCardSuccess(){
-		setTimeout(function(){
+		delay(timeConstants.DISPATCH_DELAY).then(function(){
 			GameActions.playCardSuccess();
-		}, timeConstants.DISPATCH_DELAY);
+		})
 	},
 	initPlayersArray(){
 		_playersCards = new Array();
@@ -404,6 +406,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
 			.then(function(){
+				AnimEngine.cancelAnimationFrame();
 				GameStore.emitChange();
 			});
 			break;
@@ -422,6 +425,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
 			.then(function(){
+				AnimEngine.cancelAnimationFrame();
 				GameStore.emitChange();
 			});
 			break;
@@ -447,6 +451,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
 			.then(function(){
+				AnimEngine.cancelAnimationFrame();
 				GameStore.emitAndSaveChange( 'gameData', _game );
 			});
 			break;
@@ -460,6 +465,7 @@ GameStore.dispatchToken = register(action=>{
 				GameStore.setRoundEndPos();
 				AnimEngine.startAnimation(GameStore.getAnimEngineData())
 				.then(function(){
+					AnimEngine.cancelAnimationFrame();
 					GameStore.emitAndSaveChange( 'gameData', _game );
 				});
 			}else{
@@ -471,10 +477,10 @@ GameStore.dispatchToken = register(action=>{
 			}
 			break;
 		case 'GAME7_OFFLINE_SKIP_TURN':
+			GameStore.setGameState('NOW_NEXT_TURN');
 			passAudio.play();
 			break;
 		 case 'GAME7_OFFLINE_TURN_SKIPPED':
-		 	GameStore.setGameState('NOW_NEXT_TURN');
 		 	GameStore.fireNextTurn();	
 			GameStore.emitAndSaveChange( 'gameData', _game );
 		 	break;
@@ -488,6 +494,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
 			.then(function(){
+				AnimEngine.cancelAnimationFrame();
 				GameStore.emitChange();
 			});
 		 	break;

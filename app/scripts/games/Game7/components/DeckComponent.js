@@ -7,14 +7,22 @@ import CardComponent from './CardComponent';
 export default class DeckComponent extends Component {
 	state = {
 		deck 		: [],
-		activePlayer: null
+		activePlayer: null,
+		time : 0
+	}
+	shouldComponentUpdate(nextProps){
+		return nextProps.getUpdateFlag();
 	}
 	componentWillReceiveProps(nextProps){
 		this.setState({
 				deck 			: nextProps.deck,
 				activePlayerPos	: nextProps.activePlayerPos,
-				gameState		: nextProps.gameState
+				gameState		: nextProps.gameState,
+				time			: Date.now()
 			});
+	}
+	componentDidUpdate(){
+		// console.log('DeckCompRender : '+ (Date.now()-this.state.time));
 	}
 	render() {
 		let deck = this.state.deck == undefined ? [] : this.state.deck;

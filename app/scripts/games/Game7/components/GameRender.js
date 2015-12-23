@@ -2,7 +2,7 @@ import React, { Component, PropTypes, findDOMNode } from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import connectToGameStores from '../../../../scripts/utils/connectToGameStores';
 import { scaleGameBodyByWidth } from '../../../../scripts/utils/CommonGameUtils';
-
+import { delay } from '../../../../scripts/AppDispatcher';
 
 import {gameCSSConstants, gamePathConstants, timeConstants} from '../constants/SattiHelper'
 
@@ -50,14 +50,19 @@ function getState(props, ifOnline){
 @connectToGameStores([GameStoreOffline, GameStoreOnline], getState)
 export default class GameRender extends Component {
 	state = {
-		zoomStyle : {}
+		zoomStyle : {},
+		time: 0
 	}
 	static contextTypes = {
 		ifOnline: PropTypes.bool
 	}
 	constructor(props){
 		super(props);
+		this.updateFlag = true;
 		this.handleResize = this.handleResize.bind(this);
+	}
+	getUpdateFlag(){
+		return this.updateFlag;
 	}
 	componentWillUnmount(){
 		if(window.detachEvent) {
@@ -124,10 +129,12 @@ export default class GameRender extends Component {
 				break;
 		}
 		if(typeof action == "function"){
-			setTimeout(function(){
+			delay(timeConstants.DISPATCH_DELAY).then(function(){
 				action();
-			}, 0)
+			})
 		}
+		this.updateFlag = false;
+		console.log('Renderng TIME : '+ (Date.now()-this.state.time));
 	}
 	handleResize(e){
 		this.setState({
@@ -138,9 +145,11 @@ export default class GameRender extends Component {
 		return this.props.gamePause == nextProps.gamePause;
 	}
 	componentWillReceiveProps(nextProps){
+		this.updateFlag = true;
 		if(this.props.gamePause != nextProps.gamePause){
 			GameActions.togglePauseGame();
 		}
+		this.setState({time: Date.now()});
 	}
 	deleteLocalStore(){
 		localStorage.removeItem('gameData');
@@ -165,12 +174,14 @@ export default class GameRender extends Component {
 						playableCount 		= {this.props.playableCount}
 						requestShowScore    = {this.props.requestShowScore}
 						scoresUpdated       = {this.props.scoresUpdated}
-						ifWaiting           = {this.props.ifWaiting}/>
+						ifWaiting           = {this.props.ifWaiting}
+						getUpdateFlag		= {this.getUpdateFlag.bind(this)}/>
 			<DeckComponent
 						deck                = {this.props.deck}
 						gameState			= {this.props.gameState}
 						activePlayerPos     = {this.props.activePlayerPos}
-						ifIAmBot            = {this.props.ifIAmBot}/>
+						ifIAmBot            = {this.props.ifIAmBot}
+						getUpdateFlag		= {this.getUpdateFlag.bind(this)}/>
 	      </div>
 	    )
 	}

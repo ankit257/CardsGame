@@ -37,14 +37,13 @@ export default class StatusComponent extends Component {
 		showTable: false
 	}
 	componentWillReceiveProps(nextProps){
-		this.props = nextProps;
 		this.updateSelf();
 		if(nextProps.requestShowScore){
 			this.showScore();
 		}
 	}
 	shouldComponentUpdate(nextProps){
-		return this.props.xp === nextProps.xp;
+		return nextProps.getUpdateFlag();
 	}
 	requestServerBots(){
 		GameActions.requestDistribution();
@@ -120,6 +119,7 @@ export default class StatusComponent extends Component {
 		});
 	}
 	render() {
+		console.log('render');
 		let xp = this.props.xp;
 		let ifWaiting = this.props.ifWaiting;
 		let status = this.state.status;

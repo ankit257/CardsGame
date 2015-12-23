@@ -8,9 +8,6 @@ export default class LargeScoreComponent extends Component {
 	componentWillReceiveProps(nextProps){
 		this.props = nextProps;
 	}
-	shouldComponentUpdate(){
-		return this.props.showScores;
-	}
 	render() {
 		let ifWaiting = this.props.ifWaiting;
 		let score = this.props.score;

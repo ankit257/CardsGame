@@ -9,6 +9,9 @@ export default class DeckComponent extends Component {
 		deck 		: [],
 		activePlayer: null
 	}
+	shouldComponentUpdate(nextProps){
+		return nextProps.getUpdateFlag();
+	}
 	componentWillUnmount(){
         delete this.props.deck;
         delete this.props.gameState;

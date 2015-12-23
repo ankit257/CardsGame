@@ -37,7 +37,7 @@ export default class StatusComponent extends Component {
 		this.props = {};
 	}
 	shouldComponentUpdate(nextProps){
-		return this.props.xp === nextProps.xp;
+		return nextProps.getUpdateFlag();
 	}
 	state = {
 		status : '',
@@ -50,6 +50,10 @@ export default class StatusComponent extends Component {
 		if(nextProps.requestShowScore){
 			this.showScore();
 		}
+		this.setState({time: Date.now()})
+	}
+	componentDidUpdate(){
+		// console.log('StatusCompRender : '+ (Date.now()-this.state.time));
 	}
 	requestServerBots(){
 		GameActions.requestDistribution();

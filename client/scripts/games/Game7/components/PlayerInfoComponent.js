@@ -50,6 +50,7 @@ export default class PlayerInfoComponent extends Component {
 			popup.show = true;
 		}
 		if(player.position == activePlayerPos && player.state == 'SKIP_TURN'){
+			console.log('skipturn : '+activePlayerPos);
 			popup.src = 'game7-popup-pass.svg';
 			popup.show = true;
 		}

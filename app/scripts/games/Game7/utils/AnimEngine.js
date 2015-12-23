@@ -58,7 +58,6 @@ export default class AnimEngine{
 	}
 	static cancelAnimationFrame(){
 		window.cancelAnimFrame(window.requestId);
-		// window.requestId = undefined;
 	}
 	static startListening(){
 		PauseStore.addChangeListener(AnimEngine.handlePause);
@@ -114,7 +113,7 @@ export default class AnimEngine{
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
 				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
-					duration = timeConstants.REARRANGE_ANIM;
+					duration = timeConstants.BOT_THINKING_DELAY;
 				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
 					duration = 0;
 				}else if(ifOnline){
@@ -155,17 +154,16 @@ export default class AnimEngine{
 	}
 	static stepPromise(deck, duration){
 	    return new Promise(function(resolve, reject){
-	    	// console.log('-------------------------------------');
 	    	let start = performance.now();// + performance.timing.navigationStart;
 			let end =  start + duration;
 	   		function step(){
+	   			let current = performance.now();// + performance.timing.navigationStart;
 		    	if(!AnimEngine.pause.state){
-					let current 	= performance.now(),// + performance.timing.navigationStart,
-						remaining 	= end - current + (AnimEngine.pause.end - AnimEngine.pause.start),
+					let	remaining 	= end - current + (AnimEngine.pause.end - AnimEngine.pause.start),
 						spent 		= current - start - (AnimEngine.pause.end - AnimEngine.pause.start),
 						rate;
-					if(remaining < 0){
-						// console.log('spent = '+spent + ', remaining = '+ remaining);
+					if(remaining < -50){
+						console.log('animation for: '+ duration + ' , animated for: ' + spent);
 						resolve();
 					}else{
 						deck.map(deckcard => {
@@ -206,18 +204,21 @@ export default class AnimEngine{
 									}
 								}
 								let animatable = true;
-								if(deckcard.state != 'IN_DECK' && (deckcard.isPlayable && deckcard.ownerPos == 0) && delX == 0 && delY == 0 && delZ == 0 && delTheta == 0 && deckcard.showFace == deckcard.oldShowFace){
-									animatable = false;
-								}
+								// if(deckcard.state != 'IN_DECK' && (deckcard.isPlayable && deckcard.ownerPos == 0) && delX == 0 && delY == 0 && delZ == 0 && delTheta == 0 && deckcard.showFace == deckcard.oldShowFace){
+								// 	animatable = false;
+								// }
 								if(element && animatable){
-									
 									let elemStyle ={
-										transform : 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)',
+										transform : 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(0) rotate(' + theta + 'deg)',
 										WebkitTransform : 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)',
 										zIndex : zIndex
 									}, childstyle;
-									Array.prototype.map.call(element.childNodes, child=>{
-										switch(child.className){
+									for (var parentKey in elemStyle) {
+										element.style[parentKey] = elemStyle[parentKey];
+									}
+									for(var key in element.childNodes){
+										let childstyle;
+										switch(element.childNodes[key].className){
 											case "front":
 												childstyle = {
 													transform : 'perspective(400px) rotateY('+ frontRotateY +'deg)',
@@ -230,16 +231,14 @@ export default class AnimEngine{
 													WebkitTransform : 'perspective(400px) rotateY('+ backRotateY +'deg)'
 												}
 												break;
-											child.style = childstyle;
 										}
-									}) //childNodes map end
-									element.style = elemStyle;
-								}else{
-									AnimEngine.cancelAnimationFrame();
+										for(var styleKey in childstyle){
+											element.childNodes[key].style[styleKey] = childstyle[styleKey];
+										}
+									}
 								}
-								
 							}
-						}) // deckcard map end
+						}) // deckcard map end +t
 					}
 				}
 				window.requestId = window.requestAnimFrame(step);

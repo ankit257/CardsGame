@@ -163,7 +163,6 @@ export default class PlayingCard{
 				break;
 			case 'BEING_PLAYED':
 			case 'PLAYED':
-				this.z = 150;
 				let offset = {
 					horz : (gameCSSConstants.cardOffset.playedH * gameCSSConstants.cardSize.width)/2,
 					vert : (gameCSSConstants.cardOffset.playedV * gameCSSConstants.cardSize.height)/2,

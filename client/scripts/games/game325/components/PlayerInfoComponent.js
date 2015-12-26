@@ -72,9 +72,12 @@ export default class PlayerInfoComponent extends Component {
 		let scoreHeight = this.state.scoreHeight;
 		let touched = this.state.touched;
 		let activePlayerPos = this.props.activePlayerPos;
+		let otherPlayerPos = this.props.otherPlayerPos;
 		let showScores = this.props.showScores;
 		let popup = this.getPopUp();
 		let playerTypeClass;
+		let handsToMake = player.handsToMake;
+		let handsMade = player.handsMade;
 		player.updatePosition(activePlayerPos, this.state.touched, showScores, ifWaiting, showTable);
 		const { width, height, x, y, theta, animTime, delay, bgColor, name, id } = player
 		let style = {
@@ -173,8 +176,8 @@ export default class PlayerInfoComponent extends Component {
 				</div>
 				<PopUpComponent popup={popup} position={player.position} showScores={showScores} ifWaiting={ifWaiting}/>
 				<SmallScoreComponent score={score} position={player.position} showScores={showScores} rank={player.rank} ifWaiting={ifWaiting}/>
-				<TableScoreComponent score={score} position={player.position} showScores={showScores} showTable={showTable} ifWaiting={ifWaiting}/>
-				<LargeScoreComponent score={score} position={player.position} rank={player.rank} showScores={showScores} ifWaiting={ifWaiting}/>
+				<TableScoreComponent handsMade={handsMade} handsToMake={handsToMake} score={score} position={player.position} showScores={showScores} showTable={showTable} ifWaiting={ifWaiting}/>
+				<LargeScoreComponent handsMade={handsMade} handsToMake={handsToMake} score={score} position={player.position} rank={player.rank} showScores={showScores} ifWaiting={ifWaiting}/>
 			</div>
 			)
 	}

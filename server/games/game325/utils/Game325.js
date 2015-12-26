@@ -65,7 +65,6 @@ var Game325 = (function () {
 			playerIds : [],
 		});
 	}
-
 	_createClass(Game325, [{
 		key: 'initDeck',
 		value: function initDeck() {
@@ -306,7 +305,12 @@ var Game325 = (function () {
 	}, {
 		key: 'checkBotPlay',
 		value: function checkBotPlay() {
-			var activePlayer = this.players[this.activePlayerPos];
+			for (var i = 0; i < this.players.length; i++) {
+				if(this.players[i].id == this.activePlayerId){
+					var activePlayer = this.players[i];		
+				}
+			};
+			// var activePlayer = this.players[this.activePlayerPos];
 			if (activePlayer.type == 'BOT') {
 				// console.log(this.state);
 				this.botState = 'BOT_SHOULD_PLAY';
@@ -389,12 +393,11 @@ var Game325 = (function () {
 			var _iteratorNormalCompletion3 = true;
 			var _didIteratorError3 = false;
 			var _iteratorError3 = undefined;
-
 			try {
 				for (var _iterator3 = this.deck[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 					var deckcard = _step3.value;
 
-					if (deckcard.state == 'PLAYED') {
+					if (deckcard.state == 'BEING_PLAYED') {
 						deckcard.state = 'MOVE_HAND';
 						deckcard.ownerPos = this.winnerId;
 					}
@@ -626,7 +629,7 @@ var Game325 = (function () {
 		key: 'updateCardState',
 		value: function updateCardState(card, state) {
 			var _this = this;
-
+			console.log(this.activePlayerPos)
 			this.deck.map(function (deckcard) {
 				if (deckcard.rank == card.rank && deckcard.suit == card.suit) {
 					_this.players[_this.activePlayerPos].cardPlayed = Object.assign(deckcard);
@@ -823,8 +826,13 @@ var Game325 = (function () {
 				for (var _iterator14 = this.deck[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
 					var deckcard = _step14.value;
 
-					if (deckcard.state == 'PLAYED') {
-						this.players[deckcard.ownerPos].cardPlayed = deckcard;
+					if (deckcard.state == 'BEING_PLAYED') {
+						// this.players[deckcard.ownerPos].cardPlayed = deckcard;
+						for (var i = 0; i < this.players.length; i++) {
+							if(this.players[i].id == deckcard.ownerId){
+								this.players[i].cardPlayed = deckcard;
+							}
+						};
 					}
 				}
 			} catch (err) {
@@ -846,6 +854,7 @@ var Game325 = (function () {
 			for (var i = 0; i < this.players.length; i++) {
 				biggestCard = this.getBiggestCard(biggestCard, this.players[i].cardPlayed, this.turnSuit, this.trump);
 			}
+			// console.log(biggestCard)
 			this.turnSuit = '';
 			for (var i = 0; i < this.players.length; i++) {
 				if (this.players[i].cardPlayed == biggestCard) {
@@ -853,7 +862,16 @@ var Game325 = (function () {
 					this.players[i].handsMade++;
 					this.winnerId = this.players[i].id;
 					this.activePlayerId = this.winnerId;
-					this.activePlayerPos = this.winnerId;
+					// this.activePlayerPos = this.winnerId;
+					this.activePlayerPos = i;
+					// console.log(this.players[i].score);
+					// console.log('Round:'+this.gameRound);
+					if(!this.players[i].score[this.gameRound - 1]){
+						this.players[i].score[this.gameRound - 1] = {
+							handsMade : 0,
+							handsToMake : 0,
+						}	
+					}
 					this.players[i].score[this.gameRound - 1].handsMade++;
 				}
 			}
@@ -976,8 +994,14 @@ var Game325 = (function () {
 
 					if (deckcard.suit == card.suit && deckcard.rank == card.rank) {
 						deckcard.ownerPos = this.activePlayerPos;
-						this.players[this.activePlayerPos].handsMadeInLR--;
-						this.players[this.otherPlayerId].handsMadeInLR++;
+						for (var i = 0; i < this.players.length; i++) {
+							if(this.players[i].id === this.activePlayerId){
+								this.players[i].handsMadeInLR--;
+							}
+							if(this.players[i].id === this.otherPlayerId){
+								this.players[i].handsMadeInLR++;			
+							}
+						}
 					}
 				}
 			} catch (err) {

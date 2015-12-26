@@ -103,6 +103,8 @@ export default class PlayingCard{
 		this.oldY = this.y;
 		this.oldZ = this.z;
 		this.animState  = 0;
+		let screenOutOffset = -1 * gameCSSConstants.cardOffset.screenOut * gameCSSConstants.cardSize.height;
+		console.log(this.state)
 		switch(this.state){
 			case 'START_DISTRIBUTING':
 				this.ox 		= gameCSSConstants.gameBody.width/2 - gameCSSConstants.cardSize.width/2;
@@ -147,7 +149,6 @@ export default class PlayingCard{
 			case 'DISTRIBUTED':
 				let smallOffset = gameCSSConstants.cardOffset.small * gameCSSConstants.cardSize.width;
 				let largeOffset = gameCSSConstants.cardOffset.large * gameCSSConstants.cardSize.width;
-				let screenOutOffset = -1 * gameCSSConstants.cardOffset.screenOut * gameCSSConstants.cardSize.height;
 				let widthLargeCardArrayBy2 = ((this.similar - 1)*largeOffset + gameCSSConstants.cardSize.width)/2;
 				let widthSmallCardArrayBy2 = ((this.similar - 1)*smallOffset + gameCSSConstants.cardSize.width)/2;
 				switch(this.ownerPos){
@@ -230,6 +231,7 @@ export default class PlayingCard{
 				this.showFace 	= true;
 				break;
 			case 'MOVE_HAND':
+				console.log('Pos:'+this.ownerPos)
 				switch(this.ownerPos){
 					case 0:
 						this.ox 		= gameCSSConstants.gameBody.width/2 -gameCSSConstants.cardSize.width/2;

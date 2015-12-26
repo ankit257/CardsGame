@@ -30,18 +30,20 @@ export function startGame(){
 export function onlineStartGame(){
 	dispatch(Actions.GAME325_ONLINE_START_GAME, {});
 }
-
 export function initRound(){
 	dispatch(Actions.GAME325_INIT_ROUND, {});
-}
-export function onlineTrumpSetSuccess(trump){
-	dispatch(Actions.GAME325_ONLINE_SET_TRUMP_SUCCESS, {trump})
 }
 export function setTrump(trump){
 	dispatch(Actions.GAME325_SET_TRUMP, {trump});
 }
+export function onlineTrumpSetSuccess(trump){
+	dispatch(Actions.GAME325_ONLINE_SET_TRUMP_SUCCESS, {trump})
+}
 export function onlineSetTrump(trump){
 	dispatch(Actions.GAME325_ONLINE_SET_TRUMP, {trump});
+}
+export function setTrumpOnline(){
+	dispatch(Actions.GAME325_ONLINE_SET_TRUMP, {card});
 }
 export function requestServerBot(){
 	dispatch(Actions.GAME325_ONLINE_REQUEST_SERVER_BOT, {});
@@ -70,7 +72,9 @@ export function onlineDistributionSecondSuccess(){
 export function playCard(card){
 	dispatch(Actions.GAME325_PLAY_CARD, {card});
 }
-
+export function onlinePlayCard(card){
+	dispatch(Actions.GAME325_ONLINE_PLAY_CARD, {card});
+}
 export function playCardSuccess(){
 	dispatch(Actions.GAME325_PLAY_CARD_SUCCESS, {});
 }
@@ -108,6 +112,9 @@ export function showScores(){
 export function nextTurn(gameTurn){
 	dispatch(Actions.GAME325_NOW_NEXT_TURN, {gameTurn});
 }
+export function nowNextTurn(){
+	dispatch(Actions.GAME325_ONLINE_NOW_NEXT_TURN, {});
+}
 export function togglePauseGame(){
 	dispatch(Actions.GAME325_TOGGLE_PAUSE, {});	
 }
@@ -126,11 +133,14 @@ export function withdrawCardSuccess(card){
 export function returnCardSuccess(card){
 	dispatch(Actions.GAME325_RETURN_CARD_SUCCESS, {card});
 }
-export function setTrumpOnline(){
-	dispatch(Actions.GAME325_ONLINE_SET_TRUMP, {card});
-}
 export function playCardOnline(){
 	dispatch(Actions.GAME325_ONLINE_PLAY_CARD, {card});
+}
+export function cardPlayed(){
+	dispatch(Actions.GAME325_ONLINE_CARD_PLAYED, {});
+}
+export function onlineMoveHandSuccess(){
+	dispatch(Actions.GAME325_ONLINE_MOVE_HAND_SUCCESS, {});	
 }
 export function returnCardOnline(){
 	dispatch(Actions.GAME325_ONLINE_RETURN_CARD, {card});
@@ -141,9 +151,29 @@ export function withdrawCardOnline(){
 export function gameStateReceived(clientData){
 	dispatch(Actions.GAME325_ONLINE_GAME_STATE_RECEIVED, {clientData});
 }
+export function  onlineWithdrawCardSuccess() {
+	dispatch(Actions.GAME325_ONLINE_WITHDRAW_CARD_SUCCESS, {});
+}
+export function onlineReturnCardSuccess() {
+	dispatch(Actions.GAME325_ONLINE_RETURN_CARD_SUCCESS, {});
+}
+export function playCardSuccessOnline(){
+	dispatch(Actions.GAME325_ONLINE_PLAY_CARD_SUCCESS, {});
+}
 export function playedWaitForServer()
 {
 	dispatch(Actions.GAME325_ONLINE_PLAYED_WAIT_FOR_SERVER, {});
+}
+export function setTrumpWaitForServer()
+{
+	dispatch(Actions.GAME325_ONLINE_SET_TRUMP_WAIT_FOR_SERVER, {});
+}
+export function  withdrawnWaitForServer() {
+	dispatch(Actions.GAME325_ONLINE_WITHDRWAWN_WAIT_FOR_SERVER, {});
+}
+export function returnedWaitForServer()
+{
+	dispatch(Actions.GAME325_ONLINE_RETURNED_WAIT_FOR_SERVER, {});
 }
 export function showScoresOnline(){
 	dispatch(Actions.GAME325_ONLINE_SHOW_SCORES, {});

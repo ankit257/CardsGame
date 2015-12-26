@@ -141,7 +141,6 @@ export default class AnimEngine{
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'SET_TRUMP_SUCCESS':
-				console.log(123)
 				// duration = timeConstants.TOTAL_DISTR_DELAY;
 				// action   = ifOnline ? GameActions.onlineTrumpSetSuccess : GameActions.trumpSetSuccess;
 				// this.audio 	 = distributeAudio;
@@ -177,18 +176,19 @@ export default class AnimEngine{
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
-			case 'GAME325_WITHDRAWING_CARD':
+			case 'WITHDRAWING_CARD':
+				console.log('WITHDRAWING_CARD')
 				duration = timeConstants.TOTAL_PLAY_DELAY;
-				action   = GameActions.withdrawCardSuccess;
-				this.audio 	 = playAudio;
+				action   = ifOnline ? GameActions.onlineWithdrawCardSuccess : GameActions.withdrawCardSuccess;
+				// this.audio 	 = playAudio;
 				this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
-			case 'GAME325_RETURNING_CARD':
+			case 'RETURNING_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
-				action   = GameActions.returnCardSuccess;
-				this.audio 	 = playAudio;
-				this.audio.play();
+				action   = ifOnline ? GameActions.onlineReturnCardSuccess: GameActions.returnCardSuccess;
+				// this.audio 	 = playAudio;
+				// this.audio.play();
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'ROUND_END':
@@ -197,8 +197,9 @@ export default class AnimEngine{
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'MOVE_HAND':
+				console.log('moving_hand')
 				duration = timeConstants.TOTAL_PLAY_DELAY;
-				action   = GameActions.moveHandSuccess;
+				action   = ifOnline ? GameActions.onlineMoveHandSuccess : GameActions.moveHandSuccess;
 				this.animateCards(deck, duration, action, gameState);
 				break;
 			case 'SET_TRUMP':
@@ -217,7 +218,7 @@ export default class AnimEngine{
 				}														  // Its already handled
 				
 				break;
-			case 'GAME325_WITHDRAW_CARD':
+			case 'WITHDRAW_CARD':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
 					action = ifOnline ? GameActions.requestServerBot : GameActions.botWillPlay;
@@ -228,9 +229,11 @@ export default class AnimEngine{
 					duration = 0;
 					action = null;
 				}
-				this.animateCards(deck, duration, action, gameState);
+				// if(!ifOnline){
+					this.animateCards(deck, duration, action, gameState);	
+				// }
 				break;
-			case 'GAME325_RETURN_CARD':
+			case 'RETURN_CARD':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
 					action = ifOnline ? GameActions.requestServerBot : GameActions.botWillPlay;
@@ -241,7 +244,10 @@ export default class AnimEngine{
 					duration = 0;
 					action = null;
 				}
-				this.animateCards(deck, duration, action, gameState);
+				// this.animateCards(deck, duration, action, gameState);
+				// if(!ifOnline){
+					this.animateCards(deck, duration, action, gameState);	
+				// }
 				break;
 			case 'READY_TO_PLAY_NEXT':
 				if(botState == 'BOT_SHOULD_PLAY'){
@@ -259,6 +265,7 @@ export default class AnimEngine{
 			case 'ROUND_END_SHOW_SCORES':
 				this.cancelAnimationFrame();
 				break;
+			case 'PLAY_DATA_RECEIVED':
 			case 'INIT_ROUND_SUCCESS':
 			case 'GAME_STARTED':
 			case 'INIT_DECK':
@@ -288,7 +295,6 @@ export default class AnimEngine{
 		let start = performance.now() + performance.timing.navigationStart;
 		let end =  start + duration;
 		function step(){
-			console.log(gameState);
 			if(!self.pause.state){
 				current 	= performance.now() + performance.timing.navigationStart;
 				remaining 	= end - current + (self.pause.end - self.pause.start);

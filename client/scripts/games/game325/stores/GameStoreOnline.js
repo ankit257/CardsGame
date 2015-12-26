@@ -163,6 +163,7 @@ const GameStoreOnline = createStore({
 	},
 	setTrump(trump){
 		_game.trump = trump
+
 	},
 	initRound(){
 		_game.initRound();
@@ -185,8 +186,9 @@ const GameStoreOnline = createStore({
 	isWithdrawCard(){
 		return _game.isWithdrawCard();
 	},
-	moveHandMade(){
-		_game.assignPosToCardsToBeMoved()
+	moveHandMade(winnerPos){
+		// console.log(winnerPos)
+		_game.assignPosToCardsToBeMoved(winnerPos)
 	},
 	playBot(){
 		return _game.playBot(_playersCards[_game.activePlayerPos]);
@@ -204,7 +206,10 @@ const GameStoreOnline = createStore({
 		_game.getTurnWinner();
 	},
 	nextTurn(){
-		_game.nextTurn();
+		// _game.nextTurn();
+		_game.gameTurn = _next.gameTurn;
+		this.setActivePlayerPos();
+		_game.state = 'READY_TO_PLAY_NEXT';
 	},
 	moveHand(){
 		return _game.shouldMoveHand();
@@ -255,7 +260,8 @@ const GameStoreOnline = createStore({
 	},
 	fireNextTurn(){
 		setTimeout(function(){
-			GameActions.nextTurn(_game.gameTurn);
+			// GameActions.nextTurn(_game.gameTurn);
+			GameActions.nowNextTurn();
 		}, timeConstants.DISPATCH_DELAY);	
 	},
 	fireInitStartGame(){
@@ -268,9 +274,9 @@ const GameStoreOnline = createStore({
 			GameActions.playCardSuccess();
 		}, timeConstants.DISPATCH_DELAY);
 	},
-	fireDistributeOneCardEach(){
+	fireDistributeOneCardEach(){								//
 		setTimeout(function(){
-			GameActions.distributeOneCardEach();
+			GameActions.distributeOneCardEach();				// callDelay(GameActions.distributeOneCardEach) // fn();
 		}, timeConstants.DISPATCH_DELAY);	
 	},
 	initPlayersArray(){
@@ -440,6 +446,7 @@ const GameStoreOnline = createStore({
 		let newGameData = new Game325();
 		Object.assign(newGameData, gameData);
 		// copy deck
+		newGameData.winnerId = gameData.winnerId;
 		delete newGameData['deck'];
 		newGameData.deck = new Array();
 		gameData.deck.map(deckcard => {
@@ -545,6 +552,11 @@ const GameStoreOnline = createStore({
 			};
 		})
 	},
+	fireCardPlayed(card){
+		setTimeout(function(){
+			GameActions.cardPlayed();
+		}, timeConstants.DISPATCH_DELAY);
+	},
 	setActivePlayerPos(){			// Reads the _next.activePlayerId stored and translates it to activePlayerPos. Also sets _game.activePlayerId
 		let activePlayerId = _next.activePlayerId;
 		let playerids = this.getPlayerIds();
@@ -555,6 +567,17 @@ const GameStoreOnline = createStore({
 			}
 		};
 		_game.activePlayerId = activePlayerId;
+	},
+	setOtherPlayerPos(){			// Reads the _next.activePlayerId stored and translates it to activePlayerPos. Also sets _game.activePlayerId
+		let otherPlayerId = _next.otherPlayerId;
+		let playerids = this.getPlayerIds();
+		for (var i = 0; i < playerids.length; i++) {
+			if(playerids[i] == otherPlayerId){
+				_game.otherPlayerPos = i;
+				break;
+			}
+		};
+		_game.otherPlayerId = otherPlayerId;
 	},
 	setNewScores(){        // Reads the _next.playerfromserver and sets score after PLAY_CARD_SUCCESS -> ROUND_END_SHOW_SCORES
 		_game.players.map(player=>{
@@ -645,6 +668,12 @@ const GameStoreOnline = createStore({
 			this.emitPlayCardFromSocket('START_NEW_ROUND', {adminId});
 		}
 	},
+	adminRequestsGameState(adminId){
+		this.makeGameRunning();
+		if(_myid == adminId){
+			this.emitPlayCardFromSocket('GAME_STATE', {adminId});
+		}
+	},
 	adminRequestServerBot(adminId){   // admin plays for a bot. Either plays a card or sends a skip turn to server. Server sends NEXT_ROUND with nextRoundCalculations
 		if(_myid == adminId){
 			_game.players.map(player=>{
@@ -702,7 +731,6 @@ const GameStoreOnline = createStore({
 		_game.adminId = newAdminId;
 
 	},takeAction(socketdata){  // switch for acting upon data being received from server
-		console.log(socketdata);
 		switch(socketdata.action){
 			case 'SET_ID':   // sent as soon as a player gets connected to socket.
 				this.setMyId(socketdata.id);
@@ -710,7 +738,7 @@ const GameStoreOnline = createStore({
 				this.ifEmitFalse();
 				break;
 			case 'SELECT_DEALER': //3 cards and Make dealer as Player with Biggest Card
-				console.log('SELECT_DEALER')
+				// console.log('SELECT_DEALER')
 				break;
 			case 'DISTRIBUTE_CARDS_FIRST': //Distribute Cards and Ask active player to Set Trump
 				break;
@@ -719,33 +747,34 @@ const GameStoreOnline = createStore({
 				_next.gameData = socketdata.gameData; // Save a copy of gameData here. Use during distribution
 				setTimeout(function(){
 					GameActions.onlineTrumpSetSuccess(socketdata.gameData.trump);	
-					for (var i = 0; i < _next.gameData.deck.length; i++) {
-						console.log(_next.gameData.deck[i].state)
-					};
 				},0);
 				this.ifEmitFalse();
 				break;
 			case 'START_NEW_ROUND': // New gameObj from server received at the start of every round.
-				// console.log(socketdata)
 				if(this.ifGameWaiting) this.makeGameRunning();
 				_next.gameData = socketdata.gameData; // Save a copy of gameData here. Use during distribution
 				_next.activePlayerId = socketdata.gameData.activePlayerId;
 				_next.gameTurn = socketdata.gameData.gameTurn;
 				_next.playableCards = socketdata.gameData.playableCards;
 				_game.initDeck(); // Save server gameObj in temporary variable and initDeck here which has all _game.deck[i].state == 'IN_DECK' <- To bring deck to centre of board
+				_game.playerIds = this.getPlayerIds();
 				this.setGameState('INIT_ROUND');
 				// this.assignCardsForDealerSelection();
 				this.ifEmitTrue();   // <- This received event and its changes will be emitted from store 
 				break;
 			case 'NEXT_TURN':  //if gameWinner -> MoveHand and ask active player to play card
-			// Server sends 'NEXT_TURN' when client either plays card or skips turn. Save temporary values in _next and consume after render_success.
+				// Server sends 'NEXT_TURN' when client either plays card or skips turn. Save temporary values in _next and consume after render_success.
 				_next.activePlayerId = socketdata.gameData.nextActivePlayerId;
 				_next.gameTurn = socketdata.gameData.nextGameTurn;
-				_next.playableCards = socketdata.gameData.playableCards;
+				// console.log(socketdata.gameData)
+				// _next.playableCards = socketdata.gameData.playableCards;
+				_game.winnerId = socketdata.gameData.winnerId;
+				// console.log(socketdata.gameData)
 				if(socketdata.gameData.card !== undefined && socketdata.gameData.turnType == 'CARD_PLAYED'){
 					// IF CARD WAS PLAYED AND TURN WAS NOT SKIPPED
 					let socketcard = socketdata.gameData.card;
 					_game.botState = socketdata.gameData.botState;
+					
 					if(_game.cardPlayed && _game.cardPlayed.suit && _game.cardPlayed.suit == socketcard.suit && _game.cardPlayed.rank == socketcard.rank){
 						// If I have played this card, then I don't want it to reanimate.
 						let sync = this.getSyncState();
@@ -759,14 +788,16 @@ const GameStoreOnline = createStore({
 					}else{
 						// If I have not played this card, animate the played card for other clients.
 						_game.cardPlayed = socketdata.gameData.card;
-						this.fireCardPlayed();
+						this.fireCardPlayed(_game.cardPlayed);
 						this.setGameState('READY_TO_PLAY_NEXT');
 					}
-				}else if(socketdata.gameData.turnType == 'TURN_SKIPPED'){
-					// IF TURN WAS SKIPPED
-					this.fireTurnSkipped();
-					this.setGameState('SKIP_DATA_RECEIVED');
 				}
+
+				// else if(socketdata.gameData.turnType == 'TURN_SKIPPED'){
+				// 	// IF TURN WAS SKIPPED
+				// 	this.fireTurnSkipped();
+				// 	this.setGameState('SKIP_DATA_RECEIVED');
+				// }
 				this.ifEmitFalse();  // <- All emits are already handled using fire functions. Do not emit this data receive.
 				break;
 			case 'ROUND_END': // Once round_end is received, do everything as we do in NEXT_TURN, just show scores in the end
@@ -787,13 +818,36 @@ const GameStoreOnline = createStore({
 						_game.cardPlayed = socketdata.gameData.card;
 						this.fireCardPlayed();
 						this.setGameState('READY_TO_PLAY_NEXT');
-						this.ifEmitTrue();
+						// this.ifEmitTrue();
 					}
 				}
 				break;
+			case 'START_PLAYING':
+				// console.log('START_PLAYING')
+				this.setGameState('READY_TO_PLAY_NEXT');
+				this.ifEmitTrue();
 			case 'WITHDRAW_CARD':
+				// console.log('WITHDRAW_CARD')
+				_game.activePlayerId = socketdata.gameData.activePlayerId;
+				_game.otherPlayerId = socketdata.gameData.otherPlayerId;
+				_next = socketdata.gameData;
+				this.setOtherPlayerPos();
+				this.setActivePlayerPos();
+				this.setGameState('WITHDRAW_CARD');
+				// this.ifEmitFalse(); //to Handle it via action
+				this.ifEmitTrue();
 				break;
 			case 'RETURN_CARD':
+				// console.log('RETURN_CARD');
+				_game.activePlayerId = socketdata.gameData.activePlayerId;
+				_game.otherPlayerId = socketdata.gameData.otherPlayerId;
+				_next = socketdata.gameData;
+				this.setOtherPlayerPos();
+				this.setActivePlayerPos();
+				
+				this.setGameState('RETURN_CARD');
+				this.ifEmitTrue();
+				// this.ifEmitFalse(); //to Handle it via action
 				break;
 			case 'SERVER_STATE_RECEIVED':
 				this.ifEmitFalse();
@@ -802,7 +856,6 @@ const GameStoreOnline = createStore({
 	},
 	emitPlayCardFromSocket(action, gameData){  // For sending data to server
 		let clientData = !gameData ? {action} : {action, gameData};
-		console.log(clientData);
 		socket.emit('play_card', clientData);
 	}
 });
@@ -821,7 +874,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 					GameStoreOnline.setSpectatorCards();
 				}else{
 					GameStoreOnline.tryAutoInit();
-					console.log(GameStoreOnline.getGameProperty('state'));
+					// console.log(GameStoreOnline.getGameProperty('state'));
 					GameStoreOnline.emitChange();
 				}
 			}else{
@@ -831,7 +884,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 		case 'GAME325_ONLINE_GAME_STATE_RECEIVED':   
 			GameStoreOnline.takeAction(action.clientData);
 			if(GameStoreOnline.getIfEmit()){  // -> Whether or not to emit the change 
-				console.log(GameStoreOnline.getGameProperty('state'));
+				// console.log(GameStoreOnline.getGameProperty('state'));
 				GameStoreOnline.emitChange();
 			}
 			break;
@@ -851,13 +904,13 @@ GameStoreOnline.dispatchToken = register(action=>{
 				GameStoreOnline.setCardPositionByState();
 				GameStoreOnline.fireInitStartGame();
 			}
-			console.log(GameStoreOnline.getGameProperty('state'));
+			// console.log(GameStoreOnline.getGameProperty('state'));
 			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_ONLINE_DISTRIBUTE_ONE_CARD_EACH':
 			GameStoreOnline.distributeOneCardEach();
 			GameStoreOnline.setCardPositionByState();
-			console.log(GameStoreOnline.getGameProperty('state'));
+			// console.log(GameStoreOnline.getGameProperty('state'));
 			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_ONLINE_INIT_START_GAME':
@@ -901,7 +954,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 			GameStoreOnline.putCardsBackInDeck();
 			GameStoreOnline.setCardPositionByState();
 			GameStoreOnline.setGameState('DEALER_SELECTION_SUCCESS');
-			console.log(GameStoreOnline.getGameProperty('state'));
+			// console.log(GameStoreOnline.getGameProperty('state'));
 			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_ONLINE_SELECT_DEALER_SUCCESS':
@@ -919,81 +972,112 @@ GameStoreOnline.dispatchToken = register(action=>{
 			GameStoreOnline.setGameState('SET_TRUMP');
 			// GameStoreOnline.checkBotPlay();
 			// GameStoreOnline.setCardPositionByState();
-			console.log(GameStoreOnline.getGameProperty('state'));
+			// console.log(GameStoreOnline.getGameProperty('state'));
 			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_ONLINE_WITHDRAW_CARD_SUCCESS':
-			GameStoreOnline.setGameState('GAME325_ONLINE_RETURN_CARD');
-			GameStoreOnline.checkBotPlay();
-			GameStoreOnline.setCardPositionByState();
-			console.log(GameStoreOnline.getGameProperty('state'));
-			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			console.log('GAME325_ONLINE_WITHDRAW_CARD_SUCCESS')
+			// GameStoreOnline.setGameState('GAME325_ONLINE_RETURN_CARD');
+			// GameStoreOnline.checkBotPlay();
+			// GameStoreOnline.setCardPositionByState();
+			// // console.log(GameStoreOnline.getGameProperty('state'));
+			// GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_ONLINE_RETURN_CARD_SUCCESS':
-			if(GameStoreOnline.isWithdrawCard()){
-				GameStoreOnline.setGameState('GAME325_ONLINE_WITHDRAW_CARD');
-				GameStoreOnline.checkBotPlay();
-				GameStoreOnline.setCardPositionByState();
-			}else{
-				GameStoreOnline.setGameState('READY_TO_PLAY_NEXT');
-				GameStoreOnline.setActivePlayerId();
-				GameStoreOnline.checkBotPlay();
-				GameStoreOnline.setCardPositionByState();
-			}
-			console.log(GameStoreOnline.getGameProperty('state'));
-			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			console.log('GAME325_ONLINE_RETURN_CARD_SUCCESS')
+			// if(GameStoreOnline.isWithdrawCard()){
+			// 	GameStoreOnline.setGameState('GAME325_ONLINE_WITHDRAW_CARD');
+			// 	GameStoreOnline.checkBotPlay();
+			// 	GameStoreOnline.setCardPositionByState();
+			// }else{
+			// 	GameStoreOnline.setGameState('READY_TO_PLAY_NEXT');
+			// 	GameStoreOnline.setActivePlayerId();
+			// 	GameStoreOnline.checkBotPlay();
+			// 	GameStoreOnline.setCardPositionByState();
+			// }
+			// // console.log(GameStoreOnline.getGameProperty('state'));
+			// GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_ONLINE_SET_TRUMP':
+			// console.log('GAME325_ONLINE_SET_TRUMP')
 			var trump = action.trump;
 			_game.setTrump(trump);
 			GameStoreOnline.setGameState('I_SET_TRUMP');
-			console.log(GameStoreOnline.getGameProperty('state'));
+			// console.log(GameStoreOnline.getGameProperty('state'));
 			GameStoreOnline.emitPlayCardFromSocket('SET_TRUMP', _game);
+			GameStoreOnline.emitChange();
 			break;
 		case 'GAME325_ONLINE_SET_TRUMP_SUCCESS':
+			// console.log('GAME325_ONLINE_SET_TRUMP_SUCCESS')
 			var trump = action.trump;
-			_game.setTrump(trump);
-			let disCards = GameStoreOnline.getDistributedCards();
-			GameStoreOnline.setNextGameObj();
-			for (var i = 0; i < _game.deck.length; i++) {
-				console.log(_game.deck[i].state);
-			};
-			GameStoreOnline.setCardOwnerPosition();
-			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.assignDistributedCards(disCards);
-			console.log(GameStoreOnline.getGameProperty('state'));
-			GameStoreOnline.emitChange();
+			// if(_game.state == 'SET_TRUMP'){
+				_game.setTrump(trump);
+				let disCards = GameStoreOnline.getDistributedCards();
+				GameStoreOnline.setNextGameObj();
+				GameStoreOnline.setCardOwnerPosition();
+				GameStoreOnline.setCardPositionByState();
+				GameStoreOnline.assignDistributedCards(disCards);
+				// console.log(GameStoreOnline.getGameProperty('state'));
+				GameStoreOnline.emitChange();	
+			// }
+			
 			break;
 		case 'GAME325_ONLINE_DISTRIBUTE_CARDS_SECOND_SUCCESS':
-			// GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.setGameState('NOW_NEXT_TURN');
-			GameStoreOnline.emitChange();
+			GameStoreOnline.distributionDone()
+			GameStoreOnline.adminRequestsGameState(GameStoreOnline.getGameProperty('adminId')); //To check withdraw return from server
 			break;
 		case 'GAME325_ONLINE_BOT_HAS_PLAYED':
 			GameStoreOnline.playBot();
 			GameStoreOnline.setCardPositionByState();
-			console.log(GameStoreOnline.getGameProperty('state'));
+			// console.log(GameStoreOnline.getGameProperty('state'));
 			GameStoreOnline.emitChange();
 			break;
 		case 'GAME325_ONLINE_PLAY_CARD':
 			var card = action.card;
-			GameStoreOnline.playCard(card);
-			GameStoreOnline.updatePlayersArray();
 			GameStoreOnline.sortDeck(0);
-			GameStoreOnline.updateCardIndex();
+			if (_game.state == 'WITHDRAW_CARD') {
+				_game.clientWithdrew = true;
+				GameStoreOnline.emitPlayCardFromSocket('CARD_WITHDRAWN', {card});
+			}
+			else if (_game.state == 'RETURN_CARD') {
+				_game.clientReturned = true;
+				GameStoreOnline.emitPlayCardFromSocket('CARD_RETURNED', {card});
+			}
+			else {
+				_game.clientPlayed = true;
+				_game.nextAction = '';
+				GameStoreOnline.emitPlayCardFromSocket('CARD_PLAYED', {card});
+			}
+			GameStoreOnline.playCard(card, 'client');
 			GameStoreOnline.setCardPositionByState();
-			console.log(GameStoreOnline.getGameProperty('state'));
-			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			GameStoreOnline.emitChange();
 			break;
-		case 'GAME325_ONLINE_PLAY_CARD_SUCCESS':
+		case 'GAME325_ONLINE_CARD_PLAYED':
+			// If I am not active player and someone played this card. Rendered after data received from server.
 			var card = GameStoreOnline.getGameProperty('cardPlayed');
-			GameStoreOnline.updateCardState(card, 'PLAYED');
-			GameStoreOnline.checkTurnEnd();
+			GameStoreOnline.playCard(card, 'server');
+			// GameStoreOnline.updatePlayersArray();
+			GameStoreOnline.sortDeck(0);
+			// GameStoreOnline.updateCardIndex();
+			GameStoreOnline.setGameState('PLAYING_PLAYED_CARD');
+			GameStoreOnline.setCardPositionByState();
+			GameStoreOnline.emitChange();
+			break;
+		case 'GAME325_ONLINE_PLAY_CARD_SUCCESS':  ///state when online play card recieved from others
+			// console.log('updateCardState')
+			var card = GameStoreOnline.getGameProperty('cardPlayed');
+			GameStoreOnline.updateCardState(card, 'BEING_PLAYED');
+			// console.log(_game);
+			// GameStoreOnline.checkTurnEnd();
+			if(_game.winnerId){
+				GameStoreOnline.setGameState('MOVE_HAND');
+			}
 			if(GameStoreOnline.getGameProperty('state') == 'MOVE_HAND'){
 					GameStoreOnline.setGameState('MOVE_HAND');
 					GameStoreOnline.setCardPositionByState();
 					GameStoreOnline.fireMoveHand();
-					console.log(GameStoreOnline.getGameProperty('state'));
+					// console.log('MOVE_HAND')
+					// console.log(GameStoreOnline.getGameProperty('state'));
 			 		GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			}else{
 				GameStoreOnline.updatePlayedCards(card);
@@ -1001,17 +1085,75 @@ GameStoreOnline.dispatchToken = register(action=>{
 				GameStoreOnline.setGameState('NOW_NEXT_TURN');
 				GameStoreOnline.setCardPositionByState();
 				GameStoreOnline.fireNextTurn();
-				console.log(GameStoreOnline.getGameProperty('state'));
+				// console.log(GameStoreOnline.getGameProperty('state'));
 				GameStoreOnline.emitAndSaveChange( 'gameData', _game );
 			}
 			break;
-		case 'GAME325_ONLINE_NOW_NEXT_TURN':
-	 		GameStoreOnline.nextTurn();
-			GameStoreOnline.updatePlayableCards();
-			GameStoreOnline.checkBotPlay();
+		case 'GAME325_ONLINE_MOVE_HAND_SUCCESS':
+			GameStoreOnline.updateBotState('BOT_READY');
+			GameStoreOnline.setGameState('NOW_NEXT_TURN');
 			GameStoreOnline.setCardPositionByState();
-			console.log(GameStoreOnline.getGameProperty('state'));
+			GameStoreOnline.fireNextTurn();
+			// console.log(GameStoreOnline.getGameProperty('state'));
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+			break;
+		case 'GAME325_ONLINE_WITHDRAWN_WAIT_FOR_SERVER':
+			break;
+		case 'GAME325_ONLINE_RETURNED_WAIT_FOR_SERVER':
+			break;
+		case 'GAME325_ONLINE_SET_TRUMP_WAIT_FOR_SERVER':
+			break;
+		case 'GAME325_ONLINE_PLAYED_WAIT_FOR_SERVER':
+			// GameStoreOnline.setNextGameObj();
+			if(_game.winnerId){
+				GameStoreOnline.setGameState('MOVE_HAND');
+				let playerIds = GameStoreOnline.getPlayerIds();
+				for (var i = 0; i < playerIds.length; i++) {
+					if(playerIds[i] == _game.winnerId){
+						var winnerPos = i;
+					}
+				};
+				console.log('winnerPos:'+winnerPos)
+				GameStoreOnline.moveHandMade(winnerPos);
+				GameStoreOnline.setCardPositionByState();
+			}else{
+				GameStoreOnline.setGameState('NOW_NEXT_TURN');
+				GameStoreOnline.setCardPositionByState();
+				GameStoreOnline.fireNextTurn();
+			}
+			GameStoreOnline.emitAndSaveChange( 'gameData', _game );
+		case 'GAME325_ONLINE_NOW_NEXT_TURN':
+			// console.log('NOW_NEXT_TURN')
+	 		if(_game.winnerId){
+	 			GameStoreOnline.setGameState('MOVE_HAND');
+				let playerIds = GameStoreOnline.getPlayerIds();
+				for (var i = 0; i < playerIds.length; i++) {
+					if(playerIds[i] == _game.winnerId){
+						var winnerPos = i;
+					}
+				};
+				console.log('winnserPos:'+winnerPos)
+				// console.log(_game.scores)
+				GameStoreOnline.moveHandMade(winnerPos)
+			}else{
+				// GameStoreOnline.nextTurn();
+				// GameStoreOnline.checkBotPlay();
+				// GameStoreOnline.setCardPositionByState();
+				// GameStoreOnline.emitChange();
+
+
+				GameStoreOnline.nextTurn();
+				// GameStoreOnline.setGameState('NOW_NEXT_TURN');
+				// GameStoreOnline.setCardPositionByState();
+				// GameStoreOnline.fireNextTurn();
+				GameStoreOnline.checkBotPlay();
+				
+			}
+			GameStoreOnline.setCardPositionByState();
+			// console.log(GameStoreOnline.getGameProperty('state'));
 		 	GameStoreOnline.emitChange(); 
+			// GameStoreOnline.updatePlayableCards();
+			
 		 	break;
 		 case 'GAME325_ONLINE_MOVE_HAND':
 		 	GameStoreOnline.moveHandMade();

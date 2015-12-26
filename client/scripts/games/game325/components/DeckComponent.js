@@ -21,7 +21,7 @@ function getState(props, ifOnline){
 	}
 	let deck = GameStore.getGameProperty('deck');
 	let activePlayerPos = GameStore.getGameProperty('activePlayerPos');
-	let otherPlayerId = GameStore.getGameProperty('otherPlayerId');
+	let otherPlayerPos = GameStore.getGameProperty('otherPlayerPos');
 	let gameState = GameStore.getGameProperty('state');
 	let botState = GameStore.getGameProperty('botState');
 	let ifIAmBot = GameStore.ifIAmSpectatorOrBot();
@@ -30,7 +30,7 @@ function getState(props, ifOnline){
 		gameState,
 		botState,
 		activePlayerPos,
-		otherPlayerId,
+		otherPlayerPos,
 		ifIAmBot
 	};
 }
@@ -62,7 +62,7 @@ export default class DeckComponent extends Component {
 				// gamePause		: nextProps.gamePause,
 				deck 			: nextProps.deck,
 				activePlayerPos	: nextProps.activePlayerPos,
-				otherPlayerId	: nextProps.otherPlayerId,
+				otherPlayerPos	: nextProps.otherPlayerPos,
 				gameState		: nextProps.gameState,
 				botState		: nextProps.botState
 			});
@@ -82,13 +82,13 @@ export default class DeckComponent extends Component {
 	render() {
 		let deck = this.state.deck;
 		let activePlayerPos = this.state.activePlayerPos;
-		let otherPlayerId = this.state.otherPlayerId;
+		let otherPlayerPos = this.state.otherPlayerPos;
 		let gameState = this.state.gameState;
 		let cardsToDistribute = [];
 		let ifIAmBot = this.props.ifIAmBot;
 		return(
 			<div className="playingCards">
-				{deck.map(card => <CardComponent key={card.key} card={card} activePlayerPos={activePlayerPos} otherPlayerId={otherPlayerId} gameState={gameState}  ifIAmBot={ifIAmBot}/>)}
+				{deck.map(card => <CardComponent key={card.key} card={card} activePlayerPos={activePlayerPos} otherPlayerPos={otherPlayerPos} gameState={gameState}  ifIAmBot={ifIAmBot}/>)}
 			</div>
 			)
 	}

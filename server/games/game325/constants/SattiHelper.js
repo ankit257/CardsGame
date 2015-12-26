@@ -28,11 +28,11 @@ exports.gamePathConstants = gamePathConstants = {
 };
 exports.gamePathConstants = _temporalAssertDefined(gamePathConstants, 'gamePathConstants', _temporalUndefined) && gamePathConstants;
 exports.timeConstants = timeConstants = {
-	TOTAL_DISTR_DELAY 	: 500*15 + 500, 			// = SINGLE_DISTR_DELAY*52 + SINGLE_DISTR_ANIM
+	TOTAL_DISTR_DELAY 	: 120*15 + 120, 			// = SINGLE_DISTR_DELAY*52 + SINGLE_DISTR_ANIM
 	TOTAL_PLAY_DELAY	: 500 + 0,				// = PLAY_ANIM + PLAY_DELAY
 	TOTAL_DECK_DELAY	: 100 + 200 + 500, 			// = DECK_ANIM + DECK_DELAY + 500
-	SINGLE_DISTR_DELAY	: 500,
-	SINGLE_DISTR_ANIM	: 500,
+	SINGLE_DISTR_DELAY	: 120,
+	SINGLE_DISTR_ANIM	: 120,
 	PLAY_ANIM			: 500,
 	PLAY_DELAY			: 0,
 	DECK_DELAY			: 100,

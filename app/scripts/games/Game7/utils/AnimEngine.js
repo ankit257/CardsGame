@@ -23,23 +23,6 @@ unPauseAudio = new Howl({
 	urls: ['assets/sounds/unpause.mp3'],
 	autoplay: false
 })
-// let distributeAudio = new Howl({
-// 	urls: ['../../assets/sounds/distribute.mp3'],
-// 	autoplay: false
-// }),
-// playAudio = new Howl({
-// 	urls: ['../../assets/sounds/play.mp3'],
-// 	autoplay: false
-// }),
-// pauseAudio = new Howl({
-// 	urls: ['../../assets/sounds/pause.mp3'],
-// 	autoplay: false
-// }),
-// unPauseAudio = new Howl({
-// 	urls: ['../../assets/sounds/unpause.mp3'],
-// 	autoplay: false
-// })
-
 
 export default class AnimEngine{
 	// static mount = false;
@@ -163,7 +146,7 @@ export default class AnimEngine{
 						spent 		= current - start - (AnimEngine.pause.end - AnimEngine.pause.start),
 						rate;
 					if(remaining < -50){
-						console.log('animation for: '+ duration + ' , animated for: ' + spent);
+						// console.log('animation for: '+ duration + ' , animated for: ' + spent);
 						resolve();
 					}else{
 						deck.map(deckcard => {

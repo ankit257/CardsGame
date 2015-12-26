@@ -1,4 +1,4 @@
-import { register, waitFor } from '../AppDispatcher';
+import { register, waitFor, delay } from '../AppDispatcher';
 import { createStore, mergeIntoBag, isInBag } from '../utils/StoreUtils';
 import ActionTypes from '../constants/ActionTypes';
 import * as LoginActions from '../actions/LoginActions';
@@ -38,13 +38,8 @@ const ScoresStore = createStore({
 					data = {};
 					break;
 			}
-			this.requestServer(fn, url, data);
-		}
-	},
-	requestServer(fn, url, data){
-		setTimeout(function(){
 			fn(url, data);
-		}, 0);
+		}
 	},
 	updateCurrentScores(){
 		let scores = this.getScoresFromLocal();	

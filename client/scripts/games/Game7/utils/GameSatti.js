@@ -122,13 +122,9 @@ export default class GameSatti{
 		})
 		if(activePlayer.state == 'SKIP_TURN'){
 			if(gameType == 'offline'){
-				delay(timeConstants.DISPATCH_DELAY).then(function(){
-					GameActions.skipTurn(activePlayer.position);
-				});
+				GameActions.skipTurn(activePlayer.position);
 			}else if(gameType == 'online'){
-				delay(timeConstants.DISPATCH_DELAY).then(function(){
-					GameActions.skipMyTurn(activePlayer.id);
-				});
+				GameActions.skipMyTurn(activePlayer.id);
 			}else{
 				console.log('Weird');
 			}

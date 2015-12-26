@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { getItemFromLocalStorage } from '../utils/LocalStorageUtils'
+import { delay } from '../../scripts/AppDispatcher';
 import DocumentTitle from 'react-document-title';
 import connectToStores from '../utils/connectToStores';
 import GameRoomStore from '../stores/GameRoomStore';
@@ -110,24 +111,25 @@ export default class GameInterface extends Component{
     let self = this;
     if(id){
       Howler.unmute();
-      setTimeout(function(){GameRoomActions.joinGameRoom(id, profile, 'game7')},timeConstants.DISPATCH_DELAY);
+      GameRoomActions.joinGameRoom(id, profile, 'game7')
       socket.on('invalid_room', function(){
         self.context.history.go(-1);
       });
       socket.on('room_full', function(){
         self.context.history.go(-1);
-      });  
+      }); 
+      socket.on('disconnect', function(){
+        self.context.history.go(-1);
+      }); 
     }else{
-      GameActions.refreshStore();
+      GameActions.refreshStore({ifOnline: false});
       let gameData = getItemFromLocalStorage('gameData');
       if(gameData && gameData.state){
         Howler.mute();
         this.setState({offlineGameData: gameData, gameInitModalIsOpen: true});
       }else{
         Howler.unmute();
-        setTimeout(function(){
-          GameActions.initGame();
-        },0);
+        GameActions.initGame();
       }
     }
   }
@@ -136,18 +138,23 @@ export default class GameInterface extends Component{
       var clientData = data.clientData;
       GameRoomActions.gameStateReceived('game7', clientData);
     })
-    setTimeout(function(){GameRoomActions.fetchScoresFromServer('game7')},timeConstants.DISPATCH_DELAY);
+    GameRoomActions.fetchScoresFromServer('game7');
     this._unlistenBeforeLeavingRoute = this.context.history.listenBeforeLeavingRoute(this.props.route, this.routerWillLeave.bind(this));
   }
   componentWillUnmount() {
     if (this._unlistenBeforeLeavingRoute) this._unlistenBeforeLeavingRoute();
     var id = this.props.params.id;
-    GameRoomActions.leaveGameRoom(id, 'game7');
+    if(id){
+      GameRoomActions.leaveGameRoom(id, 'game7');
+      GameActions.refreshStore({ifOnline: true});
+    }
     socket.removeAllListeners("invalid_room");
     socket.removeAllListeners("room_full");
     socket.removeAllListeners("play_card");
     socket.removeAllListeners("room_joined");
     socket.removeAllListeners("player_changed");
+    socket.removeAllListeners("disconnect");
+    socket.removeAllListeners("game_state");
   }
   routerWillLeave(nextLocation) {
       Howler.mute();

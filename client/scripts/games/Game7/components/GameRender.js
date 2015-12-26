@@ -35,7 +35,6 @@ function getState(props, ifOnline){
 	let ifWaiting = GameStore.ifGameWaiting();
 	let deck = GameStore.getGameProperty('deck');
 	let ifIAmBot = GameStore.ifIAmSpectatorOrBot();
-	console.log('getStateCall');
 	return {
 		activePlayerPos,
 		gameState,
@@ -54,7 +53,8 @@ function getState(props, ifOnline){
 @connectToGameStores([GameStoreOffline, GameStoreOnline], getState)
 export default class GameRender extends Component {
 	state = {
-		zoomStyle : {}
+		zoomStyle : {},
+		time: 0
 	}
 	static contextTypes = {
 		ifOnline: PropTypes.bool,
@@ -75,6 +75,9 @@ export default class GameRender extends Component {
 		else if(window.removeEventListener) {
 		    window.removeEventListener('resize', this.handleResize);
 		}
+		if(typeof this.context.ifOnline == 'boolean' && !this.context.ifOnline){
+			AnimEngine.stopListening();
+		}
 		AnimEngine.cancelAnimationFrame();
 	}
 	componentDidMount(){
@@ -87,7 +90,9 @@ export default class GameRender extends Component {
 		else if(window.addEventListener) {
 			window.addEventListener('resize', this.handleResize);
 		}
-		AnimEngine.startListening();
+		if(typeof this.context.ifOnline == 'boolean' && !this.context.ifOnline){
+			AnimEngine.startListening();
+		}
 	}
 	componentDidUpdate(){
 		let ifOnline = this.context.ifOnline;
@@ -122,7 +127,7 @@ export default class GameRender extends Component {
 				}
 				break;
 			case 'ROUND_END_SHOW_SCORES':
-				this.cancelAnimationFrame();
+				AnimEngine.cancelAnimationFrame();
 				break;
 			case 'INIT_ROUND_SUCCESS':
 			case 'GAME_STARTED':
@@ -133,11 +138,10 @@ export default class GameRender extends Component {
 				break;
 		}
 		if(typeof action == "function"){
-			delay(timeConstants.DISPATCH_DELAY).then(function(){
-				action();
-			});
+			action();
 		}
 		this.updateFlag = false;
+		// console.log('Rendering TIME : '+ (Date.now()-this.state.time));
 	}
 	handleResize(e){
 		this.setState({
@@ -149,9 +153,10 @@ export default class GameRender extends Component {
 	}
 	componentWillReceiveProps(nextProps){
 		this.updateFlag = true;
-		if(this.props.gamePause != nextProps.gamePause){
+		if(typeof this.props.ifOnline == "boolean" && !this.context.ifOnline && this.props.gamePause != nextProps.gamePause){
 			GameActions.togglePauseGame();
 		}
+		this.setState({time: Date.now()});
 		// if(nextProps.gamePause) this.context.ifOverlayShown(true);
 		// 	else this.context.ifOverlayShown(false);
 	}

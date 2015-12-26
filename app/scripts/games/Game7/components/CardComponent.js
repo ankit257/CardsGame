@@ -73,6 +73,8 @@ export default class CardComponent extends Component {
         const { x, y, theta, animTime, delay, zIndex, bgColor } = card;
         let cardimg      = gamePathConstants.CARD_ASSETS + card.rank + card.suit + '.svg';
         let cardbackimg  = this.props.cardbackimg;
+        // let cardimg      = gamePathConstants.CARD_ASSETS + '123.png';
+        // let cardbackimg  = gamePathConstants.CARD_ASSETS + 'cardback.png';
         if(this.context.ifOnline){
             // cardimg = '../'+cardimg;
             // cardbackimg = '../'+cardbackimg;

@@ -16,7 +16,6 @@ export default class DeckComponent extends Component {
         delete this.props.deck;
         delete this.props.gameState;
         delete this.state;
-        AnimEngine.cancelAnimationFrame();
         this.props = {};
 	}
 	componentWillReceiveProps(nextProps){
@@ -27,6 +26,7 @@ export default class DeckComponent extends Component {
 			});
 	}
 	render() {
+		// console.log('deck component render');
 		let deck = this.state.deck == undefined ? [] : this.state.deck;
 		let activePlayerPos = this.state.activePlayerPos;
 		let gameState = this.state.gameState;

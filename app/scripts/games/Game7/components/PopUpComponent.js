@@ -40,7 +40,7 @@ export default class PopUpComponent extends Component {
 		}
 		return(
 			<div className="pop-up-msg" style={style} onTouchStart={this.doNotPropagate} onTouchEnd={this.doNotPropagate}>
-				{this.getImg.bind(this, popup.src)}
+				{this.getImg.call(this, popup.src)}
 			</div>
 			)
 	}

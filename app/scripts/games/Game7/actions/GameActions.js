@@ -138,6 +138,6 @@ export function initRoundOnline(){
 	dispatch(Actions.GAME_7_ONLINE_INIT_ROUND, {});	
 }
 
-export function refreshStore(){
-	dispatch(Actions.GAME_7_REFRESH_STORE, {});		
+export function refreshStore(data){
+	dispatch(Actions.GAME_7_REFRESH_STORE, {data});		
 }

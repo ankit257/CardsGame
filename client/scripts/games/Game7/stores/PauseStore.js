@@ -14,6 +14,9 @@ const PauseStore = createStore({
 	},
 	togglePauseState(){
 		_pauseState = !_pauseState;
+	},
+	setPauseState(state){
+		_pauseState = state;
 	}
 })
 
@@ -23,6 +26,13 @@ PauseStore.dispatchToken = register(action=>{
 		case 'TOGGLE_PAUSE':
 			PauseStore.togglePauseState();
 			PauseStore.emitChange();
+			break;
+		case 'GAME_7_REFRESH_STORE':
+			let ifOnline = action.data.ifOnline;
+			if(!ifOnline){
+				PauseStore.setPauseState(false);
+			}
+				PauseStore.emitChange();
 			break;
 	}
 })

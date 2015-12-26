@@ -36,8 +36,8 @@ export default class StatusComponent extends Component {
 		delete this.state;
 		this.props = {};
 	}
-	shouldComponentUpdate(nextProps){
-		return nextProps.getUpdateFlag();
+	shouldComponentUpdate(nextProps, nextState){
+		return (nextProps.getUpdateFlag() || this.state.showScores!=nextState.showScores || this.state.showTable!=nextState.showTable);
 	}
 	state = {
 		status : '',
@@ -134,6 +134,7 @@ export default class StatusComponent extends Component {
 		});
 	}
 	render() {
+		// console.log('status component render');
 		let xp = this.props.xp;
 		let ifWaiting = this.props.ifWaiting;
 		let status = this.state.status;

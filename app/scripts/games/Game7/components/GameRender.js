@@ -72,6 +72,9 @@ export default class GameRender extends Component {
 		    window.removeEventListener('resize', this.handleResize);
 		}
 		AnimEngine.cancelAnimationFrame();
+		if(typeof this.context.ifOnline == 'boolean' && !this.context.ifOnline){
+			AnimEngine.stopListening();
+		}
 	}
 	componentDidMount(){
 		this.setState({
@@ -83,7 +86,9 @@ export default class GameRender extends Component {
 		else if(window.addEventListener) {
 			window.addEventListener('resize', this.handleResize);
 		}
-		AnimEngine.startListening();
+		if(typeof this.context.ifOnline == 'boolean' && !this.context.ifOnline){
+			AnimEngine.startListening();
+		}
 	}
 	componentDidUpdate(){
 		let ifOnline = this.context.ifOnline;
@@ -129,12 +134,10 @@ export default class GameRender extends Component {
 				break;
 		}
 		if(typeof action == "function"){
-			delay(timeConstants.DISPATCH_DELAY).then(function(){
-				action();
-			})
+			action();
 		}
 		this.updateFlag = false;
-		console.log('Renderng TIME : '+ (Date.now()-this.state.time));
+		// console.log('Rendering TIME : '+ (Date.now()-this.state.time));
 	}
 	handleResize(e){
 		this.setState({
@@ -146,7 +149,7 @@ export default class GameRender extends Component {
 	}
 	componentWillReceiveProps(nextProps){
 		this.updateFlag = true;
-		if(this.props.gamePause != nextProps.gamePause){
+		if(typeof this.props.ifOnline == "boolean" && !this.props.ifOnline && this.props.gamePause != nextProps.gamePause){
 			GameActions.togglePauseGame();
 		}
 		this.setState({time: Date.now()});

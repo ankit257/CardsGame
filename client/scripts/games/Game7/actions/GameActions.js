@@ -133,3 +133,6 @@ export function requestDistribution(){
 export function initRoundOnline(){
 	dispatch(Actions.GAME_7_ONLINE_INIT_ROUND, {});	
 }
+export function refreshStore(data){
+	dispatch(Actions.GAME_7_REFRESH_STORE, {data});		
+}

@@ -35,6 +35,14 @@ var _scoreUpdated = false;
 
 const GameStore = createStore( {
 	type : 'offline',
+	refreshStore(){
+		_game = {}
+		_playersCards = []
+		_playableCount = []
+		_showScore = false
+		_pauseState = false;
+		_scoreUpdated = false;
+	},
 	getGameObj(){
 		return _game;
 	},
@@ -107,9 +115,7 @@ const GameStore = createStore( {
 	playBot(){
 		let card = _game.playBot(_playersCards[_game.activePlayerPos]);
 		if(typeof card != 'undefined'){
-			delay(timeConstants.DISPATCH_DELAY).then(function(){
-				GameActions.playCard(card);
-			}, timeConstants.DISPATCH_DELAY);
+			GameActions.playCard(card);
 		}
 	},
 	playCard(card){
@@ -123,34 +129,22 @@ const GameStore = createStore( {
 		_game.roundEnd();
 	},
 	fireInitRound(){
-		delay(timeConstants.DISPATCH_DELAY).then(function(){
-			GameActions.initRound();
-		})
+		GameActions.initRound();
 	},
 	fireDistributeCards(){
-		delay(timeConstants.DISPATCH_DELAY).then(function(){
-			GameActions.distributeCards();
-		})
+		GameActions.distributeCards();
 	},
 	fireShowScores(){
-		delay(timeConstants.DISPATCH_DELAY).then(function(){
-			GameActions.showScores();
-		})
+		GameActions.showScores();
 	},
 	fireNextTurn(){
-		delay(timeConstants.DISPATCH_DELAY).then(function(){
-			GameActions.nextTurn(_game.gameTurn);
-		})
+		GameActions.nextTurn(_game.gameTurn);
 	},
 	fireInitStartGame(){
-		delay(timeConstants.DISPATCH_DELAY).then(function(){
-			GameActions.initStartGame();
-		})
+		GameActions.initStartGame();
 	},
 	firePlayCardSuccess(){
-		delay(timeConstants.DISPATCH_DELAY).then(function(){
-			GameActions.playCardSuccess();
-		})
+		GameActions.playCardSuccess();
 	},
 	initPlayersArray(){
 		_playersCards = new Array();
@@ -399,7 +393,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setCardPositionByState();
 			GameStore.setGameState('GAME_STARTED');
 			GameStore.fireInitRound();
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStore.saveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_INIT_ROUND':
 			GameStore.initRound();
@@ -412,10 +406,8 @@ GameStore.dispatchToken = register(action=>{
 			break;
 		case 'GAME7_OFFLINE_INIT_ROUND_SUCCESS':
 			GameStore.initPlayersArray();
-			GameStore.setCardPositionByState();
 			GameStore.fireDistributeCards();
 			GameStore.setGameState('INIT_ROUND_SUCCESS');
-			GameStore.emitChange();
 			break;
 		case 'GAME7_OFFLINE_DISTRIBUTE_CARDS':
 			GameStore.distributeCards();
@@ -433,13 +425,10 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.distributionDone();
 			GameStore.setGameState('NOW_NEXT_TURN');
 			GameStore.fireNextTurn();
-			GameStore.setCardPositionByState();
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStore.saveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_BOT_HAS_PLAYED':
 			GameStore.playBot();
-			GameStore.setCardPositionByState();
-			GameStore.emitChange();
 			break;
 		case 'GAME7_OFFLINE_PLAY_CARD':
 			var card = action.card;
@@ -471,18 +460,18 @@ GameStore.dispatchToken = register(action=>{
 			}else{
 				GameStore.updateBotState('BOT_READY');
 				GameStore.setGameState('NOW_NEXT_TURN');
-				GameStore.setCardPositionByState();
 				GameStore.fireNextTurn();	
-				GameStore.emitAndSaveChange( 'gameData', _game );
+				GameStore.saveChange( 'gameData', _game );
 			}
 			break;
 		case 'GAME7_OFFLINE_SKIP_TURN':
-			GameStore.setGameState('NOW_NEXT_TURN');
 			passAudio.play();
+			GameStore.emitChange();
 			break;
 		 case 'GAME7_OFFLINE_TURN_SKIPPED':
+		 	GameStore.setGameState('NOW_NEXT_TURN');
 		 	GameStore.fireNextTurn();	
-			GameStore.emitAndSaveChange( 'gameData', _game );
+			GameStore.saveChange( 'gameData', _game );
 		 	break;
 		 case 'GAME7_OFFLINE_NOW_NEXT_TURN':
 		 	GameStore.nextTurn();

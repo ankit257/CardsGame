@@ -23,23 +23,6 @@ unPauseAudio = new Howl({
 	urls: ['assets/sounds/unpause.mp3'],
 	autoplay: false
 })
-// let distributeAudio = new Howl({
-// 	urls: ['../../assets/sounds/distribute.mp3'],
-// 	autoplay: false
-// }),
-// playAudio = new Howl({
-// 	urls: ['../../assets/sounds/play.mp3'],
-// 	autoplay: false
-// }),
-// pauseAudio = new Howl({
-// 	urls: ['../../assets/sounds/pause.mp3'],
-// 	autoplay: false
-// }),
-// unPauseAudio = new Howl({
-// 	urls: ['../../assets/sounds/unpause.mp3'],
-// 	autoplay: false
-// })
-
 
 export default class AnimEngine{
 	// static mount = false;
@@ -58,7 +41,6 @@ export default class AnimEngine{
 	}
 	static cancelAnimationFrame(){
 		window.cancelAnimFrame(window.requestId);
-		console.log('animation cancelled');
 	}
 	static startListening(){
 		PauseStore.addChangeListener(AnimEngine.handlePause);
@@ -71,11 +53,11 @@ export default class AnimEngine{
 		if(PauseStore.getPauseState()){
 			pauseAudio.play();
 			AnimEngine.audio.pause();
-			AnimEngine.pause.start = performance.now() + performance.timing.navigationStart;
+			AnimEngine.pause.start = performance.now();// + performance.timing.navigationStart;
 		}else{
 			unPauseAudio.play();
 			AnimEngine.audio.play();
-			AnimEngine.pause.end = performance.now() + performance.timing.navigationStart;
+			AnimEngine.pause.end = performance.now();// + performance.timing.navigationStart;
 		}
 	}
 	static startAnimation(animEngineData){
@@ -118,7 +100,7 @@ export default class AnimEngine{
 				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
 					duration = 0;
 				}else if(ifOnline){
-					duration = 0;
+					duration = timeConstants.BOT_THINKING_DELAY;
 				}
 				// console.log(botState + duration);
 				return this.animateCards(deck, duration);
@@ -155,18 +137,16 @@ export default class AnimEngine{
 	}
 	static stepPromise(deck, duration){
 	    return new Promise(function(resolve, reject){
-	    	console.log('animation for ms '+duration);
-	    	let start = performance.now() + performance.timing.navigationStart;
+	    	let start = performance.now();// + performance.timing.navigationStart;
 			let end =  start + duration;
 	   		function step(){
-	   			let current;
+	   			let current = performance.now();// + performance.timing.navigationStart;
 		    	if(!AnimEngine.pause.state){
-					    current 	= performance.now() + performance.timing.navigationStart;
 					let	remaining 	= end - current + (AnimEngine.pause.end - AnimEngine.pause.start),
 						spent 		= current - start - (AnimEngine.pause.end - AnimEngine.pause.start),
 						rate;
-					if(remaining < 0){
-						console.log('resolved');
+					if(remaining < -50){
+						console.log('animation for: '+ duration + ' , animated for: ' + spent + '===============================================================');
 						resolve();
 					}else{
 						deck.map(deckcard => {
@@ -207,12 +187,12 @@ export default class AnimEngine{
 									}
 								}
 								let animatable = true;
-								if(deckcard.state != 'IN_DECK' && (deckcard.isPlayable && deckcard.ownerPos == 0) && delX == 0 && delY == 0 && delZ == 0 && delTheta == 0 && deckcard.showFace == deckcard.oldShowFace){
-									animatable = false;
-								}
+								// if(deckcard.state != 'IN_DECK' && (deckcard.isPlayable && deckcard.ownerPos == 0) && delX == 0 && delY == 0 && delZ == 0 && delTheta == 0 && deckcard.showFace == deckcard.oldShowFace){
+								// 	animatable = false;
+								// }
 								if(element && animatable){
 									let elemStyle ={
-										transform : 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)',
+										transform : 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(0) rotate(' + theta + 'deg)',
 										WebkitTransform : 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)',
 										zIndex : zIndex
 									}, childstyle;
@@ -239,15 +219,11 @@ export default class AnimEngine{
 											element.childNodes[key].style[styleKey] = childstyle[styleKey];
 										}
 									}
-								}else{
-									AnimEngine.cancelAnimationFrame();
 								}
-								
 							}
 						}) // deckcard map end +t
 					}
 				}
-				end+= performance.now() + performance.timing.navigationStart - current;
 				window.requestId = window.requestAnimFrame(step);
 			}
 			step();

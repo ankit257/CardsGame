@@ -48,7 +48,9 @@ export function dispatch(type, action = {}) {
     oldTime = newTime;
   }
 
-  flux.dispatch({ type, ...action });
+  delay(0).then(function(){
+    flux.dispatch({ type, ...action });
+  });
 }
 
 /**

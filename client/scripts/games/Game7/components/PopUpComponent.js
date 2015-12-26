@@ -1,7 +1,7 @@
 import React, { Component, PropTypes, findDOMNode } from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 
-import { gameCSSConstants, timeConstants } from '../constants/SattiHelper'
+import { gameCSSConstants, timeConstants, gamePathConstants } from '../constants/SattiHelper'
 // import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 export default class PopUpComponent extends Component {
@@ -10,6 +10,15 @@ export default class PopUpComponent extends Component {
 	}
 	doNotPropagate(e){
 		e.stopPropagation();
+	}
+	getImg(src){
+		if(src.localeCompare(gamePathConstants.SVG_ASSETS) == 0){
+			return;
+		}else{
+			return (
+				<img src={src}/>
+				)
+		}
 	}
 	render() {
 		let popup = this.props.popup;
@@ -32,7 +41,7 @@ export default class PopUpComponent extends Component {
 		}
 		return(
 			<div className="pop-up-msg" style={style} onTouchStart={this.doNotPropagate} onTouchEnd={this.doNotPropagate}>
-				<img src={popup.src} />
+				{this.getImg.call(this, popup.src)}
 			</div>
 			)
 	}

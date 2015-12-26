@@ -66,6 +66,15 @@ export default class PlayerInfoComponent extends Component {
 			else popup.src = gamePathConstants.SVG_ASSETS +  popup.src;
 		return popup;
 	}
+	getImg(src, classname){
+		if(src.localeCompare(gamePathConstants.SVG_ASSETS) == 0){
+			return
+		}else{
+			return (
+				<img className={classname} src={src}/> 
+			)
+		}
+	}
 	render() {
 		let playertype  = {
 			text : '',
@@ -168,7 +177,7 @@ export default class PlayerInfoComponent extends Component {
 		return(
 			<div style={style} className="player-info" onTap={this.onTouchStart} onMouseDown={this.onTouchStart} onMouseUp={this.onTouchEnd} onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd} >
 				<div className='player-name' style={playerNameStyle} >{id} 
-					<img className={playerTypeClass} src={playerTypeSrc}/> 
+					{this.getImg.call(this, playerTypeSrc, playerTypeClass)}
 				</div>
 				<PopUpComponent popup={popup} position={player.position} showScores={showScores} ifWaiting={ifWaiting}/>
 				<SmallScoreComponent score={score} position={player.position} showScores={showScores} rank={player.rank} ifWaiting={ifWaiting}/>

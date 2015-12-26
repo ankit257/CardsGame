@@ -12,6 +12,9 @@ module.exports = {
 			Everything in this file passes through this function
 		*/
 		var clientData = data.clientData, gameData = data.gameData, gameObj = {};
+		if(typeof clientData.action === 'undefined'){
+			return;
+		}
 		var gameObj = this.makeGameObj(gameData);
 		switch(clientData.action){
 			case 'START_NEW_ROUND':
@@ -28,6 +31,9 @@ module.exports = {
 				break;
 			case 'CARD_PLAYED':
 				var card = clientData.gameData.card;
+				if(typeof card == 'undefined' || typeof card.suit == 'undefined' || typeof card.rank == 'undefined'){
+					return;
+				}
 				var deckcard; 
 				gameObj.deck.map(function(cardFromDeck){
 					if(card && cardFromDeck.suit == card.suit && cardFromDeck.rank == card.rank){

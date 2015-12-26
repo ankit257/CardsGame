@@ -25,6 +25,7 @@ export default class DeckComponent extends Component {
 		// console.log('DeckCompRender : '+ (Date.now()-this.state.time));
 	}
 	render() {
+		// console.log('deck component render');
 		let deck = this.state.deck == undefined ? [] : this.state.deck;
 		let activePlayerPos = this.state.activePlayerPos;
 		let gameState = this.state.gameState;

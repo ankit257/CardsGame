@@ -1,5 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 // import createFragment from 'react-addons-create-fragment';
+import { delay } from '../../scripts/AppDispatcher';
 import AuthStore from '../stores/AuthStore';
 import GameRoomStore from '../stores/GameRoomStore';
 import SettingsStore from '../stores/SettingsStore';
@@ -266,16 +267,16 @@ export default class GamaPage extends Component{
     if(!this.props.User.profile.id){
       this.context.history.pushState(null, `/`, null);
     }
-    setTimeout(function(){
+    delay(10).then(function(){
       componentHandler.upgradeAllRegistered()
-      adjustToggleElemenetCssManually('demo-menu-lower-right');
-    },10);
+      adjustToggleElemenetCssManually('demo-menu-lower-right'); 
+    });
   } 
   componentDidUpdate(){
-    setTimeout(function(){
+    delay(10).then(function(){
       componentHandler.upgradeAllRegistered()
       adjustToggleElemenetCssManually('demo-menu-lower-right');
-    },10);
+    });
   }
   goToGame(game){
     var newState = _.extend({}, this.state);
@@ -312,7 +313,7 @@ export default class GamaPage extends Component{
       roomType = 'public';
     }
     var selectedGame = this.state.selectedGame;
-    GameRoomActions.createGameRoom(`/createroom`, {'game': selectedGame, 'type': roomType});
+      GameRoomActions.createGameRoom(`/createroom`, {'game': selectedGame, 'type': roomType});
   }
   joinRoom(room){
     this.context.history.pushState(null, `/${this.state.selectedGame}/${room}`, null);

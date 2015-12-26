@@ -154,7 +154,7 @@ export default class PlayerInfoComponent extends Component {
 		return(
 			<div style={style} className="player-info">
 				<div className='player-name' style={playerNameStyle} >{id} 
-					{/*{this.getImg.bind(this, popup.src, playerTypeClass)}*/}
+					{this.getImg.call(this, playerTypeSrc, playerTypeClass)}
 				</div>
 				<PopUpComponent popup={popup} position={player.position} showScores={showScores} ifWaiting={ifWaiting}/>
 				<SmallScoreComponent score={score} position={player.position} showScores={showScores} rank={player.rank} ifWaiting={ifWaiting}/>

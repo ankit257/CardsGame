@@ -1,11 +1,12 @@
 import React from 'react';
-import { register, waitFor } from '../../../../scripts/AppDispatcher';
+import { register, waitFor, delay } from '../../../../scripts/AppDispatcher';
 import { createStore, mergeIntoBag, isInBag } from '../../../../scripts/utils/StoreUtils';
 import { Howl } from "howler"
 import selectn from 'selectn';
 
 import * as GameActions from '../actions/GameActions';
 import GameRoomStore from '../../../stores/GameRoomStore';
+import PauseStore from '../stores/PauseStore';
 import { timeConstants, gameVars } from '../constants/SattiHelper'
 
 import PlayingCard from '../utils/PlayingCard';
@@ -13,6 +14,7 @@ import GameSatti from '../utils/GameSatti';
 import PlayerSatti from '../utils/PlayerSatti';
 import BotSatti from '../utils/BotSatti';
 import ScoreSatti from '../utils/ScoreSatti';
+import AnimEngine from '../utils/AnimEngine'
 
 let passAudio = new Howl({
 	urls: ['../../assets/sounds/pass.mp3'],
@@ -40,12 +42,6 @@ var _next ={                 // temporary storage of value from server till it i
 	gameData: {}
 }
 var _serverData = [];
-var _globalSync = {
-	serverFirst : false,
-	clientFirst : false,
-	event: '',
-	data: {}
-}
 var _playCardSync = {               // object to store the value and allow function flow on the basis of whether client calculated first or server sent data first
 	clientFirst : false,
 	serverFirst : false,
@@ -59,6 +55,31 @@ var _ifWaiting = true;        // ifWaiting bool stores the state of client: whet
 
 const GameStoreOnline = createStore( {
 	type : 'online',
+	refreshStore(){
+		_game = {}
+		_myid = ''               // Permanent storage of my id
+		_playersCards = []
+		_playableCount = []
+		_showScore = false;
+		_pauseState = false;
+		_next ={                 // temporary storage of value from server till it is needed in the course of actions at client
+			activePlayerId : '',
+			gameTurn: 0,
+			playableCards : [],
+			gameData: {}
+		}
+		_serverData = [];
+		_playCardSync = {               // object to store the value and allow function flow on the basis of whether client calculated first or server sent data first
+			clientFirst : false,
+			serverFirst : false,
+			event		: '',
+			data 		: {}
+		}
+		_ifEmit = true;           // bool to control if Store will emit change on data being received from server
+		_playersFromServer = [];  // to store the scores from server at round end 
+		_scoreUpdated = false;    // to show a red dot over scores in view once scores are received from server
+		_ifWaiting = true;        // ifWaiting bool stores the state of client: whether it is waiting for more players to join or whether game is running and new users will be treated as spectators
+	},
 	getGameObj(){
 		return _game;
 	},
@@ -99,26 +120,6 @@ const GameStoreOnline = createStore( {
 	},
 	getPlayCardSyncState(){							// getter function for sync state
 		return _playCardSync;
-	},
-	setGlobalSyncState(caller, event, data){         // setter function for sync state
-		if(caller == 'server'){
-			_globalSync.serverFirst = true;
-		}else if(caller == 'client'){
-			_globalSync.clientFirst = true;
-		}
-		_globalSync.data = data;
-		_globalSync.event = event;
-	},
-	resolveGlobalSyncState(){							// clear sync state once sync is resolved
-		_globalSync = {
-			clientFirst : false,
-			serverFirst : false,
-			event		: '',
-			data 		: {}
-		}
-	},
-	getGlobalSyncState(){							// getter function for sync state
-		return _globalSync;
 	},
 	//controls for whether GameStoreOnline emits upon data received from server
 	ifEmitTrue(){						
@@ -187,6 +188,7 @@ const GameStoreOnline = createStore( {
 		_game.deck.map(deckcard=> deckcard.setRoundEndPosition());
 	},
 	setMyId(id){   // id setter
+		// this.refreshStore();
 		_myid = id;
 	},
 	initGame(){
@@ -235,44 +237,28 @@ const GameStoreOnline = createStore( {
 		_game.roundEnd();
 	},
 	fireInitRound(){
-		setTimeout(function(){
-			GameActions.initRoundOnline();
-		}, timeConstants.DISPATCH_DELAY);
+		GameActions.initRoundOnline();
 	},
 	fireDistributeCards(){
-		setTimeout(function(){
-			GameActions.distributeCards();
-		}, timeConstants.DISPATCH_DELAY);	
+		GameActions.distributeCards();
 	},
 	fireShowScores(){
-		setTimeout(function(){
-			GameActions.showScoresOnline();
-		}, timeConstants.DISPATCH_DELAY);
+		GameActions.showScoresOnline();
 	},
 	fireNextTurn(){
-		setTimeout(function(){
-			GameActions.nowNextTurn();
-		}, timeConstants.DISPATCH_DELAY);	
+		GameActions.nowNextTurn();
 	},
 	fireTurnSkipped(){
-		setTimeout(function(){
-			GameActions.onlineSkipTurn();
-		}, timeConstants.DISPATCH_DELAY);
+		GameActions.onlineSkipTurn();
 	},
 	fireInitStartGame(){
-		setTimeout(function(){
-			GameActions.initStartGame();
-		}, timeConstants.DISPATCH_DELAY);
+		GameActions.initStartGame();
 	},
 	firePlayCardSuccess(){
-		setTimeout(function(){
-			GameActions.playCardSuccessOnline();
-		}, timeConstants.DISPATCH_DELAY);
+		GameActions.playCardSuccessOnline();
 	},
 	fireCardPlayed(){
-		setTimeout(function(){
-			GameActions.cardPlayed();
-		}, timeConstants.DISPATCH_DELAY);
+		GameActions.cardPlayed();
 	},
 	initPlayersArray(){
 		_playersCards = new Array();
@@ -579,11 +565,6 @@ const GameStoreOnline = createStore( {
 		return new Promise(function (resolve, reject) {
 			let stateNow = self.getGameRealTimeState();
 			let stateThen;
-			let delay = function(delayTime) {
-				 return new Promise(function (resolvedelay, reject) {
-	            	setTimeout(resolvedelay, delayTime); // (A)
-	        	});
-			}
 			delay(ms).then(function(){
 				stateThen = self.getGameRealTimeState();
 				if(self.ifGameStatesSame(stateNow, stateThen)){
@@ -600,9 +581,7 @@ const GameStoreOnline = createStore( {
 				case 'READY_TO_PLAY_NEXT':
 					_game.checkBotPlay();
 					if(_game.botState == 'BOT_SHOULD_PLAY'){
-						setTimeout(function(){
-							GameActions.requestServerBot();
-						}, timeConstants.DISPATCH_DELAY);
+						GameActions.requestServerBot();
 					}
 					break;
 				case 'ROUND_END_SHOW_SCORES':
@@ -625,9 +604,7 @@ const GameStoreOnline = createStore( {
 		if(_myid == adminId){
 			_game.players.map(player=>{
 				if(player.id == _game.activePlayerId && player.state == 'SKIP_TURN'){
-					setTimeout(function(){
-						GameActions.skipMyTurn(_game.activePlayerId);
-					}, timeConstants.DISPATCH_DELAY);
+					GameActions.skipMyTurn(_game.activePlayerId);
 				}else if(player.id == _game.activePlayerId && (player.state == 'CAN_PLAY' || player.state == 'CLEARED')){
 					let card = this.playBot();
 					this.emitPlayCardFromSocket('CARD_PLAYED', {card});
@@ -760,6 +737,14 @@ const GameStoreOnline = createStore( {
 				break;
 		}
 	},
+	getAnimEngineData(){
+		return {
+			deck: _game.deck,
+			gameState: _game.state,
+			botState: _game.botState,
+			ifOnline: false
+			}
+	},
 	takeAction(socketdata){  // switch for acting upon data being received from server
 		// console.log(socketdata);
 		switch(socketdata.action){
@@ -770,6 +755,7 @@ const GameStoreOnline = createStore( {
 				break;
 			case 'START_NEW_ROUND': // New gameObj from server received at the start of every round.
 				if(this.ifGameWaiting) this.makeGameRunning();
+				_serverData = [];
 				_next.gameData = socketdata.gameData; // Save a copy of gameData here. Use during distribution
 				_next.activePlayerId = socketdata.gameData.activePlayerId;
 				_next.gameTurn = socketdata.gameData.gameTurn;
@@ -851,7 +837,11 @@ GameStoreOnline.dispatchToken = register(action=>{
 		// to bring deck to centre position
 			GameStoreOnline.setGameState('INIT_ROUND');
 			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.emitChange();
+			AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
+			.then(function(){
+				AnimEngine.cancelAnimationFrame();
+				GameStoreOnline.emitChange();
+			});
 			break;
 		case 'GAME_7_ONLINE_INIT_ROUND_SUCCESS': 
 		// Server sends 'START_NEW_ROUND' - (use false deck) -> 'INIT_ROUND' -> 'INIT_ROUND_SUCCESS' - (consume server gameObj using setNextGameObj) -> 'DISTRIBUTING_CARDS'
@@ -862,15 +852,17 @@ GameStoreOnline.dispatchToken = register(action=>{
 			GameStoreOnline.updateCardIndex();
 			GameStoreOnline.setGameState('DISTRIBUTING_CARDS');
 			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.emitChange();
+			AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
+			.then(function(){
+				AnimEngine.cancelAnimationFrame();
+				GameStoreOnline.emitChange();
+			});
 			break;
 		case 'GAME7_ONLINE_DISTRIBUTE_CARDS_SUCCESS':
 		// 'DISTRIBUTING_CARDS' - (AnimEngine) -> 'DISTRIBUTION_SUCCESS' -> 'NOW_NEXT_TURN' -> gamestate == 'READY_TO_PLAY_NEXT' -> waitForClientInput
 			GameStoreOnline.distributionDone();
 			GameStoreOnline.setGameState('NOW_NEXT_TURN');
 			GameStoreOnline.fireNextTurn();
-			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.emitChange();
 			break;
 		case 'GAME7_ONLINE_NOW_NEXT_TURN':
 		// Universal next_turn event fired after PLAY_CARD_SUCCESS and SKIP_TURN_DONE and DISTRIBUTE_CARDS_SUCCESS
@@ -881,19 +873,27 @@ GameStoreOnline.dispatchToken = register(action=>{
 			GameStoreOnline.checkTurnSkip();
 			GameStoreOnline.checkBotPlay();
 			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.actUponServerData();
-			GameStoreOnline.emitChange();
+			AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
+			.then(function(){
+				AnimEngine.cancelAnimationFrame();
+				GameStoreOnline.actUponServerData();
+				GameStoreOnline.emitChange();
+			});
 			break;
 		case 'GAME7_ONLINE_PLAY_CARD':
 		// If I am active player and I played this card. Rendering independant from server.
 			var card = action.card;
+			GameStoreOnline.emitPlayCardFromSocket('CARD_PLAYED', {card});
 			GameStoreOnline.playCard(card, 'client');
 			GameStoreOnline.updatePlayersArray();
 			GameStoreOnline.sortDeck(0);
 			GameStoreOnline.updateCardIndex();
 			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.emitPlayCardFromSocket('CARD_PLAYED', {card});
-			GameStoreOnline.emitChange();
+			AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
+			.then(function(){
+				AnimEngine.cancelAnimationFrame();
+				GameStoreOnline.emitChange();
+			});
 			break;
 		case 'GAME7_ONLINE_CARD_PLAYED':
 		// If I am not active player and someone played this card. Rendered after data received from server.
@@ -904,7 +904,11 @@ GameStoreOnline.dispatchToken = register(action=>{
 			GameStoreOnline.updateCardIndex();
 			GameStoreOnline.setGameState('PLAYING_PLAYED_CARD');
 			GameStoreOnline.setCardPositionByState();
-			GameStoreOnline.emitChange();
+			AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
+			.then(function(){
+				AnimEngine.cancelAnimationFrame();
+				GameStoreOnline.emitChange();
+			});
 			break;
 		case 'GAME7_ONLINE_PLAY_CARD_SUCCESS':
 		// Fired after both the PLAY_CARD events -> Next event is NOW_NEXT_TURN
@@ -915,14 +919,17 @@ GameStoreOnline.dispatchToken = register(action=>{
 			if(GameStoreOnline.getGameProperty('state') == 'ROUND_END'){
 				GameStoreOnline.roundEnd();
 				GameStoreOnline.setRoundEndPos();
-				GameStoreOnline.actUponServerData();
+				AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
+				.then(function(){
+					AnimEngine.cancelAnimationFrame();
+					GameStoreOnline.actUponServerData();
+					GameStoreOnline.emitChange();
+				});
 			}else{
 				GameStoreOnline.updateBotState('BOT_READY');
 				GameStoreOnline.setGameState('NOW_NEXT_TURN');
-				GameStoreOnline.setCardPositionByState();
 				GameStoreOnline.fireNextTurn();	
 			}
-			GameStoreOnline.emitChange();
 			break;
 		case 'GAME_7_ONLINE_PLAYED_WAIT_FOR_SERVER':
 		// I have played card during my turn - (AnimEngine) -> WAIT_FOR_SERVER
@@ -942,12 +949,12 @@ GameStoreOnline.dispatchToken = register(action=>{
 		case 'GAME_7_ONLINE_TURN_SKIPPED':
 		// If skip turn data received from server
 			passAudio.play();
+			GameStoreOnline.emitChange();
 			break;
 		case 'GAME_7_ONLINE_SKIP_TURN_DONE':
 		// Fired after both skip turn events. Next event is NOW_NEXT_TURN
 			GameStoreOnline.setGameState('NOW_NEXT_TURN');
 			GameStoreOnline.fireNextTurn();
-			GameStoreOnline.emitChange();
 			break;
 		case 'GAME_7_ONLINE_SHOW_SCORES':
 		// Sets the dot above score button on the view to show scores have been updated
@@ -979,6 +986,11 @@ GameStoreOnline.dispatchToken = register(action=>{
 			break;
 		case 'GAME7_ONLINE_ADMIN_REQUEST_DISTRIBUTION':
 			GameStoreOnline.adminRequestsDistribution(GameStoreOnline.getGameProperty('adminId'));
+			break;
+		case 'GAME_7_REFRESH_STORE':
+			waitFor([PauseStore.dispatchToken]);
+			GameStoreOnline.refreshStore();
+			// GameStoreOnline.emitChange();
 			break;
 		 }
 });

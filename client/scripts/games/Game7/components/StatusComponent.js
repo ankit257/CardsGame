@@ -8,8 +8,9 @@ import connectToStores from '../../../../scripts/utils/connectToStores';
 
 import * as GameActions from '../actions/GameActions';
 
-import PlayerComponent from './PlayerComponent'
-import XPComponent from './XPComponent'
+import PlayerComponent from './PlayerComponent';
+import XPComponent from './XPComponent';
+import _ from 'underscore';
 
 function getState(props){
 	let savedscore = ScoresStore.getScores('game7');
@@ -37,13 +38,14 @@ export default class StatusComponent extends Component {
 		showTable: false
 	}
 	componentWillReceiveProps(nextProps){
+		this.props = nextProps;
 		this.updateSelf();
 		if(nextProps.requestShowScore){
 			this.showScore();
 		}
 	}
-	shouldComponentUpdate(nextProps){
-		return nextProps.getUpdateFlag();
+	shouldComponentUpdate(nextProps, nextState){
+		return (nextProps.getUpdateFlag() || this.state.showScores!=nextState.showScores || this.state.showTable!=nextState.showTable || this.state.status!=nextState.status);
 	}
 	requestServerBots(){
 		GameActions.requestDistribution();
@@ -71,8 +73,6 @@ export default class StatusComponent extends Component {
 		let activePlayerPos = this.props.activePlayerPos;
 		let activePlayerName = this.getPlayerName(activePlayerPos);
 		let playableCount = this.props.playableCount[activePlayerPos];
-		// console.log(activePlayerPos);
-		// console.log(this.props.playableCount);
 		switch(gameState){
 			case 'INIT_DECK':
 			case 'INIT_PLAYERS':
@@ -119,7 +119,6 @@ export default class StatusComponent extends Component {
 		});
 	}
 	render() {
-		console.log('render');
 		let xp = this.props.xp;
 		let ifWaiting = this.props.ifWaiting;
 		let status = this.state.status;

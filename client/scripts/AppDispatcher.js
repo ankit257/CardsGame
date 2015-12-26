@@ -24,6 +24,7 @@ export function waitFor(ids) {
 /**
  * Dispatches a single action.
  */
+var oldTime = Date.now();
 export function dispatch(type, action = {}) {
   if (!type) {
     throw new Error('You forgot to specify type.');
@@ -37,14 +38,18 @@ export function dispatch(type, action = {}) {
     // All data that flows into our application comes in form of actions.
     // Actions are just plain JavaScript objects describing “what happened”.
     // Think of them as newspapers.
+    var newTime = Date.now();
+    var timeDiff = newTime - oldTime;
     if (action.error) {
       console.error(type, action);
     } else {
-      console.log(type, action);
+      console.log(type, action, timeDiff);
     }
+    oldTime = newTime;
   }
-
-  flux.dispatch({ type, ...action });
+  delay(0).then(function(){
+    flux.dispatch({ type, ...action });
+  })
 }
 
 /**

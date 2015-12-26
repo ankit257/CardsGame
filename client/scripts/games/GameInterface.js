@@ -1,11 +1,13 @@
 import React, { Component, PropTypes } from 'react';
+import { delay } from '../../scripts/AppDispatcher';
 import DocumentTitle from 'react-document-title';
 import connectToStores from '../utils/connectToStores';
 import GameRoomStore from '../stores/GameRoomStore';
 import AuthStore from '../stores/AuthStore';
 import SettingsStore from '../stores/SettingsStore';
 import * as GameRoomActions from '../actions/GameRoomActions';
-
+import * as GameActions from './Game7/actions/GameActions';
+import { timeConstants } from './Game7/constants/SattiHelper'
 import Game7Render from './Game7/components/GameRender'
 
 function parseLogin(params) {
@@ -73,6 +75,9 @@ export default class GameInterface extends Component{
           }
       }
   }
+  static contextTypes = {
+    history: PropTypes.object.isRequired,
+  }
   state = {
     gamePause : false
   }
@@ -92,15 +97,20 @@ export default class GameInterface extends Component{
   componentWillMount() {
     var id = this.props.params.id;
     var profile = this.props.profile;
+    let self = this;
     if(id){
-      GameRoomActions.joinGameRoom(id, profile, 'game7');
+      setTimeout(function(){GameRoomActions.joinGameRoom(id, profile, 'game7')},timeConstants.DISPATCH_DELAY);
       socket.on('invalid_room', function(){
-        console.log('invalid_room')
+        self.context.history.go(-1);
       });
       socket.on('room_full', function(){
-        console.log('room_full')
-      });  
+        self.context.history.go(-1);
+      }); 
+      socket.on('disconnect', function(){
+        self.context.history.go(-1);
+      })
     }else{
+      GameActions.refreshStore({ifOnline: false});
       GameRoomActions.startGameWithBots('game7')
     }
   }
@@ -113,8 +123,18 @@ export default class GameInterface extends Component{
   }
   componentWillUnmount() {
     var id = this.props.params.id;
-    // var profile = this.props.profile;
-    GameRoomActions.leaveGameRoom(id, 'game7');
+    if(id){
+      GameActions.refreshStore({ifOnline: true});
+      GameRoomActions.leaveGameRoom(id, 'game7');
+    }
+    console.log('unmount');
+    socket.removeAllListeners("invalid_room");
+    socket.removeAllListeners("room_full");
+    socket.removeAllListeners("play_card");
+    socket.removeAllListeners("room_joined");
+    socket.removeAllListeners("player_changed");
+    socket.removeAllListeners("disconnect");
+    socket.removeAllListeners("game_state");
   }
   componentWillReceiveProps(nextProps) {
     // if (parseLogin(nextProps.params) !== parseLogin(this.props.params)) {

@@ -35,12 +35,12 @@ export default class Bot325 extends Player325{
 		var otherPlayerId = this.game.otherPlayerId;
 		var activePlayerId = this.game.activePlayerId;
 		var state = this.game.state;
-		if(state == 'GAME325_WITHDRAW_CARD'){
+		if(state == 'WITHDRAW_CARD'){
 			var card = this.getRandomCardFromPlayersDeck(otherPlayerId);
 			setTimeout(function(){
 				GameActions.playCard(card);
 			}, timeConstants.DISPATCH_DELAY);
-		}else if(state == 'GAME325_RETURN_CARD'){
+		}else if(state == 'RETURN_CARD'){
 			var card = this.getRandomCardFromPlayersDeck(activePlayerId);
 			setTimeout(function(){
 				GameActions.playCard(card);

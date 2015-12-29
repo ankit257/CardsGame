@@ -51,7 +51,7 @@ export default class Game325{
 		this.deck = cards325.shuffle(this.deck);
 		this.deck.map(card=> {
 			card.setDefaultState();
-			// card.setPositionByState();
+			card.setPositionByState();
 		});
 		this.updateHandsToMake();
 		// this.setDeckIndex();
@@ -119,7 +119,6 @@ export default class Game325{
 			var c = this.playerPosArray.pop();
 			this.playerPosArray.unshift(c);
 		}
-		console.log(this.playerPosArray)
 		let n = this.distributionArray[this.distributionState];
 		let playersLength = this.players.length;
 		for (let i = 0; i < n; i++) {
@@ -251,58 +250,70 @@ export default class Game325{
 		}
 		return false;
 	}
-	assignPosToCardsToBeMoved(){
-		this.getTurnWinner();
+	assignPosToCardsToBeMoved(winnerPos){
+		if(typeof winnerPos !== 'undefined'){
+			this.getTurnWinner();
+			winnerPos = this.winnerId;
+		}
 		delete this.turnSuit;
 		var cards = [];
 		for(let deckcard of this.deck){
-			if(deckcard.state == 'PLAYED'){
+			if(deckcard.state == 'BEING_PLAYED'){
 				deckcard.state = 'MOVE_HAND';
-				deckcard.ownerPos = this.winnerId;
+				deckcard.ownerPos = winnerPos;
 			}
 		}
+		delete this.winnerId;
 	}
 	setTrump(trump){
 		this.trump = trump;
 	}
-	playCard(card){
-		if(card.ownerPos == this.activePlayerPos && this.state == 'READY_TO_PLAY_NEXT'){
-			for(let deckcard of this.deck){
-				if(card.rank == deckcard.rank && card.suit == deckcard.suit){
-					this.cardPlayed = deckcard;
-					deckcard.state = 'BEING_PLAYED';
-					deckcard.delay = timeConstants.PLAY_DELAY;
-					deckcard.animTime = timeConstants.PLAY_ANIM;
-					if(!this.turnSuit){
-						this.turnSuit = deckcard.suit;
+	playCard(card, callerLocation){
+			if(card && ((callerLocation == 'client' && card.ownerPos == this.activePlayerPos) ||  (callerLocation == 'server' && card.ownerId == this.activePlayerId)) && this.state == 'READY_TO_PLAY_NEXT'){
+				for(let deckcard of this.deck){
+					if(card.rank == deckcard.rank && card.suit == deckcard.suit){
+						this.cardPlayed = deckcard;
+						deckcard.state = 'BEING_PLAYED';
+						deckcard.delay = timeConstants.PLAY_DELAY;
+						deckcard.animTime = timeConstants.PLAY_ANIM;
+						if(!this.turnSuit){
+							this.turnSuit = deckcard.suit;
+						}
 					}
 				}
+				this.updateCardIndex();
+				this.state ='PLAYING_CARD';
 			}
-			this.updateCardIndex();
-			this.state ='PLAYING_CARD';
-		}
-		if(card.ownerPos == this.otherPlayerId && this.state == 'GAME325_WITHDRAW_CARD'){
-			for(let deckcard of this.deck){
-				if(card.rank == deckcard.rank && card.suit == deckcard.suit){
-					this.cardPlayed = deckcard;
-					deckcard.ownerPos = this.activePlayerId;
-					this.updateCardIndex();
+			if(card && ((callerLocation == 'client' && card.ownerPos == this.otherPlayerPos) ||  (callerLocation == 'server' && card.ownerPos == this.otherPlayerPos)) && this.state == 'WITHDRAW_CARD'){
+				for(let deckcard of this.deck){
+					if(card.rank == deckcard.rank && card.suit == deckcard.suit){
+						// console.log(12345)
+						this.cardPlayed = deckcard;
+						console.log('Owner:'+deckcard.ownerPos);
+						deckcard.ownerPos = this.activePlayerPos;
+						console.log('Owner:'+deckcard.ownerPos);
+						this.updateCardIndex();
+					}
 				}
+				this.state ='WITHDRAWING_CARD';
 			}
-			this.state ='GAME325_WITHDRAWING_CARD';
-		}
-		if(card.ownerPos == this.activePlayerPos && this.state == 'GAME325_RETURN_CARD'){
-			for(let deckcard of this.deck){
-				if(card.rank == deckcard.rank && card.suit == deckcard.suit){
-					this.cardPlayed = deckcard;
-					deckcard.ownerPos = this.otherPlayerId;
-					this.updateCardIndex();
-					this.players[this.activePlayerPos].handsMadeInLR--;
-					this.players[this.otherPlayerId].handsMadeInLR++;
+			if(card && ((callerLocation == 'client' && card.ownerPos == this.activePlayerPos) ||  (callerLocation == 'server' && card.ownerPos == this.activePlayerPos)) && this.state == 'RETURN_CARD'){
+				for(let deckcard of this.deck){
+					if(card.rank == deckcard.rank && card.suit == deckcard.suit){
+						this.cardPlayed = deckcard;
+						deckcard.ownerPos = this.otherPlayerPos;
+						this.updateCardIndex();
+						this.players[this.activePlayerPos].handsMadeInLR--;
+						this.players[this.otherPlayerId].handsMadeInLR++;
+					}
 				}
+				this.state ='RETURNING_CARD';
 			}
-			this.state ='GAME325_RETURNING_CARD';
-		}
+			// console.log(card.ownerPos)
+			// console.log(this.otherPlayerPos)
+			// console.log(this.activePlayerPos);
+			// console.log(this.state)
+			// this.updateCardIndex()
 	}
 	updateHandsToMake() {
 		var arrHands = [2,3,5];
@@ -332,6 +343,8 @@ export default class Game325{
 		}
 	}
 	updateCardState(card, state){
+		// console.log(card)
+		// console.log(this.activePlayerPos)
 		this.deck.map(deckcard=>{
 			if(deckcard.rank == card.rank && deckcard.suit == card.suit){
 				this.players[this.activePlayerPos].cardPlayed = Object.assign(deckcard);
@@ -340,18 +353,22 @@ export default class Game325{
 		})
 	}
 	updateCardIndex(){
-		var i = 0;
-		for(let deckcard of this.deck){
-			if(deckcard.ownerPos == this.activePlayerPos && deckcard.state == 'DISTRIBUTED'){
-				deckcard.index = i;
-				i++;
+		for (var i = 0; i < this.players.length; i++) {
+				// this.players[i]
+			var j = 0;
+			for(let deckcard of this.deck){
+				if(deckcard.ownerPos == i && deckcard.state == 'DISTRIBUTED'){
+					deckcard.index = j;
+					j++;
+				}
 			}
-		}
-		for(let deckcard of this.deck){
-			if(deckcard.ownerPos == this.activePlayerPos && deckcard.state == 'DISTRIBUTED'){
-				deckcard.totalIndex = i-1;
+			for(let deckcard of this.deck){
+				if(deckcard.ownerPos == i && deckcard.state == 'DISTRIBUTED'){
+					deckcard.totalIndex = j-1;
+				}
 			}
-		}
+		};
+		
 	}
 	addPlayedCard(cardToAdd){
 		if(!cardToAdd) return false;
@@ -414,14 +431,20 @@ export default class Game325{
 			if(this.players[i].cardPlayed == biggestCard){
 				this.lastGameWinner = this.players[i].id;
 				this.players[i].handsMade++;
-				this.winnerId =  this.players[i].id;
+				this.winnerId = this.players[i].id;
 				this.activePlayerId = this.winnerId;
 				this.activePlayerPos = this.winnerId;
+				if(!this.players[i].score[this.gameRound - 1]){
+					this.players[i].score[this.gameRound - 1] = {
+						handsMade : this.players[i].handsMade,
+						handsToMake : this.players[i].handsToMake
+					}
+				}
 				this.players[i].score[this.gameRound - 1].handsMade++;
 			}
 		}
-		for (var i = 0; i < this.players.length ; i++) {
-				 this.players[i].cardPlayed = '';
+		for (var i = 0; i < this.players.length ; i++){
+			this.players[i].cardPlayed = '';
 		}
 	}
 	checkRoundEnd(){
@@ -600,7 +623,7 @@ export default class Game325{
 			this.gameTurn++;
 			this.setNextActivePlayerPos();	
 		}
-		if(this.state !== 'GAME325_WITHDRAW_CARD' &&  this.state !== 'GAME325_RETURN_CARD' && this.state !== 'SET_TRUMP'){
+		if(this.state !== 'WITHDRAW_CARD' &&  this.state !== 'RETURN_CARD' && this.state !== 'SET_TRUMP'){
 			this.state = 'READY_TO_PLAY_NEXT';
 		}
 	}

@@ -23,6 +23,7 @@ function getState(props, ifOnline){
 		GameStore = GameStoreOffline;
 	}
 	let activePlayerPos = GameStore.getGameProperty('activePlayerPos');
+	let activePlayerId = GameStore.getGameProperty('activePlayerId');
 	let gameState = GameStore.getGameProperty('state');
 	let botState = GameStore.getGameProperty('botState');
 	let players = GameStore.getGameProperty('players');
@@ -36,6 +37,7 @@ function getState(props, ifOnline){
 	
 	return {
 		activePlayerPos,
+		activePlayerId,
 		gameState,
 		gameTurn,
 		botState,
@@ -51,6 +53,7 @@ function getState(props, ifOnline){
 @connectToGameStores([GameStoreOffline, GameStoreOnline], getState)
 export default class StatusComponent extends Component {
 	constructor(props){
+		console.log(getState());
 		super(props);
 		this.showScore = this.showScore.bind(this);
 		this.hideScore = this.hideScore.bind(this);
@@ -68,6 +71,7 @@ export default class StatusComponent extends Component {
 		}
 	}
 	getPlayerName(position){
+		console.log(position)
 		if(position){
 			return this.props.players[position].name;
 		}else{
@@ -88,9 +92,11 @@ export default class StatusComponent extends Component {
 		let gameState = this.props.gameState;
 		let gameTurn = this.props.gameTurn;
 		let activePlayerPos = this.props.activePlayerPos;
+		let otherPlayerPos = this.props.otherPlayerPos;
+		let activePlayerId = this.props.activePlayerId;
 		let otherPlayerId = this.props.otherPlayerId;
 		let activePlayerName = this.getPlayerName(activePlayerPos);
-		let otherPlayerName = this.getPlayerName(otherPlayerId);
+		let otherPlayerName = this.getPlayerName(otherPlayerPos);
 		let playableCount = this.props.playableCount[activePlayerPos];
 		// console.log('GameStatus:'+gameState+'___ActivePlayer:'+activePlayerPos)
 		switch(gameState){
@@ -108,7 +114,7 @@ export default class StatusComponent extends Component {
 			case 'DISTRIBUTING_CARDS':
 				status = 'Starting new game'
 				break;
-			case 'GAME325_WITHDRAW_CARD':
+			case 'WITHDRAW_CARD':
 				var string = 'ACTIVEPLAYER Turn. Select a card from OTHERPLAYER \'s deck to withdraw card';
 				if(activePlayerPos == 0){
 					status = string.replace('ACTIVEPLAYER', 'Your');
@@ -117,7 +123,7 @@ export default class StatusComponent extends Component {
 				}
 				status = status.replace('OTHERPLAYER', otherPlayerName);
 				break;
-			case 'GAME325_RETURN_CARD':
+			case 'RETURN_CARD':
 				var string = 'ACTIVEPLAYER Turn. Select a card from your deck to return card to OTHERPLAYER';
 				if(activePlayerPos == 0){
 					status = string.replace('ACTIVEPLAYER', 'Your');

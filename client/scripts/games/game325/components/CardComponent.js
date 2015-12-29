@@ -7,19 +7,26 @@ import connectToStores from '../../../../scripts/utils/connectToStores';
 import {gameCSSConstants, gamePathConstants} from '../constants/SattiHelper'
 import * as GameActions from '../actions/GameActions';
 
+import SettingsStore from '../../../stores/SettingsStore';
 import PauseStore from '../stores/PauseStore';
 
 function getState(props){
     let pauseState = PauseStore.getPauseState();
+    let settings = SettingsStore.getSettings();
+    let cardbackimg = settings.activeCardBack;
     return {
-        pauseState
+        pauseState,
+        cardbackimg
     };
 }
 
-@connectToStores([PauseStore], getState)
+@connectToStores([PauseStore, SettingsStore], getState)
 export default class CardComponent extends Component {
     state = {
 
+    }
+    static contextTypes = {
+        ifOnline: PropTypes.bool
     }
     constructor(props) {
         super(props);
@@ -43,14 +50,28 @@ export default class CardComponent extends Component {
     handleClick(){
         let card = this.state.card;
         let gameState = this.props.gameState;
-        if(card.isPlayable && card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !this.props.pauseState){
-            GameActions.playCard(this.state.card);
+        // console.log(this.props.otherPlayerPos);
+        if( card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !this.props.pauseState){
+            if(this.context.ifOnline){
+                GameActions.onlinePlayCard(this.state.card);
+            }else{
+                GameActions.playCard(this.state.card);
+            }
+            
         }
-        if(card.ownerPos == this.props.otherPlayerId && card.state == "DISTRIBUTED" && gameState=='GAME325_WITHDRAW_CARD' && !this.props.pauseState){
-            GameActions.playCard(this.state.card);
+        if(card.ownerPos == this.props.otherPlayerPos && card.state == "DISTRIBUTED" && gameState=='WITHDRAW_CARD' && !this.props.pauseState){
+            if(this.context.ifOnline){
+                GameActions.onlinePlayCard(this.state.card);
+            }else{
+                GameActions.playCard(this.state.card);
+            }
         }
-        if(card.ownerPos == this.props.activePlayerPos && card.state == "DISTRIBUTED" && gameState=='GAME325_RETURN_CARD' && !this.props.pauseState){
-            GameActions.playCard(this.state.card);
+        if(card.ownerPos == this.props.activePlayerPos && card.state == "DISTRIBUTED" && gameState=='RETURN_CARD' && !this.props.pauseState){
+            if(this.context.ifOnline){
+                GameActions.onlinePlayCard(this.state.card);
+            }else{
+                GameActions.playCard(this.state.card);
+            }
         }
     }
     handleTouch(){

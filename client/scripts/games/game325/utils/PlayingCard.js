@@ -103,6 +103,8 @@ export default class PlayingCard{
 		this.oldY = this.y;
 		this.oldZ = this.z;
 		this.animState  = 0;
+		let screenOutOffset = -1 * gameCSSConstants.cardOffset.screenOut * gameCSSConstants.cardSize.height;
+		console.log(this.state)
 		switch(this.state){
 			case 'START_DISTRIBUTING':
 				this.ox 		= gameCSSConstants.gameBody.width/2 - gameCSSConstants.cardSize.width/2;
@@ -123,21 +125,21 @@ export default class PlayingCard{
 				switch(this.ownerPos){
 					case 0:
 						this.ox 		= gameCSSConstants.gameBody.width/2 -gameCSSConstants.cardSize.width/2;
-						this.oy 		= gameCSSConstants.gameBody.height;
+						this.oy 		= gameCSSConstants.gameBody.height - gameCSSConstants.cardSize.height - gameCSSConstants.gameBody.padding;
 						this.zIndex 	= -1;
 						this.index 		= 0;
 						this.showFace	= true;
 						break;
 					case 1:
 						this.ox 		=  gameCSSConstants.cardSize.width/2;
-						this.oy 		=  0;
+						this.oy 		=  screenOutOffset + gameCSSConstants.cardSize.height/2;
 						this.zIndex 	= -1;
 						this.index 		= 4;
 						this.showFace	= true;
 						break;
 					case 2:
 						this.ox 		= gameCSSConstants.gameBody.width - gameCSSConstants.cardSize.width;
-						this.oy 		=  0;
+						this.oy 		=  screenOutOffset + gameCSSConstants.cardSize.height/2;
 						this.zIndex 	= -1;
 						this.index 		= 8;
 						this.showFace	= true;
@@ -147,7 +149,6 @@ export default class PlayingCard{
 			case 'DISTRIBUTED':
 				let smallOffset = gameCSSConstants.cardOffset.small * gameCSSConstants.cardSize.width;
 				let largeOffset = gameCSSConstants.cardOffset.large * gameCSSConstants.cardSize.width;
-				let screenOutOffset = -1 * gameCSSConstants.cardOffset.screenOut * gameCSSConstants.cardSize.height;
 				let widthLargeCardArrayBy2 = ((this.similar - 1)*largeOffset + gameCSSConstants.cardSize.width)/2;
 				let widthSmallCardArrayBy2 = ((this.similar - 1)*smallOffset + gameCSSConstants.cardSize.width)/2;
 				switch(this.ownerPos){
@@ -230,6 +231,7 @@ export default class PlayingCard{
 				this.showFace 	= true;
 				break;
 			case 'MOVE_HAND':
+				console.log('Pos:'+this.ownerPos)
 				switch(this.ownerPos){
 					case 0:
 						this.ox 		= gameCSSConstants.gameBody.width/2 -gameCSSConstants.cardSize.width/2;

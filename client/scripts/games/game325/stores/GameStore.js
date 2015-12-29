@@ -11,6 +11,7 @@ import Game325 from '../utils/Game325';
 import Player325 from '../utils/Player325';
 import Bot325 from '../utils/Bot325';
 import Score325 from '../utils/Score325';
+import AnimEngine from '../utils/AnimEngine'
 
 // let distributeAudio = new Audio('../../assets/sounds/distribute.mp3');
 // let playAudio = new Audio('../../assets/sounds/play.mp3');
@@ -458,7 +459,7 @@ GameStoreOffline.dispatchToken = register(action=>{
 			GameStoreOffline.sortDeck(0);
 			GameStoreOffline.setCardPositionByState();
 			if(GameStoreOffline.isWithdrawCard()){
-				GameStoreOffline.setGameState('GAME325_WITHDRAW_CARD');
+				GameStoreOffline.setGameState('WITHDRAW_CARD');
 				GameStoreOffline.checkBotPlay();
 				GameStoreOffline.setCardPositionByState();
 			 	GameStoreOffline.emitAndSaveChange( 'gameData', _game );
@@ -468,14 +469,14 @@ GameStoreOffline.dispatchToken = register(action=>{
 			}
 			break;
 		case 'GAME325_WITHDRAW_CARD_SUCCESS':
-			GameStoreOffline.setGameState('GAME325_RETURN_CARD');
+			GameStoreOffline.setGameState('RETURN_CARD');
 			GameStoreOffline.checkBotPlay();
 			GameStoreOffline.setCardPositionByState();
 			GameStoreOffline.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME325_RETURN_CARD_SUCCESS':
 			if(GameStoreOffline.isWithdrawCard()){
-				GameStoreOffline.setGameState('GAME325_WITHDRAW_CARD');
+				GameStoreOffline.setGameState('WITHDRAW_CARD');
 				GameStoreOffline.checkBotPlay();
 				GameStoreOffline.setCardPositionByState();
 			}else{

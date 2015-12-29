@@ -56,9 +56,9 @@ const SettingsStore = createStore({
 	},
 	saveSettingsInLocalStorage(){
 		let user = getItemFromLocalStorage('user');
-		if(user && user.settings){
-			saveItemInLocalStorage('user', user);
+		if(user){
 			user.settings = _currentSettings;
+			saveItemInLocalStorage('user', user);
 		}
 	},
 	getBckClassName(){
@@ -73,6 +73,10 @@ SettingsStore.dispatchToken = register(action => {
 	const { type }  = action;
 		switch(type){
 			case 'LOGGED_IN':
+			waitFor([AuthStore.dispatchToken]);
+				SettingsStore.updateCurrentSettings();
+				break;
+			case 'LOGGED_IN_WITH_FB':
 			waitFor([AuthStore.dispatchToken]);
 				SettingsStore.updateCurrentSettings();
 				break;

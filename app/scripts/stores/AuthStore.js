@@ -23,8 +23,13 @@ const AuthStore = createStore({
 		saveItemInLocalStorage('user', user);
 	},
 	updateProfile (profile){
+		var user = getItemFromLocalStorage('user');
 		Session.profile = profile;
-		saveItemInLocalStorage('user', Session);
+		if(user == null){
+			user = Session;
+		}
+		user.profile = profile;
+		saveItemInLocalStorage('user', user);
 	},
 	get(){
 		if(!Session.profile.id){					
@@ -36,7 +41,14 @@ const AuthStore = createStore({
 		return Session;
 	},
 	del(){
-		deleteItemFromLocalStorage('user');
+		if(Session.profile.id == "local"){
+			var user = getItemFromLocalStorage('user');
+			delete user.profile;
+			saveItemInLocalStorage('user', user);
+		}else{
+			deleteItemFromLocalStorage('user');
+		}
+		deleteItemFromLocalStorage('gameData');
 		delete Session.profile;
 		Session.profile = new Object();
 	}

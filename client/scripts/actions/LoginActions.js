@@ -95,7 +95,7 @@ export function applySettings(settings){
 export function fetchScoreFromDB(url, data){
 	dispatchAsync(postRequest(url,data), {
 		request: ActionTypes.GAMESCORE_FETCH_REQUEST,
-		success: ActionTypes.GAMESCORE_FETCH_SUCCESS,
+		success: ActionTypes.n,//ActionTypes.GAMESCORE_FETCH_SUCCESS,
 		error: ActionTypes.GAMESCORE_FETCH_ERROR
 	},{data});
 }

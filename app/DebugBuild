@@ -1,3 +1,4 @@
 #!/bin/bash
-webpack
-cordova run android
+adb devices
+sudo webpack
+sudo cordova run android --debug

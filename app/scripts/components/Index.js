@@ -1,4 +1,5 @@
-import React, { Component, PropTypes, findDOMNode } from 'react';
+import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom'
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import _ from 'underscore';
 import classnames from 'classnames/dedupe';
@@ -66,7 +67,7 @@ export default class Index extends Component {
   }
   validateInput(e){
     // this.context.history.pushState(null, `/games`)
-    var name = findDOMNode(this.refs.username).value;
+    var name = ReactDOM.findDOMNode(this.refs.username).value;
     var newState = _.extend({}, this.state);
     if(!checkValidUsername(name)){
       newState.errors.username = { 'show' : true, 'text' : 'Okay. We dont know how to call that.'}
@@ -79,7 +80,7 @@ export default class Index extends Component {
     this.setState(newState);
   }
   register(e){
-    var name = findDOMNode(this.refs.username).value;
+    var name = ReactDOM.findDOMNode(this.refs.username).value;
     if(name.length==0){
       this.validateInput(e);
     }
@@ -148,6 +149,6 @@ export default class Index extends Component {
   }
 
   getInputValue() {
-    return findDOMNode(this.refs.loginOrRepo).value;
+    return ReactDOM.findDOMNode(this.refs.loginOrRepo).value;
   }
 }

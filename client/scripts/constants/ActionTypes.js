@@ -55,6 +55,7 @@ export default keyMirror({
 
   CHANGE_SETTINGS: null,
 
-  GAME325 : null
+  GAME325 : null,
+  "n": null
 });
       

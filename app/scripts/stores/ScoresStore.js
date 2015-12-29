@@ -103,7 +103,7 @@ const ScoresStore = createStore({
 	},
 	saveScoresInLocalStorage(){
 		let user = getItemFromLocalStorage('user');
-		if(user && user.games){
+		if(user){
 			user.games = _gameScores;
 			saveItemInLocalStorage('user', user);
 		}
@@ -132,7 +132,7 @@ register(action => {
 				ScoresStore.fetchScoresFromServer('game7');
 				break;
 			case 'GAME_7_ONLINE_SHOW_SCORES':
-			waitFor([Game7StoreOnline.dispatchToken]);
+				waitFor([Game7StoreOnline.dispatchToken]);
 				var xp = Game7StoreOnline.getXP();
 				ScoresStore.game7Update(xp);
 				break;

@@ -3,6 +3,7 @@ import ActionTypes from '../constants/ActionTypes';
 import GameRoomStore from '../stores/GameRoomStore';
 
 import * as Game7Actions from '../games/Game7/actions/GameActions'
+import * as Game10Actions from '../games/Game10/actions/GameActions'
 
 import { createGameRoomServer, exitGameRoomServer, joinGameRoomServer, getRoomServer } from '../utils/APIUtils';
 import { saveItemInLocalStorage, getItemFromLocalStorage } from '../utils/LocalStorageUtils';
@@ -58,6 +59,9 @@ export function startGameWithBots(game){
 		case 'game7':
 			Game7Actions.initGame();
 			break;
+		case 'game10':
+			Game10Actions.initGame();
+			break;
 	}
 }
 
@@ -65,6 +69,9 @@ export function gameStateReceived(game, data){
 	switch(game){
 		case 'game7':
 			Game7Actions.gameStateReceived(data);
+			break;
+		case 'game10':
+			Game10Actions.gameStateReceived(data);
 			break;
 	}
 }

@@ -8,6 +8,7 @@ import AuthHandler from './pages/AuthHandler';
 import GamePage from './pages/GamePage';
 import Game325 from './games/Game325';
 import GameInterface from './games/GameInterface';
+import GameInterface10 from './games/GameInterface10';
 
 export default class Root extends Component {
   static propTypes = {
@@ -39,6 +40,8 @@ export default class Root extends Component {
           <Route name='games' path='/games' component={GamePage} />
           <Route name='game7' path='/game7' component={GameInterface} /> 
           <Route name='game7multi' path='/game7/(:id)' component={GameInterface} />
+          <Route name='game10' path='/game10' component={GameInterface10} /> 
+          <Route name='game10multi' path='/game10/(:id)' component={GameInterface10} />
           <Route name='game325' path='/game325(/)(:id)' component={Game325} />
         </Route>
       </Router>

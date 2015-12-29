@@ -191,6 +191,17 @@ export default class GamaPage extends Component{
           direction : 'rtl',
           display : 'inline-block'
         },
+        game10 : {
+          width: '299px',
+          height: '300px',
+          margin: '12px',
+          zIndex: 1,
+          background: 'rgba(172, 146, 236, 0.5)',
+          color: '#eee',
+          padding: '100px 40px',
+          direction : 'rtl',
+          display : 'inline-block'
+        },
         container : {
           paddingTop : '50px',
           width : '1080px',
@@ -355,7 +366,8 @@ export default class GamaPage extends Component{
     let { showRooms, showPublicRooms, selectedGame } = this.state;
     let { css } = this.state;
     var games = [{'title' : 'Teen Do Paanch', 'desc': 'A classcic Indian Game played between 3 players.', 'blogref': '/bog/how-to-play-teen-do-paanch', 'key': 'game325'}, 
-            {'title' : 'Satti Center', 'desc': 'Arrange the cards 4 players and try finishing your cards first .', 'blogref': '/bog/how-to-play-teen-do-paanch', 'key': 'game7'}];
+            {'title' : 'Satti Center', 'desc': 'Arrange the cards 4 players and try finishing your cards first .', 'blogref': '/bog/how-to-play-teen-do-paanch', 'key': 'game7'},
+            {'title' : 'Dehla Pakad', 'desc': 'Eat maximum number of 10s.', 'blogref': '/bog/how-to-play-dehla-pakad', 'key': 'game10'}];
     var gameCardsArray = [];
     var self = this;
     games.map(function (game, index){
@@ -392,6 +404,9 @@ export default class GamaPage extends Component{
         </div>
         <div onClick={this.goToGame.bind(this, 'game325')} className="animate-it block-2" style={css.game325}>
           <span className="">Teen Do Paanch</span>
+        </div>
+        <div onClick={this.goToGame.bind(this, 'game10')} className="animate-it block-2" style={css.game10}>
+          <span className="">Dehla Pakad</span>
         </div>
       </div> 
     )

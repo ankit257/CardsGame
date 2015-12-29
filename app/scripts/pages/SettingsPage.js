@@ -111,8 +111,6 @@ export default class SettingsPage extends Component{
     },20);
   }
   componentDidMount(){
-    console.log('did mount');
-    console.log(this.props);
     setTimeout(function(){
       componentHandler.upgradeAllRegistered();
     },20);
@@ -181,10 +179,10 @@ export default class SettingsPage extends Component{
   }
   changeVolume(e){
     var newState = _.extend({}, this.state);
-    newState.volume = e.target.value;
-    Howler.volume(e.target.value);
+    newState.volume = Number(e.target.value);
+    Howler.volume(Number(e.target.value));
     // tadaAudio.play();
-    e.target.MaterialSlider.change(e.target.value);
+    e.target.MaterialSlider.change(Number(e.target.value));
     this.reRender(newState);
   }
   applySettings(e){

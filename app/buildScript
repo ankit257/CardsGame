@@ -1,0 +1,7 @@
+#!/bin/bash
+#sudo cordova platforms remove android
+#sudo cordova platforms add android
+sudo cordova build android --release
+cd platforms/android/build/outputs/apk/
+sudo jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/dev/CardsGame/app/sevencentre.keystore android-release-unsigned.apk SevenCentre
+sudo ~/Library/Android/sdk/build-tools/23.0.2/zipalign -v 4 android-release-unsigned.apk SevenCentre-release-0.0.1.apk

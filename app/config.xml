@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.game.satticentre" version="0.1.5" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.game.sevencentre" version="0.1.5" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>SattiCentre</name>
     <description>
       Satti Centre Mobile App
@@ -7,6 +7,11 @@
     <author email="nverdhan@gmail.com" href="http:/playingcards.herokuapp.com">
         Naisheel Verdhan
     </author>
+    <feature name="Custom URL scheme">
+        <param name="id" value="cordova-plugin-customurlscheme" />
+        <param name="url" value="https://github.com/EddyVerbruggen/LaunchMyApp-PhoneGap-Plugin.git" />
+        <variable name="URL_SCHEME" value="sevencentre" /><!-- change as appropriate -->
+    </feature>
     <content src="index.html"/>
     <plugin name="cordova-plugin-whitelist" version="1" />
     <access origin="*" />

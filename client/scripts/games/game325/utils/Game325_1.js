@@ -1,4 +1,4 @@
-import Deck from './cards325';
+import { Deck } from './cards325';
 
 var Score = function(){
 	return {
@@ -79,7 +79,7 @@ export function Game325(){
 		var deck = new Deck();
 		this.deck = deck.deck;
 		this.deck = deck.shuffleDeck(this.deck);
-		cardcount = new Deck();
+		var cardcount = new Deck();
 		this.remainingCards = cardcount.deck;
 		for (var i = this.remainingCards.length - 1; i >= 0; i--) {
 			switch(this.remainingCards[i].suit){

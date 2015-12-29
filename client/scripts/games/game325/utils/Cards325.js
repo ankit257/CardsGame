@@ -1,6 +1,7 @@
-export var Deck = function(){
-	return  {
-		deck : [{
+import PlayingCard from './PlayingCard'
+
+export default class Cards325{
+	_defaultDeck = [{
 				suit : 'S',
 				rank : 13,
 				order : 1,
@@ -150,8 +151,14 @@ export var Deck = function(){
 				rank : 7,
 				order : 30
 			}
-	],
-	shuffleDeck : function(array){
+	]
+	constructor() {
+		this.deck = [];
+		for (let card of this._defaultDeck) {
+			this.deck.push(new PlayingCard(card));
+		}
+	}
+	shuffle(array){
 		if(!array)
 			var array = this.deck;
 		var currentIndex = array.length, temporaryValue, randomIndex;
@@ -166,6 +173,5 @@ export var Deck = function(){
 			array[randomIndex] = temporaryValue;
 		}
 		return array;
-		}
 	}
 }

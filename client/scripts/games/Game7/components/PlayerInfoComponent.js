@@ -1,7 +1,7 @@
 import React, { Component, PropTypes, findDOMNode } from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 
-import { gameCSSConstants, timeConstants } from '../constants/SattiHelper'
+import { gameCSSConstants, gamePathConstants, timeConstants } from '../constants/SattiHelper'
 // import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 import SmallScoreComponent from './SmallScoreComponent';
@@ -10,6 +10,9 @@ import TableScoreComponent from './TableScoreComponent';
 import PopUpComponent from './PopUpComponent';
 
 export default class PlayerInfoComponent extends Component {
+	static contextTypes = {
+		ifOnline: PropTypes.bool
+	}
 	state = {
 		touched: false,
 		scoreHeight: gameCSSConstants.player.scoreHeight
@@ -37,34 +40,49 @@ export default class PlayerInfoComponent extends Component {
 	getPopUp(){
 		let ifWaiting = this.props.ifWaiting;
 		let popup = {
-			msg 	: '',
-			color 	: '#fff'
-		};
+			src : '',
+			show: false
+		}
 		let player = this.props.player;
 		let activePlayerPos = this.props.activePlayerPos;
-		if(player.position == activePlayerPos && player.state == 'SKIP_TURN'){
-			popup.msg = 'PASS';
-			popup.color = 'rgba(243,80,68,1)';
-		}
 		if(player.score.getTotalPenalty() > 90){
-			popup.msg = 'Losing!'
-			popup.color = 'red';
+			popup.src = 'game7-popup-losing.svg';
+			popup.show = true;
+		}
+		if(player.position == activePlayerPos && player.state == 'SKIP_TURN'){
+			console.log('skipturn : '+activePlayerPos);
+			popup.src = 'game7-popup-pass.svg';
+			popup.show = true;
 		}
 		if(player.state == 'CLEARED'){
-			popup.msg = 'CLEARED'
-			popup.color = 'rgba(226,93,138,1)';
+			popup.src = 'game7-popup-cleared.svg';
+			popup.show = true;
 		}
 		if(player.position == 0 && ifWaiting){
-			popup.msg = 'YOU';
-			popup.color = '#de4f3d';
+			popup.src = 'game7-popup-you.svg';
+			popup.show = true;	
 		}
+		if(this.context.ifOnline) popup.src = '../' + gamePathConstants.SVG_ASSETS + popup.src;
+			else popup.src = gamePathConstants.SVG_ASSETS +  popup.src;
 		return popup;
+	}
+	getImg(src, classname){
+		if(src.localeCompare(gamePathConstants.SVG_ASSETS) == 0){
+			return
+		}else{
+			return (
+				<img className={classname} src={src}/> 
+			)
+		}
 	}
 	render() {
 		let playertype  = {
 			text : '',
 			color: 'rgba(0,0,0,0)'
-		};
+		}, playerTypeSrc = gamePathConstants.SVG_ASSETS;
+		if(this.context.ifOnline){
+			playerTypeSrc = '../' + playerTypeSrc;
+		}
 		let ifWaiting = this.props.ifWaiting;
 		let showTable = this.props.showTable;
 		let player = this.props.player;
@@ -103,16 +121,13 @@ export default class PlayerInfoComponent extends Component {
 			playerTypeClass = 'player-type player-type-waiting';
 			switch(player.type){
 				case 'BOT':
-					playertype.text = 'Waiting';
-					playertype.color = '#1f1f1f';
+					playerTypeSrc+='waiting-large.svg';
 					break;
 				case 'HUMAN':
-					playertype.text = 'Player';
-					playertype.color = '#00403A';
+					playerTypeSrc+='person-large.svg';
 					break;
 				case 'ADMIN':
-					playertype.text = 'Admin';
-					playertype.color = '#3F51B5';
+					playerTypeSrc+='admin-large.svg';
 					break;
 			}	
 		}else if(showTable){
@@ -120,16 +135,13 @@ export default class PlayerInfoComponent extends Component {
 			playerTypeClass = 'player-type player-type-waiting';
 			switch(player.type){
 				case 'BOT':
-					playertype.text = 'BOT';
-					playertype.color = '#3F51B5';
+					playerTypeSrc+='bot-large.svg';
 					break;
 				case 'HUMAN':
-					playertype.text = 'Player';
-					playertype.color = '#795548';
+					playerTypeSrc+='person-large.svg';
 					break;
 				case 'ADMIN':
-					playertype.text = 'Admin';
-					playertype.color = 'rgba(244,67,54,0.75)';
+					playerTypeSrc+='admin-large.svg';
 					break;
 			}
 			style.backgroundColor= 'rgba(62,43,36,0.8)';
@@ -139,21 +151,17 @@ export default class PlayerInfoComponent extends Component {
 			playerTypeClass = 'player-type';
 			switch(player.type){
 				case 'BOT':
-					playertype.text = 'B';
-					playertype.color = '#3F51B5';
+					playerTypeSrc+='bot-icon.svg';
 					break;
 				case 'HUMAN':
-					playertype.text = 'P';
-					playertype.color = '#795548';
+					playerTypeSrc+='person-icon.svg';
 					break;
 				case 'ADMIN':
-					playertype.text = 'A';
-					playertype.color = 'rgba(244,67,54,0.75)';
+					playerTypeSrc+='admin-icon.svg';
 					break;
 			}
 			if(player.type == 'BOT' && player.position == 0){
-				playertype.text = 'S';
-				playertype.color = '#9C27B0';
+				playerTypeSrc='../' + gamePathConstants.SVG_ASSETS + 'spectator-icon.svg';
 			}
 		}
 		let playerTypeStyle = {
@@ -170,7 +178,7 @@ export default class PlayerInfoComponent extends Component {
 		return(
 			<div style={style} className="player-info" onTap={this.onTouchStart} onMouseDown={this.onTouchStart} onMouseUp={this.onTouchEnd} onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd} >
 				<div className='player-name' style={playerNameStyle} >{id} 
-					<span className={playerTypeClass} style={playerTypeStyle}> {playertype.text} </span>
+					{this.getImg.call(this, playerTypeSrc, playerTypeClass)}
 				</div>
 				<PopUpComponent popup={popup} position={player.position} showScores={showScores} ifWaiting={ifWaiting}/>
 				<SmallScoreComponent score={score} position={player.position} showScores={showScores} rank={player.rank} ifWaiting={ifWaiting}/>

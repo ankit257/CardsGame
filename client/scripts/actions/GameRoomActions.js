@@ -80,3 +80,7 @@ export function gameStateReceived(game, data){
 			break;
 	}
 }
+
+export function fetchScoresFromServer(data) {
+	dispatch(ActionTypes.FETCH_SCORES_FROM_SERVER, {data});
+}

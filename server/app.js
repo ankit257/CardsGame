@@ -34,8 +34,19 @@ mongoose.connect(configDB.url);
 
 var app = express();
 
-var corsOptions = { origin: 'http://localhost:3000', 'credentials' : true }
+// var corsOptions = { origin: 'http://localhost:3000', 'credentials' : true }
+var corsOptions = { origin: '*', 'credentials' : false }
 app.use(cors(corsOptions));
+
+
+// var allowCrossDomain = function (req, res, next) {
+//     res.header("Access-Control-Allow-Origin", config.allowedCORSOrigins);
+//     res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+//     res.header("Access-Control-Allow-Headers", "Content-Type");
+//     res.header("Access-Control-Allow-Credentials", "true");
+//     next();
+// };
+// app.use(allowCrossDomain);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

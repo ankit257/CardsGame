@@ -27,13 +27,14 @@ module.exports = function(app, passport){
                         console.log(user)
                         return done(null, user);
                     }else{
+                        console.log(profile);
                         var newUser                 = new User();
                         newUser.facebook.id         = profile.id;
                         newUser.facebook.firstName  = profile.first_name;
                         newUser.facebook.lastName   = profile.last_name;
                         newUser.facebook.token      = profile.id;
                         newUser.email               = profile.email;
-                        newUser.facebook.img        = profile.picture.data.url;
+                        // newUser.facebook.img        = profile.picture.data.url;
                         // Save user into the database
                         newUser.save(function(err) {
                             // console.log(123);

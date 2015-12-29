@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { delay } from '../../scripts/AppDispatcher';
 import DocumentTitle from 'react-document-title';
 import connectToStores from '../utils/connectToStores';
 import GameRoomStore from '../stores/GameRoomStore';
@@ -8,6 +9,8 @@ import * as GameRoomActions from '../actions/GameRoomActions';
 
 import Game7Render from './Game7/components/GameRender';
 import Game325Render from './Game325/components/Game325Render';
+import * as GameActions from './Game325/actions/GameActions';
+import { timeConstants } from './Game7/constants/SattiHelper'
 
 function parseLogin(params) {
   return params.login;
@@ -52,12 +55,25 @@ export default class GameInterface extends Component{
     }).isRequired,
   };
   static childContextTypes = {
-    ifOnline: PropTypes.bool
+    ifOnline: PropTypes.bool,
+    ifOverlayShown: PropTypes.func
   }
   getChildContext() {
     return { 
-        ifOnline : this.props.params.id === undefined ? false : true
+        ifOnline : this.props.params.id === undefined ? false : true,
+        ifOverlayShown : function(bool, zIndex, status){
+            if(!zIndex) zIndex = 600;
+            if(bool){
+              document.getElementById('game-overlay-screen').style.display = 'block';
+              document.getElementById('game-overlay-screen').style.zIndex = zIndex;
+            }else{
+              document.getElementById('game-overlay-screen').style.display = 'none';
+            }
+          }
       }
+  }
+  static contextTypes = {
+    history: PropTypes.object.isRequired,
   }
   state = {
     gamePause : false
@@ -80,14 +96,19 @@ export default class GameInterface extends Component{
     var profile = this.props.profile;
     var game = this.props.selectedGame;
     if(id){
-      GameRoomActions.joinGameRoom(id, profile, game);
+      setTimeout(function(){GameRoomActions.joinGameRoom(id, profile, game)},timeConstants.DISPATCH_DELAY);
+      let self = this;
       socket.on('invalid_room', function(){
-        console.log('invalid_room')
+        self.context.history.go(-1);
       });
       socket.on('room_full', function(){
-        console.log('room_full')
-      });  
+        self.context.history.go(-1);
+      }); 
+      socket.on('disconnect', function(){
+        self.context.history.go(-1);
+      })
     }else{
+      GameActions.refreshStore({ifOnline: false});
       GameRoomActions.startGameWithBots(game)
     }
   }
@@ -97,18 +118,24 @@ export default class GameInterface extends Component{
       var clientData = data.clientData;
       GameRoomActions.gameStateReceived(game, clientData);
     })
+    GameRoomActions.fetchScoresFromServer('game7');
   }
   componentWillUnmount() {
     var game = this.props.gameData.game;
     var id = this.props.params.id;
-    // var profile = this.props.profile;
-    GameRoomActions.leaveGameRoom(id, game);
-    socket.removeAllListeners('invalid_room');
-    socket.removeAllListeners('room_full');
-    socket.removeAllListeners('room_joined');
-    socket.removeAllListeners('player_changed');
-    socket.removeAllListeners('game_state');
-    // socket.removeAllListeners();
+    if(id){
+      GameActions.refreshStore({ifOnline: true});
+      // GameRoomActions.leaveGameRoom(id, 'game7');
+      GameRoomActions.leaveGameRoom(id, game);
+    }
+    console.log('unmount');
+    socket.removeAllListeners("invalid_room");
+    socket.removeAllListeners("room_full");
+    socket.removeAllListeners("play_card");
+    socket.removeAllListeners("room_joined");
+    socket.removeAllListeners("player_changed");
+    socket.removeAllListeners("disconnect");
+    socket.removeAllListeners("game_state");
   }
   componentWillReceiveProps(nextProps) {
     // if (parseLogin(nextProps.params) !== parseLogin(this.props.params)) {
@@ -117,7 +144,7 @@ export default class GameInterface extends Component{
   }
   render() {
     let gamePause = this.state.gamePause;
-    let pauseButtonText, pauseScreenStyle, pauseButtonStyle;
+    let pauseButtonText, pauseButtonStyle, overlayMessage;
     if(this.context.ifOnline){
       pauseButtonStyle = {
         display: 'none'
@@ -128,23 +155,15 @@ export default class GameInterface extends Component{
       }
       if(gamePause){
         pauseButtonText = 'R'
-        pauseScreenStyle = {
-          display: 'block',
-          zIndex : 600
-        }
       }else{
         pauseButtonText = 'P'
-        pauseScreenStyle = {
-          display: 'none',
-          zIndex : 600
-        }
       }
     }
     return (
       <div>
         <div className={this.props.activeColor.name+' fixed-bkg'}></div>
         <button onClick={this.pauseToggle.bind(this)} className = "distribute-button" style= {pauseButtonStyle}> {pauseButtonText} </button>
-        <div className={'pause-screen'} style={pauseScreenStyle}><span>Game Paused</span></div>
+        <div className={'overlay-screen'} id={'game-overlay-screen'}><span></span></div>
         <Game325Render gamePause={gamePause}/>
       </div>
     );

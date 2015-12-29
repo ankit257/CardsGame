@@ -129,3 +129,10 @@ export function requestServerBot(){
 export function requestDistribution(){
 	dispatch(Actions.GAME7_ONLINE_ADMIN_REQUEST_DISTRIBUTION, {});
 }
+
+export function initRoundOnline(){
+	dispatch(Actions.GAME_7_ONLINE_INIT_ROUND, {});	
+}
+export function refreshStore(data){
+	dispatch(Actions.GAME_7_REFRESH_STORE, {data});		
+}

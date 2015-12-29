@@ -194,3 +194,8 @@ export function requestServerBot(){
 export function requestDistribution(){
 	dispatch(Actions.GAME325_ONLINE_ADMIN_REQUEST_DISTRIBUTION, {});
 }
+
+export function refreshStore(data){
+	dispatch(Actions.GAME325_REFRESH_STORE, {data});		
+}
+//Refresh Store

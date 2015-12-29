@@ -35,6 +35,7 @@ repoSchema.define({
 
 // const API_ROOT = 'https://api.github.com/';
 const API_ROOT = 'http://localhost:4000/api';
+// const API_ROOT = 'http://playingcards.herokuapp.com/api';
 /**
  * Fetches an API response and normalizes the result JSON according to schema.
  */
@@ -59,13 +60,13 @@ function postFetch(url, data) {
   if (url.indexOf(API_ROOT) === -1) {
     url = API_ROOT + url;
   }
-  fetch.withCredentials = true;
+  fetch.withCredentials = false;
   return fetch(url, {
       method : 'POST',
       headers : {
         'Content-Type' : 'application/json',
       },
-      credentials: 'include',
+      // credentials: 'include',
       body : JSON.stringify(data)
     }).then(response =>
     response.json().then(json => {
@@ -78,7 +79,7 @@ function postFetch(url, data) {
 /**
 * Post Login Data and Create Server side Session
 */
-export function loginUser(url, data){
+export function postRequest(url, data){
   return postFetch(url, data);
 }
 export function fetchUser(url) {

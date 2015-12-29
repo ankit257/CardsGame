@@ -26,9 +26,10 @@ module.exports = {
 		// 	console.log('admin changed');
 		// 	console.log(gameObj.adminId);
 		// }
-		// console.log(clientData.action)
+		console.log(data)
 		switch(clientData.action){
 			case 'START_NEW_ROUND':
+				console.log('START_NEW_ROUND')
 				this.handleSpectators(gameObj);
 				gameObj.initDeck();
 				if(gameObj.gameRound % 30 == 0){

@@ -1,6 +1,7 @@
 export const gameCSSConstants = {
 	gameWindow 			: { width : window.innerWidth, height :window.innerHeight, padding : 10 },
 	gameBody 			: { width : 500, height : 350, padding : 2 },
+	// gameBody			: {width: window.innerWidth, height: window.innerHeight, padding: 2},
 	cardSize 			: {	width : 50, height : 70 },
 	player 				: { smallDim: 40, largeDim: 100, screenOut: 16/40, statusOffset: 4, scoreHeight:4 },
 	cardOffset			: { screenOut: 0.1, small : 0.1, large: 0.666667, playedH: 0.5, playedV: 0.1, playedStackH: 2/50 ,playedStackV: 2/70 },	
@@ -11,7 +12,8 @@ export const gameCSSConstants = {
 export const gamePathConstants = {
 	CARD_BACK_IMG		: ['assets/cards/cardback.svg','assets/cards/cardbackblackred.png','assets/cards/cardbackorange.svg','assets/cards/cardbackred.svg'] ,
 	CARD_ASSETS 		: 'assets/cards/',
-	IMG_ASSETS  		: 'assets/img/'
+	IMG_ASSETS  		: 'assets/img/',
+	SVG_ASSETS			: 'assets/images/svg/'
 }
 export const timeConstants = {
 	TOTAL_DISTR_DELAY 	: 50*52 + 1000, 			// = SINGLE_DISTR_DELAY*52 + SINGLE_DISTR_ANIM

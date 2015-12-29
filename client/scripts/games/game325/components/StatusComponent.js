@@ -53,6 +53,7 @@ function getState(props, ifOnline){
 @connectToGameStores([GameStoreOffline, GameStoreOnline], getState)
 export default class StatusComponent extends Component {
 	constructor(props){
+		console.log(getState());
 		super(props);
 		this.showScore = this.showScore.bind(this);
 		this.hideScore = this.hideScore.bind(this);

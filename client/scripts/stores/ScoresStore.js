@@ -1,6 +1,7 @@
-import { register, waitFor } from '../AppDispatcher';
+import { register, waitFor, delay } from '../AppDispatcher';
 import { createStore, mergeIntoBag, isInBag } from '../utils/StoreUtils';
 import ActionTypes from '../constants/ActionTypes';
+import * as LoginActions from '../actions/LoginActions';
 import AuthStore from '../stores/AuthStore';
 import Game7StoreOffline from '../games/Game7/stores/GameStore'
 import Game7StoreOnline from '../games/Game7/stores/GameStoreOnline'
@@ -21,42 +22,65 @@ const _defaultGameScores = {
 let _gameScores = {};
 
 const ScoresStore = createStore({
+	fetchScoresFromServer(game){
+		let user = getItemFromLocalStorage('user');
+		if(user && user.profile && user.profile.id != 'local'){
+			let fn, url, data
+			switch(game){
+				case 'game7':
+					fn = LoginActions.updateDBScore;
+					url = '/game7/scores';
+					data = {score: this.getScores('game7')};
+					break;
+				default:
+					fn = LoginActions.fetchScoreFromDB;
+					url = '/scores';
+					data = {};
+					break;
+			}
+			fn(url, data);
+		}
+	},
 	updateCurrentScores(){
 		let scores = this.getScoresFromLocal();	
 		// console.log(scores);
-		if(scores && scores.game7 && scores.game7.stats && scores.game7.stats.xp){
+		if(scores && scores.game7 && scores.game7.stats && scores.game7.stats.xp != undefined){
 			_gameScores = scores;
 		}else{
-			this.setDefaultScores();
+			this.setGlobalScores(_defaultGameScores);
 		}
 		this.saveScoresInLocalStorage();
 	},
-	setDefaultScores(){
-		_gameScores = _defaultGameScores;
+	setGlobalScores(scores){
+		_gameScores = scores;
 	},
-	getScoresFromLocal(){
+	getScoresFromLocal(game){
 		let user = getItemFromLocalStorage('user');
 		if(user && user.games){
-			return user.games;
+			if(game === undefined){
+				return user.games;
+			}else{
+				return user.games[game];
+			}
 		}else{
 			return {};
 		}
 	},
 	getScores(game){
-		if(!_gameScores || !_gameScores.game7 || !_gameScores.game7.xp){
+		if(!_gameScores || !_gameScores.game7 || !_gameScores.game7.stats){
 			this.updateCurrentScores();
 		}
 		if(game){
 			switch(game){
 				case 'game7':
-					if(!_gameScores.game7.stats || !_gameScores.game7.stats.xp){
+					if(!_gameScores.game7.stats || _gameScores.game7.stats.xp === undefined){
 						this.setStandardScoreObj(game);
 					}
 					break;
 			}
 			return _gameScores[game];
 		}else{
-			return _gameScores
+			return _gameScores;
 		}
 	},
 	game7Update(xp){
@@ -98,6 +122,11 @@ register(action => {
 			waitFor([AuthStore.dispatchToken, SettingsStore.dispatchToken]);
 				ScoresStore.updateCurrentScores();
 				break;
+			case 'LOGGED_IN_WITH_FB':
+				waitFor([AuthStore.dispatchToken]);
+				// ScoresStore.fetchScoresFromServer();
+				ScoresStore.fetchScoresFromServer('game7');
+				break;
 			case 'GAME_7_ONLINE_SHOW_SCORES':
 			waitFor([Game7StoreOnline.dispatchToken]);
 				var xp = Game7StoreOnline.getXP();
@@ -107,6 +136,16 @@ register(action => {
 			waitFor([Game7StoreOffline.dispatchToken]);
 				var xp = Game7StoreOffline.getXP();
 				ScoresStore.game7Update(xp);
+				break;
+			case 'GAMESCORE_FETCH_SUCCESS':
+				console.log(action);
+				break;
+			case 'GAMESCORE_UPDATE_SUCCESS':
+				ScoresStore.setGlobalScores(action.response.score);
+				ScoresStore.saveScoresInLocalStorage();
+				break;
+			case 'FETCH_SCORES_FROM_SERVER':
+				ScoresStore.fetchScoresFromServer(action.data);
 				break;
 		}
 		ScoresStore.emitChange();

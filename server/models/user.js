@@ -1,10 +1,11 @@
-var requestActions = {
-	'REQUEST_RENT': 'REQUEST_RENT',
-	'REQUEST_EXCHANGE': 'REQUEST_EXCHANGE'
-}
+// var requestActions = {
+// 	'REQUEST_RENT': 'REQUEST_RENT',
+// 	'REQUEST_EXCHANGE': 'REQUEST_EXCHANGE'
+// }
 
 var mongoose = require('mongoose');
-
+var timestamps = require('mongoose-timestamp');
+var Schema = mongoose.Schema;
 // var UserSchema = mongoose.Schema;
 var UserSchema = mongoose.Schema({
 	email : String,
@@ -14,15 +15,11 @@ var UserSchema = mongoose.Schema({
 		lastName : String,
 		image: String
 	},
-	updated: {
-		type: Date,
-		default: Date.now()
-	},
-	created: {
-		type: Date,
-		default: Date.now()
-	}
+	friends: [{ type: Schema.ObjectId, ref: 'User' }],
+	challengers: [{ type: Schema.ObjectId, ref: 'User' }]
 });
+
+UserSchema.plugin(timestamps);
 // UserSchema.statics.findNearByWithBook = function(bookId, coordinates, maxDistance, pageNo, callback) {
 // 	var limit = 20;
 // 	var skip = limit*(pageNo-1);

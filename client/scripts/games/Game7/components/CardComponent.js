@@ -81,12 +81,6 @@ export default class CardComponent extends Component {
             cardimg = '../'+cardimg;
             cardbackimg = '../'+cardbackimg;
         }
-        // let style = Object.assign(initialstyle, {
-        //                                 zIndex : zIndex
-        //                         });
-        let style = {
-            zIndex: zIndex
-        };
         let cardImgStyle ={
             backgroundColor         : bgColor,
             WebkitBackgroundColor   : bgColor
@@ -94,7 +88,7 @@ export default class CardComponent extends Component {
         let cardfrontclass = card.showFace ? 'frontRotated' : 'front';
         let cardbackclass  = card.showFace ? 'backRotated'  : 'back' ;
 		return (
-            <div id={card.key} className="card" style={style} onClick={this.handleClick}>
+            <div id={card.key} className="card" onClick={this.handleClick}>
                 <img className="front" src={cardimg} style={cardImgStyle}   />
                 <img className="back"  src={cardbackimg}/>
             </div>

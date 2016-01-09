@@ -137,7 +137,7 @@ var PlayingCard = (function () {
 					break;
 				case 'IN_DECK':
 					this.ox = 0;
-					this.oy = _constantsSattiHelper.gameCSSConstants.gameBody.height / 4;
+					this.oy = _constantsSattiHelper.gameCSSConstants.gameBody.height - _constantsSattiHelper.gameCSSConstants.cardSize.height - _constantsSattiHelper.gameCSSConstants.gameBody.padding;
 					this.delay = _constantsSattiHelper.timeConstants.DECK_DELAY;
 					this.animTime = _constantsSattiHelper.timeConstants.DECK_ANIM;
 					// this.zIndex     = gameCSSConstants.zIndex.DECK + this.index;

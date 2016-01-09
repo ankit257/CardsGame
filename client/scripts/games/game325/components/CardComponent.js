@@ -50,6 +50,7 @@ export default class CardComponent extends Component {
     handleClick(){
         let card = this.state.card;
         let gameState = this.props.gameState;
+        // console.log(gameState + 'activeplayer:'+ this.props.activePlayerPos + 'other' + this.props.otherPlayerPos);
         // console.log(this.props.otherPlayerPos);
         if( card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !this.props.pauseState){
             if(this.context.ifOnline){

@@ -56,7 +56,7 @@ export default class LargeScoreComponent extends Component {
 			// }
 			className = 'large-score expanded';
 		}
-		console.log(this.props.handsMade)
+		// console.log(this.props.handsMade)
 		return(
 			<div className={className} style={style}>
 				<div style={divStyle}>{this.props.handsMade}/{this.props.handsToMake}</div>

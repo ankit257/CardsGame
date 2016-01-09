@@ -4,7 +4,7 @@ var Player325 = require('../game325/utils/Player325');
 var Bot325 = require('../game325/utils/Bot325');
 var Score325 = require('../game325/utils/Score325');
 var PlayingCard = require('../game325/utils/PlayingCard');
-
+var cx = 0;
 module.exports = {
 	getScores : function(gameObj){
 		var playerScores = {};
@@ -26,9 +26,11 @@ module.exports = {
 		// 	console.log('admin changed');
 		// 	console.log(gameObj.adminId);
 		// }
-		console.log(data)
+		// console.log(data)
+
 		switch(clientData.action){
 			case 'START_NEW_ROUND':
+				cx = 0;
 				console.log('START_NEW_ROUND')
 				this.handleSpectators(gameObj);
 				gameObj.initDeck();
@@ -52,6 +54,7 @@ module.exports = {
 				break;
 			case 'SET_TRUMP':
 				var trump = clientData.gameData.trump;
+				console.log(trump);
 				gameObj.setTrump(trump);
 				gameObj.distributeCards();                  // (D1) assign ownerPos to cards in deck
 				// this.addIdToDeck(gameObj);                  // (D2) assign ownerIds according to ownerPos before sending to client
@@ -93,7 +96,6 @@ module.exports = {
 				}
 				// gameObj.updateCardState(deckcard, 'PLAYED');    // This adjusts z-index. Handle it separately on client-side
 				gameObj.addPlayedCard(deckcard);
-				
 				if(gameObj.state == 'ROUND_END'){
 					return this.handlePlayCard(this.makeReturnObj('ROUND_END', {card: card, turnType: 'CARD_PLAYED'}, gameObj));
 				}else{
@@ -106,21 +108,31 @@ module.exports = {
 				// return this.handlePlayCard(this.makeReturnObj('NEXT_TURN', {card: card, turnType: 'TURN_SKIPPED'}, gameObj));
 				break;
 			case 'GAME_STATE':
-				for (var i = 0; i < gameObj.players.length; i++) {
-					if(gameObj.players[i].handsMadeInLR == 0){
-						gameObj.players[i].handsMadeInLR = 2*i;
-					}
-				};
+				if(cx == 0){
+					console.log('asdfgh')
+					gameObj.players[0].handsMadeInLR = 2;
+					gameObj.players[1].handsMadeInLR = 4;
+					gameObj.players[2].handsMadeInLR = 4;	
+					cx = 1;
+				}
+				
 				// console.log('IS_WD');
+				var returnedCard = clientData.gameData.returnedCard;
 				var a = console.log(gameObj.isWithdrawCard());
 				if(gameObj.isWithdrawCard()){
 					var objToExtend = {
 						activePlayerId : gameObj.activePlayerId,
-						otherPlayerId : gameObj.otherPlayerId
+						otherPlayerId : gameObj.otherPlayerId,
+						returnedCard  : returnedCard,
+						gameState : 'WITHDRAW_CARD'
 					}
 					return this.makeReturnObj('WITHDRAW_CARD', objToExtend, gameObj);
 				}else{
-					return this.makeReturnObj('START_PLAYING', {}, gameObj);
+					var objToExtend = {
+						returnedCard  : returnedCard,
+						gameState : 'PLAY_CARD'
+					}
+					return this.makeReturnObj('START_PLAYING', objToExtend, gameObj);
 				}
 				break;
 			case 'CARD_WITHDRAWN':
@@ -132,10 +144,16 @@ module.exports = {
 						deckcard = cardFromDeck;
 					}
 				})
-				gameObj.withdrawCard(deckcard)
+				gameObj.withdrawCard(deckcard);
+				var withdrawnCard = {
+					suit 	: deckcard.suit,
+					rank	: deckcard.rank,
+					ownerId : deckcard.ownerId
+				}
 				return this.makeReturnObj('RETURN_CARD', {state : 'RETURN_CARD', 
 														activePlayerId 	: gameObj.activePlayerId,
-														otherPlayerId	: gameObj.otherPlayerId
+														otherPlayerId	: gameObj.otherPlayerId,
+														withdrawnCard   : withdrawnCard
 														}, gameObj);
 				break;
 			case 'CARD_RETURNED':
@@ -147,7 +165,15 @@ module.exports = {
 					}
 				})
 				gameObj.returnCard(deckcard);
-				return this.handlePlayCard(this.makeReturnObj('GAME_STATE', {}, gameObj));
+				var returnedCard = {
+					suit 	: deckcard.suit,
+					rank	: deckcard.rank,
+					ownerId : deckcard.ownerId
+				}
+				console.log('AFter return : '+deckcard.ownerId);
+				return this.handlePlayCard(this.makeReturnObj('GAME_STATE', {
+																returnedCard : returnedCard
+																}, gameObj));
 				break;
 			case 'NEXT_TURN':
 				gameObj.nextTurn();							// (A1) ...Internally
@@ -172,10 +198,10 @@ module.exports = {
 							playableCards: playableCards,
 							botState: botState,
 						}
-						console.log('Turn:'+gameObj.gameTurn)
-						console.log('Round:'+gameObj.gameRound)
-						console.log('HandsToMake:'+gameObj.players[0].handsToMake)
-						console.log('HandsMade:'+gameObj.players[0].handsMade)
+						// console.log('Turn:'+gameObj.gameTurn)
+						// console.log('Round:'+gameObj.gameRound)
+						// console.log('HandsToMake:'+gameObj.players[0].handsToMake)
+						// console.log('HandsMade:'+gameObj.players[0].handsMade)
 				if(gameObj.gameRound%3 == 1){
 					minObj['scores'] = this.getScores(gameObj);
 					minObj['winnerId'] = gameObj.winnerId;

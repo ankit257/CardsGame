@@ -23,6 +23,7 @@ function getState(props, ifOnline){
 		GameStore = GameStoreOffline;
 	}
 	let activePlayerPos = GameStore.getGameProperty('activePlayerPos');
+	let otherPlayerPos = GameStore.getGameProperty('otherPlayerPos');
 	let activePlayerId = GameStore.getGameProperty('activePlayerId');
 	let gameState = GameStore.getGameProperty('state');
 	let botState = GameStore.getGameProperty('botState');
@@ -37,6 +38,7 @@ function getState(props, ifOnline){
 	
 	return {
 		activePlayerPos,
+		otherPlayerPos,
 		activePlayerId,
 		gameState,
 		gameTurn,
@@ -53,7 +55,7 @@ function getState(props, ifOnline){
 @connectToGameStores([GameStoreOffline, GameStoreOnline], getState)
 export default class StatusComponent extends Component {
 	constructor(props){
-		console.log(getState());
+		// console.log(getState());
 		super(props);
 		this.showScore = this.showScore.bind(this);
 		this.hideScore = this.hideScore.bind(this);
@@ -71,9 +73,15 @@ export default class StatusComponent extends Component {
 		}
 	}
 	getPlayerName(position){
-		console.log(position)
-		if(position){
-			return this.props.players[position].name;
+		// console.log(position)
+		var name = '';
+		if(typeof position !== "undefined"){
+			this.props.players.map(player=>{
+				if(player.position == position){
+					name = player.id;
+				}
+			})
+			return name;
 		}else{
 			return null;
 		}
@@ -128,7 +136,7 @@ export default class StatusComponent extends Component {
 				if(activePlayerPos == 0){
 					status = string.replace('ACTIVEPLAYER', 'Your');
 				}else{
-					status = status.replace('ACTIVEPLAYER', activePlayerPos+"'s");
+					status = string.replace('ACTIVEPLAYER', activePlayerPos+"'s");
 				}
 				status = status.replace('OTHERPLAYER', otherPlayerName);
 				break;

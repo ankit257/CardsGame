@@ -39,6 +39,7 @@ function getState(props, ifOnline){
 	let ifWaiting = GameStore.ifGameWaiting();
 	let deck = GameStore.getGameProperty('deck');
 	let ifIAmBot = GameStore.ifIAmSpectatorOrBot();
+	let action = GameStore.getNextAction();
 	return {
 		activePlayerPos,
 		otherPlayerPos,
@@ -51,7 +52,8 @@ function getState(props, ifOnline){
 		scoresUpdated,
 		ifWaiting,
 		deck,
-		ifIAmBot
+		ifIAmBot,
+		action
 	};
 }
 @connectToGameStores([GameStoreOffline, GameStoreOnline], getState)
@@ -90,95 +92,10 @@ export default class Game325Render extends Component {
 	}
 	componentDidUpdate(){
 		// let ifOnline = this.context.ifOnline;
-		let { gameState, botState } = this.props;
-		let action;
-		// switch(gameState){
-		// 	case 'INIT_ROUND':
-		// 		action   = ifOnline ? GameActions.initRoundOnlineSuccess : GameActions.initRoundSuccess;
-		// 		break;
-		// 	case 'DISTRIBUTING_CARDS_0':
-		// 		action   = ifOnline ? GameActions.distributingCardsZeroOnlineSuccess : GameActions.distributingCardsZeroSuccess;
-		// 		break;
-		// 	case 'DEALER_SELECTION_SUCCESS':
-		// 		action   = ifOnline ? GameActions.onlineStartGame : GameActions.startGame;
-		// 		break;
-		// 	case 'SELECT_DEALER':
-		// 		action   = GameActions.selectDealerSuccess;
-		// 		break;
-		// 	case 'SET_TRUMP_SUCCESS':
-		// 		// action   = ifOnline ? GameActions.onlineTrumpSetSuccess : GameActions.trumpSetSuccess;
-		// 		break;
-		// 	case 'DISTRIBUTING_CARDS_1':
-		// 		action   = ifOnline ? GameActions.onlineDistributionFirstSuccess : GameActions.distributionFirstSuccess;
-		// 		break;
-		// 	case 'DISTRIBUTING_CARDS_2':
-		// 		action   = ifOnline ? GameActions.onlineDistributionSecondSuccess : GameActions.distributionSecondSuccess;
-		// 		break;
-		// 	case 'PLAYING_CARD':
-		// 		action   = ifOnline ? GameActions.playedWaitForServer : GameActions.playCardSuccess;
-		// 		break;
-		// 	case 'PLAYING_PLAYED_CARD':
-		// 		action   = ifOnline ? GameActions.playCardSuccessOnline : '';
-		// 		break;
-		// 	case 'WITHDRAWING_CARD':
-		// 		action   = ifOnline ? GameActions.onlineWithdrawCardSuccess : GameActions.withdrawCardSuccess;
-		// 		break;
-		// 	case 'RETURNING_CARD':
-		// 		action   = ifOnline ? GameActions.onlineReturnCardSuccess: GameActions.returnCardSuccess;
-		// 		break;
-		// 	case 'ROUND_END':
-		// 		action   = GameActions.showScores;
-		// 		break;
-		// 	case 'MOVE_HAND':
-		// 		action   = ifOnline ? GameActions.onlineMoveHandSuccess : GameActions.moveHandSuccess;
-		// 		break;
-		// 	case 'SET_TRUMP':
-		// 		if(botState == 'BOT_SHOULD_PLAY'){
-		// 			action = ifOnline ? '' : GameActions.botWillPlay;
-		// 		}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
-		// 			action = null;
-		// 		}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
-		// 			action = null;
-		// 		}
-		// 		break;
-		// 	case 'WITHDRAW_CARD':
-		// 		if(botState == 'BOT_SHOULD_PLAY'){
-		// 			action = ifOnline ? GameActions.requestServerBot : GameActions.botWillPlay;
-		// 		}else if(botState == 'BOT_CANNOT_PLAY'){
-		// 			action = null;
-		// 		}else if(botState == 'BOT_PLAYING_CARD'){
-		// 			action = null;
-		// 		}
-		// 		break;
-		// 	case 'RETURN_CARD':
-		// 		if(botState == 'BOT_SHOULD_PLAY'){
-		// 			action = ifOnline ? GameActions.requestServerBot : GameActions.botWillPlay;
-		// 		}else if(botState == 'BOT_CANNOT_PLAY'){
-		// 			action = null;
-		// 		}else if(botState == 'BOT_PLAYING_CARD'){
-		// 			action = null;
-		// 		}
-		// 		break;
-		// 	case 'READY_TO_PLAY_NEXT':
-		// 		if(botState == 'BOT_SHOULD_PLAY'){
-		// 			action = ifOnline ? GameActions.requestServerBot : GameActions.botWillPlay;
-		// 		}else if(botState == 'BOT_CANNOT_PLAY'){
-		// 			action = null;
-		// 		}else if(botState == 'BOT_PLAYING_CARD'){
-		// 			action = null;
-		// 		}
-		// 		break;
-		// 	case 'ROUND_END_SHOW_SCORES':
-		// 		break;
-		// 	case 'PLAY_DATA_RECEIVED':
-		// 	case 'INIT_ROUND_SUCCESS':
-		// 	case 'GAME_STARTED':
-		// 	case 'INIT_DECK':
-		// 	case 'DISTRIBUTE_CARDS_SUCCESS':
-		// 	case 'NOW_NEXT_TURN':
-		// 		break;
-		// }
+		let { gameState, botState, action } = this.props;
+		// console.log(gameState)
 		if(typeof action == "function"){
+			// console.log('Action is Fn: '+gameState);
 			action();
 		}
 		this.updateFlag = false;

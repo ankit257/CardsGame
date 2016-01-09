@@ -36,8 +36,8 @@ export function initRound(){
 export function setTrump(trump){
 	dispatch(Actions.GAME325_SET_TRUMP, {trump});
 }
-export function onlineTrumpSetSuccess(trump){
-	dispatch(Actions.GAME325_ONLINE_SET_TRUMP_SUCCESS, {trump})
+export function onlineDistributeCardsSecond(){
+	dispatch(Actions.GAME325_ONLINE_DISTRIBUTE_CARDS_SECOND, {})
 }
 export function onlineSetTrump(trump){
 	dispatch(Actions.GAME325_ONLINE_SET_TRUMP, {trump});
@@ -50,6 +50,9 @@ export function requestServerBot(){
 }
 export function initRoundSuccess(){
 	dispatch(Actions.GAME325_INIT_ROUND_SUCCESS, {});
+}
+export function initRoundOnline(){
+	dispatch(Actions.GAME325_ONLINE_INIT_ROUND, {});	
 }
 export function initRoundOnlineSuccess(){
 	dispatch(Actions.GAME325_ONLINE_INIT_ROUND_SUCCESS, {});	
@@ -160,9 +163,9 @@ export function onlineReturnCardSuccess() {
 export function playCardSuccessOnline(){
 	dispatch(Actions.GAME325_ONLINE_PLAY_CARD_SUCCESS, {});
 }
-export function playedWaitForServer()
-{
-	dispatch(Actions.GAME325_ONLINE_PLAYED_WAIT_FOR_SERVER, {});
+export function playedWaitForServer(eventName)
+{	
+	dispatch(Actions.GAME325_ONLINE_PLAYED_WAIT_FOR_SERVER, {eventName});
 }
 export function setTrumpWaitForServer()
 {
@@ -197,5 +200,9 @@ export function requestDistribution(){
 
 export function refreshStore(data){
 	dispatch(Actions.GAME325_REFRESH_STORE, {data});		
+}
+
+export function onlineStateReceivedEmitChange(eventName){
+	dispatch(Actions.GAME325_ONLINE_STATE_RECEIVED_EMIT_CHANGE, {eventName});
 }
 //Refresh Store

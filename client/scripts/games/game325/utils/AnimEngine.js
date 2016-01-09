@@ -89,14 +89,11 @@ export default class AnimEngine{
 	static setPauseState(gamePause){
 		this.pause.state = gamePause;
 	}
-	static cancelAnimationFrame(){
-		window.cancelAnimFrame(this.requestId);
-		this.requestId = undefined;
-	}
 	static setPauseState(gamePause){
 		this.pause.state = gamePause;
 	}
 	static cancelAnimationFrame(){
+		console.log('cancelled');
 		window.cancelAnimFrame(window.requestId);
 	}
 	static startListening(){
@@ -124,79 +121,80 @@ export default class AnimEngine{
 		switch(gameState){
 			case 'INIT_ROUND':
 				duration = timeConstants.TOTAL_DECK_DELAY;
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'DISTRIBUTING_CARDS_0':
-				duration = timeConstants.TOTAL_DISTR_DELAY/15*7;
+				duration = timeConstants.SINGLE_DISTR_DELAY*3 + timeConstants.SINGLE_DISTR_ANIM;
+				console.log(duration);
 				this.audio 	 = distributeAudio;
 				// this.audio.play();
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'DEALER_SELECTION_SUCCESS':
-				duration = timeConstants.TOTAL_DECK_DELAY;
+				duration = timeConstants.DECK_ANIM + 2000;
 				this.audio 	 = distributeAudio;
 				// this.audio.play();
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'SELECT_DEALER':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
 				this.audio 	 = distributeAudio;
-				this.audio.play();
-				return this.animateCards(deck, duration, action, gameState);
+				// this.audio.play();
+				return this.animateCards(deck, duration);
 				break;
 			case 'SET_TRUMP_SUCCESS':
 				// duration = timeConstants.TOTAL_DISTR_DELAY;
 				// action   = ifOnline ? GameActions.onlineTrumpSetSuccess : GameActions.trumpSetSuccess;
 				// this.audio 	 = distributeAudio;
 				// this.audio.play();
-				// return this.animateCards(deck, duration, action, gameState);
+				// return this.animateCards(deck, duration);
 				break;
 			case 'DISTRIBUTING_CARDS_1':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
 				// action   = GameActions.distributionFirstSuccess;
 				this.audio 	 = distributeAudio;
 				// this.audio.play();
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'DISTRIBUTING_CARDS_2':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
 				this.audio 	 = distributeAudio;
 				// this.audio.play();
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'PLAYING_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
 				this.audio 	 = playAudio;
 				this.audio.play();
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'PLAYING_PLAYED_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
 				// this.audio 	 = playAudio;
 				this.audio.play();
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'WITHDRAWING_CARD':
 				// console.log('WITHDRAWING_CARD')
 				duration = timeConstants.TOTAL_PLAY_DELAY;
 				// this.audio 	 = playAudio;
 				this.audio.play();
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'RETURNING_CARD':
 				duration = timeConstants.TOTAL_PLAY_DELAY;
 				// this.audio 	 = playAudio;
 				// this.audio.play();
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'ROUND_END':
 				duration = timeConstants.ROUND_END_WAIT;
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'MOVE_HAND':
 				console.log('moving_hand')
 				duration = timeConstants.TOTAL_PLAY_DELAY;
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'SET_TRUMP':
 				if(botState == 'BOT_SHOULD_PLAY'){
@@ -207,33 +205,37 @@ export default class AnimEngine{
 					duration = 0;
 				}
 				if(!ifOnline){
-					return this.animateCards(deck, duration, action, gameState); // Animate only qith bots. While rendering from server 	
+					return this.animateCards(deck, duration); // Animate only qith bots. While rendering from server 	
 				}														  // Its already handled
 				
 				break;
 			case 'WITHDRAW_CARD':
-				if(botState == 'BOT_SHOULD_PLAY'){
+				if(!ifOnline && botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-				}else if(botState == 'BOT_CANNOT_PLAY'){
+				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
-				}else if(botState == 'BOT_PLAYING_CARD'){
+				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
 					duration = 0;
+				}else if(ifOnline){
+					duration = timeConstants.TOTAL_PLAY_DELAY;
 				}
 				// if(!ifOnline){
-					return this.animateCards(deck, duration, action, gameState);	
+					return this.animateCards(deck, duration);	
 				// }
 				break;
 			case 'RETURN_CARD':
-				if(botState == 'BOT_SHOULD_PLAY'){
+				if(!ifOnline && botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-				}else if(botState == 'BOT_CANNOT_PLAY'){
+				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
-				}else if(botState == 'BOT_PLAYING_CARD'){
+				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
 					duration = 0;
+				}else if(ifOnline){
+					duration = timeConstants.TOTAL_PLAY_DELAY;
 				}
-				// return this.animateCards(deck, duration, action, gameState);
+				// return this.animateCards(deck, duration);
 				// if(!ifOnline){
-					return this.animateCards(deck, duration, action, gameState);	
+					return this.animateCards(deck, duration);	
 				// }
 				break;
 			case 'READY_TO_PLAY_NEXT':
@@ -244,7 +246,7 @@ export default class AnimEngine{
 				}else if(botState == 'BOT_PLAYING_CARD'){
 					duration = 0;
 				}
-				return this.animateCards(deck, duration, action, gameState);
+				return this.animateCards(deck, duration);
 				break;
 			case 'ROUND_END_SHOW_SCORES':
 				this.cancelAnimationFrame();
@@ -286,6 +288,7 @@ export default class AnimEngine{
 						spent 		= current - start - (AnimEngine.pause.end - AnimEngine.pause.start),
 						rate;
 					if(remaining < -50){
+						console.log('resolved');
 						// console.log('animation for: '+ duration + ' , animated for: ' + spent + '===============================================================');
 						resolve();
 					}else{
@@ -369,94 +372,4 @@ export default class AnimEngine{
 			step();
 	    })			
 	}
-	// static animateCards(deck, duration, action, gameState){	
-	// 	if(this.pause.state){
-	// 		this.cancelAnimationFrame();
-	// 	}else{
-	// 		this.makeReadyForNext();
-	// 	}
-	// 	if(duration == 0){
-	// 			deck.map(deckcard =>{
-	// 			if(deckcard.animTime + deckcard.delay > duration){
-	// 				duration = deckcard.animTime + deckcard.delay;
-	// 			}
-	// 		})
-	// 	}
-	// 	let self = this;
-	// 	let current, remaining, rate, spent;
-	// 	let cardRemainingTime;
-	// 	let element, delX, delY, delZ, delTheta;
-	// 	let x, y, z, theta, frontRotateY, backRotateY, oldFrontRotateY, oldBackRotateY, newBackRotateY, newFrontRotateY;
-	// 	let start = performance.now() + performance.timing.navigationStart;
-	// 	let end =  start + duration;
-	// 	function step(){
-	// 		if(!self.pause.state){
-	// 			current 	= performance.now() + performance.timing.navigationStart;
-	// 			remaining 	= end - current + (self.pause.end - self.pause.start);
-	// 			spent 		= current - start - (self.pause.end - self.pause.start);
-
-	// 			if(remaining < 0){
-	// 				if (typeof action === "function") {
-	// 						action();
-	// 						//this.audio = new Howler.Howl({});
-	// 					}
-	// 				return;
-	// 			}else{
-	// 				deck.map(deckcard => {
-	// 					cardRemainingTime = deckcard.delay + deckcard.animTime - spent;
-	// 					cardRemainingTime = cardRemainingTime>0 ? cardRemainingTime : 0;
-	// 					if(spent > deckcard.delay && deckcard.animState <= 1){
-	// 						deckcard.animState	= (deckcard.animTime - cardRemainingTime)/deckcard.animTime;
-	// 						// rate = deckcard.animState; // linear
-	// 						// rate = ( -Math.pow( 2, -8 * deckcard.animState ) + 1 ); // exp ease out
-	// 						rate = -1 * deckcard.animState*(deckcard.animState-2);
-	// 						element 	= document.getElementById(deckcard.key);
-	// 						delX 		= deckcard.x - deckcard.oldX;
-	// 						delY 		= deckcard.y - deckcard.oldY;
-	// 						delZ 		= deckcard.z - deckcard.oldZ;
-	// 						delTheta    = deckcard.theta - deckcard.oldTheta;
-
-	// 						x = delX*rate + deckcard.oldX;
-	// 						y = delY*rate + deckcard.oldY;
-	// 						z = delZ*rate + deckcard.oldZ;
-	// 						theta = delTheta*rate + deckcard.oldTheta;
-	// 						if(deckcard.showFace != deckcard.oldShowFace){
-	// 							if(deckcard.showFace){
-	// 								frontRotateY = (0 - 180)*rate + 180;
-	// 								backRotateY = (180 - 0)*rate + 0;
-	// 							}else{
-	// 								backRotateY = (0 - 180)*rate + 180;
-	// 								frontRotateY = (180 - 0)*rate + 0;
-	// 							}
-	// 						}else{
-	// 							if(deckcard.showFace){
-	// 								frontRotateY = 0
-	// 								backRotateY = 180
-	// 							}else{
-	// 								backRotateY = 0
-	// 								frontRotateY = 180
-	// 							}
-	// 						}
-	// 						element.style.transform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)';
-	// 						element.style.WebkitTransform = 'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) rotate(' + theta + 'deg)';
-	// 						Array.prototype.map.call(element.childNodes, child=>{
-	// 							switch(child.className){
-	// 								case "front":
-	// 									child.style.transform = 'perspective(400px) rotateY('+ frontRotateY +'deg)';
-	// 									child.style.WebkitTransform = 'perspective(400px) rotateY('+ frontRotateY +'deg)';
-	// 									break;
-	// 								case "back":
-	// 									child.style.transform = 'perspective(400px) rotateY('+ backRotateY +'deg)';
-	// 									child.style.WebkitTransform = 'perspective(400px) rotateY('+ backRotateY +'deg)';
-	// 									break;
-	// 							}
-	// 						}) //childNodes map end
-	// 					}
-	// 				}) // deckcard map end
-	// 			}
-	// 		}
-	// 		self.requestId = window.requestAnimFrame(step);
-	// 	}
-	// 	step();
-	// }
 }

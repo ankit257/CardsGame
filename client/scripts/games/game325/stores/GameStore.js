@@ -20,6 +20,7 @@ let bellAudio = new Audio('../../assets/sounds/bell.mp3');
 let tadaAudio = new Audio('../../assets/sounds/tada.mp3');
 
 // var _game = {}
+var _nextAction;
 var _playersCards = []
 var _playableCount = []
 var _showScore = false
@@ -133,6 +134,12 @@ const GameStoreOffline = createStore({
 	roundEnd(){
 		tadaAudio.play();
 		_game.roundEnd();
+	},
+	getNextAction(){
+		return _nextAction;
+	},
+	setNextAction(action){
+		_nextAction = action;
 	},
 	fireMoveHand(){
 		setTimeout(function(){

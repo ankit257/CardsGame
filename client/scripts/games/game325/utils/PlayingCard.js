@@ -104,7 +104,7 @@ export default class PlayingCard{
 		this.oldZ = this.z;
 		this.animState  = 0;
 		let screenOutOffset = -1 * gameCSSConstants.cardOffset.screenOut * gameCSSConstants.cardSize.height;
-		console.log(this.state)
+		// console.log(this.state)
 		switch(this.state){
 			case 'START_DISTRIBUTING':
 				this.ox 		= gameCSSConstants.gameBody.width/2 - gameCSSConstants.cardSize.width/2;
@@ -115,8 +115,8 @@ export default class PlayingCard{
 				break;
 			case 'IN_DECK':
 				this.ox 		= 0;
-				this.oy			= gameCSSConstants.gameWindow.height/4;
-				this.delay		= timeConstants.DECK_DELAY;
+				this.oy			= gameCSSConstants.gameBody.height - gameCSSConstants.cardSize.height - gameCSSConstants.gameBody.padding;
+				this.delay		= this.delay == 2000? 2000: 0;//timeConstants.DECK_DELAY;
 				this.animTime   = timeConstants.DECK_ANIM;
 				// this.zIndex     = gameCSSConstants.zIndex.DECK + this.index;
 				this.showFace	= false;
@@ -231,7 +231,7 @@ export default class PlayingCard{
 				this.showFace 	= true;
 				break;
 			case 'MOVE_HAND':
-				console.log('Pos:'+this.ownerPos)
+				// console.log('Pos:'+this.ownerPos)
 				switch(this.ownerPos){
 					case 0:
 						this.ox 		= gameCSSConstants.gameBody.width/2 -gameCSSConstants.cardSize.width/2;

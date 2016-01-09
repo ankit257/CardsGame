@@ -240,6 +240,7 @@ var Game325 = (function () {
 			};
 			this.distributionState++;
 			this.state = 'DISTRIBUTING_CARDS_' + this.distributionState;
+			console.log(this.state);
 		}
 	}, {
 		key: 'distributeOneCardEach',
@@ -940,7 +941,7 @@ var Game325 = (function () {
 				arrayId.push(array[i].id);
 				arrayVal.push(array[i].value);
 			}
-
+			console.log(arrayVal)
 			if (arrayVal[0] == 0 && arrayVal[2] == 0) {
 				this.withdraw = false;
 			} else {
@@ -963,7 +964,8 @@ var Game325 = (function () {
 					var deckcard = _step16.value;
 
 					if (deckcard.suit == card.suit && deckcard.rank == card.rank) {
-						deckcard.ownerPos = this.activePlayerPos;
+						// deckcard.ownerPos = this.activePlayerPos;
+						deckcard.ownerId = this.activePlayerId;
 					}
 				}
 			} catch (err) {
@@ -993,7 +995,8 @@ var Game325 = (function () {
 					var deckcard = _step17.value;
 
 					if (deckcard.suit == card.suit && deckcard.rank == card.rank) {
-						deckcard.ownerPos = this.activePlayerPos;
+						// deckcard.ownerPos = this.activePlayerPos;
+						deckcard.ownerId = this.otherPlayerId;
 						for (var i = 0; i < this.players.length; i++) {
 							if(this.players[i].id === this.activePlayerId){
 								this.players[i].handsMadeInLR--;

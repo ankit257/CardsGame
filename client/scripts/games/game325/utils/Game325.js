@@ -269,6 +269,8 @@ export default class Game325{
 		this.trump = trump;
 	}
 	playCard(card, callerLocation){
+		console.log(this.state);
+		console.log(this.activePlayerPos);
 			if(card && ((callerLocation == 'client' && card.ownerPos == this.activePlayerPos) ||  (callerLocation == 'server' && card.ownerId == this.activePlayerId)) && this.state == 'READY_TO_PLAY_NEXT'){
 				for(let deckcard of this.deck){
 					if(card.rank == deckcard.rank && card.suit == deckcard.suit){
@@ -289,25 +291,30 @@ export default class Game325{
 					if(card.rank == deckcard.rank && card.suit == deckcard.suit){
 						// console.log(12345)
 						this.cardPlayed = deckcard;
-						console.log('Owner:'+deckcard.ownerPos);
+						console.log('WITHDRAW_START -> OwnerPos: '+deckcard.ownerPos + ' OwnerId: ' + deckcard.ownerId);
 						deckcard.ownerPos = this.activePlayerPos;
-						console.log('Owner:'+deckcard.ownerPos);
+						deckcard.ownerId = this.activePlayerId;
+						console.log('WITHDRAW_END -> OwnerPos: '+deckcard.ownerPos + ' OwnerId: ' + deckcard.ownerId);
 						this.updateCardIndex();
 					}
 				}
-				this.state ='WITHDRAWING_CARD';
+				// this.state ='WITHDRAWING_CARD';
 			}
 			if(card && ((callerLocation == 'client' && card.ownerPos == this.activePlayerPos) ||  (callerLocation == 'server' && card.ownerPos == this.activePlayerPos)) && this.state == 'RETURN_CARD'){
 				for(let deckcard of this.deck){
 					if(card.rank == deckcard.rank && card.suit == deckcard.suit){
 						this.cardPlayed = deckcard;
+						console.log('RETURN_START -> OwnerPos: '+deckcard.ownerPos + ' OwnerId: ' + deckcard.ownerId);
 						deckcard.ownerPos = this.otherPlayerPos;
+						deckcard.ownerId = this.otherPlayerId;
+						console.log('RETURN_END -> OwnerPos: '+deckcard.ownerPos + ' OwnerId: ' + deckcard.ownerId);
 						this.updateCardIndex();
+						// IF()
 						this.players[this.activePlayerPos].handsMadeInLR--;
-						this.players[this.otherPlayerId].handsMadeInLR++;
+						this.players[this.otherPlayerPos].handsMadeInLR++;
 					}
 				}
-				this.state ='RETURNING_CARD';
+				// this.state ='RETURNING_CARD';
 			}
 			// console.log(card.ownerPos)
 			// console.log(this.otherPlayerPos)
@@ -503,7 +510,8 @@ export default class Game325{
 	returnCard(card){
 		for(let deckcard of this.deck){
 			if(deckcard.suit == card.suit && deckcard.rank == card.rank){
-				deckcard.ownerPos = this.activePlayerPos;
+				deckcard.ownerPos = this.otherPlayerPos;
+				deckcard.ownerId = this.otherPlayerId;
 				this.players[this.activePlayerPos].handsMadeInLR--;
 				this.players[this.otherPlayerId].handsMadeInLR++;
 			}

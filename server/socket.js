@@ -340,8 +340,10 @@ module.exports = function (io, app) {
 									switch(gameData.game){
 										case 'game325':
 											newData = Game325.handlePlayCard({clientData: clientData, gameData: gameData});
+											break;
 										case 'game7':
 											newData = Game7Centre.handlePlayCard({clientData: clientData, gameData: gameData});
+											break;
 									}
 									if(typeof newData === 'undefined'){
 												return;

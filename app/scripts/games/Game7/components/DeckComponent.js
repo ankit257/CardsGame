@@ -22,7 +22,7 @@ export default class DeckComponent extends Component {
 			});
 	}
 	componentDidUpdate(){
-		// console.log('DeckCompRender : '+ (Date.now()-this.state.time));
+		console.log('DeckCompRender : '+ (Date.now()-this.state.time));
 	}
 	render() {
 		// console.log('deck component render');

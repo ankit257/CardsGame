@@ -73,18 +73,20 @@ SettingsStore.dispatchToken = register(action => {
 	const { type }  = action;
 		switch(type){
 			case 'LOGGED_IN':
-			waitFor([AuthStore.dispatchToken]);
+				waitFor([AuthStore.dispatchToken]);
 				SettingsStore.updateCurrentSettings();
+				SettingsStore.emitChange();
 				break;
 			case 'LOGGED_IN_WITH_FB':
-			waitFor([AuthStore.dispatchToken]);
+				waitFor([AuthStore.dispatchToken]);
 				SettingsStore.updateCurrentSettings();
+				SettingsStore.emitChange();
 				break;
 			case 'CHANGE_SETTINGS':
 				SettingsStore.setSettings(action.settings);
+				SettingsStore.emitChange();
 				break;
 		}
-		SettingsStore.emitChange();
 });
 
 export default SettingsStore;

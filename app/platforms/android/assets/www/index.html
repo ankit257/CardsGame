@@ -5,20 +5,68 @@
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
     <meta charset="utf-8">
+    <link rel="stylesheet" href="/android_asset/www/assets/css/material.min.css">
     <link rel="stylesheet" href="/android_asset/www/assets/css/style.css" type="text/css">
     <link rel="stylesheet" href="/android_asset/www/assets/css/gamePlay.css" type="text/css">
-    <link rel="stylesheet" href="/android_asset/www/assets/css/material.min.css">
     <link rel="stylesheet" type="text/css" href="/android_asset/www/assets/css/materialdesignicons.local.css">
     <script type="text/javascript" src="cordova.js"></script>
   </head>
   <body>
+    <!-- <canvas id="myCanvas" width="650" height="420" style="position:fixed; left:0; right:0; top:0;"></canvas> -->
     <div id='root'></div>
-    <script type="text/javascript" src="/android_asset/www/assets/js/q.min.js"></script>
+    <div id="hidden-div" class="hidden" style="display:none">
+            
+     </div>
     <script src="/android_asset/www/assets/js/socket.io-1.3.7.js"></script>
-    <script src="/android_asset/www/assets/js/material.min.js"></script>
+
     <script type="text/javascript">
       var socket = io('http://playingcards.herokuapp.com')
+      var admobid = {
+            banner: 'ca-app-pub-8669712458513963/3373190938', // or DFP format "/6253334/dfp_example_ad"
+            interstitial: 'ca-app-pub-8669712458513963/4849924134'
+        };
+       var assetsPath = '/android_asset/www/assets/';
+       var suitArray = ['C', 'D', 'H', 'S'];
+       var hiddenDiv = document.getElementById('hidden-div');
+       var iLoaded = 0;
+       var scriptsSrc = [];
+       var cardAssets = [];
+       var otherImg = ['cards/cardback.svg','cards/cardbackblackred.png','cards/cardbackorange.svg','cards/cardbackred.svg', 'images/cityscape1.png'];
+       for (var rank = 1; rank <= 13; rank++) {
+        for (var suit = 0; suit < suitArray.length; suit++) {
+          var cardPath = assetsPath + 'cards/' + rank + suitArray[suit] + '.svg';
+          cardAssets.push(cardPath);
+        }
+       }
+       for (var i = 0; i < otherImg.length; i++) {
+         cardAssets.push(assetsPath+otherImg[i]);
+       };
+       for (var i = 0; i < cardAssets.length; i++) {
+          var cardImg = document.createElement('img');
+          cardImg.setAttribute('src', cardAssets[i]);
+          hiddenDiv.appendChild(cardImg);
+          var img = new Image();
+          img.onload = function(){
+            iLoaded++;
+            if(iLoaded == cardAssets.length){
+              var scriptSrcs = ['/android_asset/www/assets/js/material.min.js','bundle.js']
+              for (var i = 0; i < scriptSrcs.length; i++) {
+                  appendScript(scriptSrcs[i]);
+              }
+              console.log('ho gaya');
+            }
+          }
+          img.setAttribute('src', cardAssets[i]);
+       };
+       function appendScript(src){
+          var c = document.createElement('script');
+          c.setAttribute('type','text/javascript');
+          c.setAttribute('src',src);
+          document.getElementsByTagName('body')[0].appendChild(c);          
+       }
     </script>
-    <script src="bundle.js"></script>
+    
+    <!--script src="z/android_asset/www/assets/js/material.min.js"></script-->
+    <!--script src="bundle.js"></script-->
   </body>
 </html>

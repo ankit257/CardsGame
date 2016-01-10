@@ -48,21 +48,32 @@ module.exports = function (app, passport) {
 
 	app.post('/api/game7/scores', function(req, res){
 		clientScore = req.body.score;
-		if(req.user && req.user.id && clientScore && clientScore.stats && clientScore.stats.roundsPlayed !== undefined){
-			Score.findByUser(req.user.id, function(score){
-				if(score.game7.stats.roundsPlayed > clientScore.stats.roundsPlayed){
-					res.json({score: score, game: 'game7'});
+		facebookid = req.body.facebookid;
+		User.findOne({"facebook.id" : facebookid}, function(err, UserObj){
+			if(err) console.log(err);
+			if(UserObj){
+				userid = UserObj._id;
+				if(clientScore && clientScore.stats && clientScore.stats.roundsPlayed !== undefined){
+					Score.findByUser(userid, function(score){
+						if(score.game7.stats.roundsPlayed > clientScore.stats.roundsPlayed){
+							res.json({score: score, game: 'game7'});
+						}else{
+							score.game7.stats.roundsPlayed = clientScore.stats.roundsPlayed;
+							score.game7.stats.xp = clientScore.stats.xp;
+							score.save(function(err){
+								if(err) console.log(err);
+								res.json({score: score, game: 'game7'});
+							})
+						}
+					});
 				}else{
-					score.game7.stats.roundsPlayed = clientScore.stats.roundsPlayed;
-					score.game7.stats.xp = clientScore.stats.xp;
-					score.save(function(err){
-						if(err) console.log(err);
-						res.json({score: score, game: 'game7'});
-					})
-				}
-			});
-		}else{
-			res.json({});
-		}
+					res.json({});
+				}	
+			}else{
+				res.json({});
+			}
+			
+		})
+		
 	})	
 }

@@ -23,9 +23,9 @@ export default class NavBarComponent extends Component{
 	      componentHandler.upgradeAllRegistered();
 	    },20);
 	  }
-	handleGoToSettings(){
-	    this.context.history.pushState(null, `/settings`, null);
-	}
+	// handleGoToSettings(){
+	//     this.context.history.pushState(null, `/settings`, null);
+	// }
 	handleLogOut(){
 	    LoginActions.LogOut();
 	}
@@ -43,20 +43,20 @@ export default class NavBarComponent extends Component{
 					<i className="material-icons">{heading.icon}</i>
 					<span className="heading">{heading.text}</span>
 				</div>
-	            <div className="nav-bar-right">
-	            	<img className="md-48" height="32" width="32" src={ imageUrl }/>
-	            	<button id="demo-menu-lower-right" className={classNames(btnClassNames)}>
-	              		<i className="material-icons">more_vert</i>
-	            	</button>
-	            </div>
-	            <ul className="" htmlFor="demo-menu-lower-right" className={classNames(ulClassNames)}>
-	              <li className={classNames(liItemClassNames)} onClick={this.handleGoToSettings.bind(this)}>
-	              	<i className="material-icons md-18">settings</i>
-	              	Settings
-	              </li>
-	              <li className={classNames(liItemClassNames)} onClick={this.handleLogOut.bind(this)}>Log Out</li>
-	            </ul>
-	            <hr/>
+	            {/*<div className="nav-bar-right">
+	            	            	<img className="md-48" height="32" width="32" src={ imageUrl }/>
+	            	            	<button id="demo-menu-lower-right" className={classNames(btnClassNames)}>
+	            	              		<i className="material-icons">more_vert</i>
+	            	            	</button>
+	            	            </div>*/}
+	            {/*<ul className="" htmlFor="demo-menu-lower-right" className={classNames(ulClassNames)}>
+	            	              {/*<li className={classNames(liItemClassNames)} onClick={this.handleGoToSettings.bind(this)}>
+	            	              	              	<i className="material-icons md-18">settings</i>
+	            	              	              	Settings
+	            	              	              </li>
+	            	              <li className={classNames(liItemClassNames)} onClick={this.handleLogOut.bind(this)}>Log Out</li>
+	            	            </ul>
+	            	            <hr/>*/}
         	</div>
 			)
 	}

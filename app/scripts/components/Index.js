@@ -103,27 +103,27 @@ export default class Index extends Component {
 
   render() {
     var rippleBtnClassNames = ['mdl-button', 'mdl-js-button', 'mdl-button--raised', 'mdl-js-ripple-effect', 'mdl-button--accent'];
+    let buttonHolderStyle = {textAlign: 'center'};
     return (
       <div className={'auth-center'}>
-      <div className={'bkg-filter'}></div>
-      <div className={'auth-inner'}>
-        <form className={'form auth-form'}>
-          <div className={'control-group'}>
-            <label htmlFor="username">
-              <span>What should everyone call you?</span>
-            </label>
-              <input type="text" id="register-username" ref="username" autoComplete="off" onKeyUp={this.validateInput.bind(this)}/>
-              <ErrorComponent msg={this.state.errors.username.text} show={this.state.errors.username.show}></ErrorComponent>
-          </div>
-          <div className={'control-group'}>
-            <button className={'btn btn-primary'} onClick={this.register.bind(this)}><span>CONTINUE</span></button>
-          </div>
-          <footer>
-            <label>
-              <span>or Login with <a href="#" onClick={this.loginWithFb.bind(this)}>Facebook</a></span>
-            </label>
-          </footer>
-        </form>
+        <div className={'auth-inner'}>
+          <form className={'form auth-form'}>
+            <div className={'control-group'}>
+              <label htmlFor="username">
+                <span>What should everyone call you?</span>
+              </label>
+                <input type="text" id="register-username" ref="username" autoComplete="off" onKeyUp={this.validateInput.bind(this)}/>
+                <ErrorComponent msg={this.state.errors.username.text} show={this.state.errors.username.show}></ErrorComponent>
+            </div>
+            <div className={'control-group'} style={buttonHolderStyle}>
+              <a className={'button blue-button'} onClick={this.register.bind(this)}><span>CONTINUE</span></a>
+            </div>
+            <footer>
+              <label>
+                <span>or Login with <a href="#" onClick={this.loginWithFb.bind(this)}>Facebook</a></span>
+              </label>
+            </footer>
+          </form>
         </div>
       </div>
     );

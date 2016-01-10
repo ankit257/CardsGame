@@ -16,10 +16,10 @@ import NavBarComponent from '../components/NavBarComponent'
 var style={
   fontColor : '#bebebe'
 } 
-// let tadaAudio = new Howl({
-//   urls: ['assets/sounds/tada.mp3'],
-//   autoplay: false
-// })
+let tadaAudio = new Howl({
+  urls: ['assets/sounds/tada.mp3'],
+  autoplay: false
+})
 /**
  * Requests data from server for current props.
  */
@@ -181,7 +181,7 @@ export default class SettingsPage extends Component{
     var newState = _.extend({}, this.state);
     newState.volume = Number(e.target.value);
     Howler.volume(Number(e.target.value));
-    // tadaAudio.play();
+    tadaAudio.play();
     e.target.MaterialSlider.change(Number(e.target.value));
     this.reRender(newState);
   }
@@ -196,6 +196,10 @@ export default class SettingsPage extends Component{
     }
     LoginActions.applySettings(settings);
     this.context.history.replaceState(null, `/games`, null);
+  }
+  handleLogOut(){
+      LoginActions.LogOut();
+
   }
   render() {
     let { css, showRooms, activeColor, classes } = this.state;
@@ -229,17 +233,20 @@ export default class SettingsPage extends Component{
     bgColors.map(function (color, index){
       var t = <div key={index} className={classNames(['color-list-block'], getColorClass(color.color, index, self.state.activeColor))} onClick={self.selectBackgroundColor.bind(self, color)}>
               <div className="colorBlock" style={{backgroundColor: color.color}}></div>
-              <div className="color-name">
-                { color.name }
-              </div>
+              {/*<div className="color-name">
+                              { color.name }
+                            </div>*/}
             </div>
       colorsArray.push(t)
     })
     return (
       <div>
-        <div className={this.state.activeColor.name+'-img fixed-bkg'}></div>
+        <div className={this.state.activeColor.name+' fixed-bkg'}></div>
         <div className="">
         <NavBarComponent User={User} heading={{icon: 'settings', text: 'Customise your gameplay'}}/>
+        <div className="logout-button" onClick={this.handleLogOut.bind(this)}>
+          Logout
+        </div>
         <div className="form form-center">
           <div className="opt-screen settingsBlock mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
             <div className="mdl-tabs__tab-bar">
@@ -269,9 +276,9 @@ export default class SettingsPage extends Component{
             </div>
           </div>
         </div>
-        <button className="apply-settings mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onClick={this.applySettings.bind(this)}>
-          <i className="material-icons">done</i>
-        </button>
+        <a className="apply-settings button blue-button" onClick={this.applySettings.bind(this)}>
+          OK
+        </a>
       </div>
       </div>
       )

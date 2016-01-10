@@ -25,13 +25,13 @@ export function saveUserInLocalStorage(username){
 	var User = {
 		'id': 'local',
 		'first_name': username,
-		'image': ''
+		'image': 'android_asset/www/assets/images/avatar1.png',
+		'picture': {data: {url: 'assets/images/avatar1.png'}}
 	}
 	dispatch(ActionTypes.LOGGED_IN, {User})
 }
 export function LoginWithFB(){
 	facebookConnectPlugin.getLoginStatus(function (response) {
-		console.log(response)
 		if(response.status == 'connected'){
 			statusChangeCallback(response);
 		}else{
@@ -63,7 +63,6 @@ export function statusChangeCallback(response){
 	}
 }
 export function addUpdateDb (data) {
-	console.log(data);
 	var url = '/login';
 	data['username'] = 'username'; //Fake It
 	data['password'] = 'password'; //Fake It

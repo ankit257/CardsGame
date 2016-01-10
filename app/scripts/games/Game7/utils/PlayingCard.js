@@ -129,6 +129,7 @@ export default class PlayingCard{
 						this.showFace	= true;
 						if(this.isPlayable){
 							this.dy = -5;
+							this.bgColor = '#fff';
 						}
 						break;
 					case 1:
@@ -219,9 +220,11 @@ export default class PlayingCard{
 					// if(this.suit == 'D' || this.suit == 'H'){
 						// this.bgColor = 'rgb(255,244,244)';	
 					// }else{
-						this.bgColor = 'rgb(244,244,244)';	
+						this.bgColor = 'rgb(250,250,250)';	
 					// }
 					
+				}else{
+					this.bgColor = 'rgb(255,255,255)'
 				}
 				this.showFace 	= true;
 				break;

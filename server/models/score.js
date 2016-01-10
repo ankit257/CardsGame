@@ -40,9 +40,11 @@ var ScoreSchema = mongoose.Schema({
 ScoreSchema.plugin(timestamps);
 
 ScoreSchema.statics.findByUser = function(id, cb){
-	this.find({_user: id})
+	console.log(id);
+	this.findOne({'_user' : id})
 		.exec(function (err, scores){
-			if(scores.length == 0){
+			console.log(scores);
+			if(!scores){
 				var ScoreModel 	= mongoose.model('Score', this);
 				var score 		= new ScoreModel({_user: id});
 				score.save(function(err){
@@ -50,7 +52,7 @@ ScoreSchema.statics.findByUser = function(id, cb){
 					cb(score);
 				})
 			}else{
-				cb(scores[0]);
+				cb(scores);
 			}
 		})
 }

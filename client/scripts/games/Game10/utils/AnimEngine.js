@@ -70,7 +70,7 @@ export default class AnimEngine{
 				duration = timeConstants.TOTAL_DECK_DELAY;
 				return this.animateCards(deck, duration);
 				break;
-			case 'DISTRIBUTING_CARDS':
+			case 'DISTRIBUTING_CARDS_1':
 				duration = timeConstants.TOTAL_DISTR_DELAY;
 				this.audio 	 = distributeAudio;
 				this.audio.play();

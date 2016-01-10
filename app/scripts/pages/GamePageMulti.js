@@ -106,19 +106,29 @@ class RoomsComponent extends Component{
           );
   }
   getPrivateRoomsDiv(){
-    return (
-      <div>
-        <form action="#" style={{padding:'0px 188px'}}>
-          <div className="mdl-textfield mdl-js-textfield">
-            <input className="mdl-textfield__input" type="text" id="enterRoomInput" onKeyUp={this.enterRoom.bind(this)} style={{borderBottom:'1px solid #cdcdcd'}}/>
-            <label className="mdl-textfield__label" htmlFor="sample1" style={{color:Style.fontColor}}>enter room id to join</label>
+    let privateRoomStyle = {
+      fontSize : 25,
+    }
+    return(
+        <div>
+          <div className='room-message' style={privateRoomStyle}>
+            Private rooms coming up very soon! Wait till our next update.
           </div>
-          <span className={this.state.invalidRoomId?classNames(['show-error']):'no-error'}>Invalid Room</span>
-          <h6><span>or</span></h6>
-        </form>
-        <div className="btn btn-main" onClick={this.createRoom.bind(this)}>Create Private Room</div>
-      </div>
-    )
+        </div>
+      )
+    // return (
+    //   <div>
+    //     <form action="#" style={{padding:'0px 188px'}}>
+    //       <div className="mdl-textfield mdl-js-textfield">
+    //         <input className="mdl-textfield__input" type="text" id="enterRoomInput" onKeyUp={this.enterRoom.bind(this)} style={{borderBottom:'1px solid #636363'}}/>
+    //         <label className="mdl-textfield__label" htmlFor="sample1" style={{color:'#636363'}}>enter room id to join</label>
+    //       </div>
+    //       <span className={this.state.invalidRoomId?classNames(['show-error']):'no-error'}>Invalid Room</span>
+    //       <h6><span>or</span></h6>
+    //     </form>
+    //     <div className="btn btn-main" onClick={this.createRoom.bind(this)}>Create Private Room</div>
+    //   </div>
+    // )
   }
   render(){
     let {gameRooms, publicRoom, game} = this.props;
@@ -297,7 +307,7 @@ export default class GamaPage extends Component{
         <div>
           <div className="form form-center">
           <div className="opt-screen" style={css.multiopts}>
-            <RoomTypeSelector showPublicRooms={showPublicRooms} clicked={this.clicked.bind(this)}/>
+            {/*<RoomTypeSelector showPublicRooms={showPublicRooms} clicked={this.clicked.bind(this)}/>*/}
             <RoomsComponent game={selectedGame} gameRooms={this.props.gameRooms} rooms={this.state.rooms} publicRoom={this.state.showPublicRooms} clickHandle={this.createRoom.bind(this)} joinRoom={this.joinRoom.bind(this)}></RoomsComponent>
           </div>
         </div>

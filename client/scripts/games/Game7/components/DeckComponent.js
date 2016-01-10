@@ -25,6 +25,9 @@ export default class DeckComponent extends Component {
 				gameState		: nextProps.gameState
 			});
 	}
+	componentDidUpdate(){
+		console.log('Yeah deck');
+	}
 	render() {
 		// console.log('deck component render');
 		let deck = this.state.deck == undefined ? [] : this.state.deck;

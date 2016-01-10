@@ -25,15 +25,17 @@ function requestData(props) {
  */
 function getState(props) {
   const User = AuthStore.get();
-  let bckClassName = SettingsStore.getBckClassName()
+  // let bckClassName = SettingsStore.getBckClassName()
+  var settings = SettingsStore.getSettings();
+  var activeColor = settings.activeColor;
   // const gameRoom = GameRoomStore.get();
   return {
     User,
-    bckClassName
+    activeColor
     // gameRoom
   }
 }
-@connectToStores([AuthStore], getState)
+@connectToStores([AuthStore, SettingsStore], getState)
 export default class AuthHandler extends Component{
   static propTypes = {
     children: PropTypes.object,
@@ -62,19 +64,19 @@ export default class AuthHandler extends Component{
   }
   render() {
     let name = this.props.routes[this.props.routes.length-1].name;
-    // console.log(this.props.children);
-    // console.log(this.props.routes);
+    let pathName = this.props.location.pathname;
+    navigator.analytics.sendAppView(pathName);
     return(
       <div>
-        <div className={this.props.bckClassName}></div>
-        <div className="loader-div" id="loader-div" style={{display:'none'}}>
-            <Loading style={{'zoom':0.75}}/>
-        </div>
-        {/*<ReactCSSTransitionGroup component="div" transitionAppear={true} transitionName="page-transition" transitionAppearTimeout={500} transitionEnterTimeout={500} transitionLeaveTimeout={500}>*/}
+        <div className={this.props.activeColor.name+' fixed-bkg'}></div>
+        {/*<div className="loader-div" id="loader-div" style={{display:'none'}}>
+                    <Loading style={{'zoom':0.75}}/>
+                </div>*/}
+        <ReactCSSTransitionGroup component="div" transitionAppear={true} transitionName="page-transition" transitionAppearTimeout={500} transitionEnterTimeout={500} transitionLeaveTimeout={500}>
           <div {...this.props} {...this.context} {...this.state}  key={name}>
             {this.props.children}
           </div> 
-        {/*</ReactCSSTransitionGroup>*/}
+        </ReactCSSTransitionGroup>
         
       </div>
       )

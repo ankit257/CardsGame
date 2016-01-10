@@ -53,7 +53,7 @@ export default class StatusComponent extends Component {
 		this.setState({time: Date.now()})
 	}
 	componentDidUpdate(){
-		// console.log('StatusCompRender : '+ (Date.now()-this.state.time));
+		console.log('StatusCompRender : '+ (Date.now()-this.state.time));
 	}
 	requestServerBots(){
 		GameActions.requestDistribution();
@@ -170,7 +170,7 @@ export default class StatusComponent extends Component {
 		showScoreButtonClass.show = true;
 		if(showScores){
 			style.bottom = gameCSSConstants.gameBody.height/2 + 2*gameCSSConstants.score.height/3;
-			style.fontSize = 20;
+			style.fontSize = 30;
 			className = 'game-status score';
 			if(gameState == 'ROUND_END_SHOW_SCORES' && !this.context.ifOnline){
 				status = 'Well Played! Time for scores.';
@@ -184,13 +184,13 @@ export default class StatusComponent extends Component {
 								status = 'Congratulations! You won this game!'
 								break;
 							case 2:
-								status = 'Wow! 2nd'
+								status = 'Wow! You bagged the 2nd position!'
 								break;
 							case 3:
-								status = 'Oops...better luck next time'
+								status = 'Oops! 3rd place. Better luck next time.'
 								break;
 							case 4:
-								status = 'You lost!'
+								status = 'You lost this game! 4th position. Bad!'
 								break;
 						}
 					}
@@ -205,7 +205,7 @@ export default class StatusComponent extends Component {
 			overlayStyle = {
 				width: gameCSSConstants.gameBody.width,
 				height: gameCSSConstants.gameBody.height,
-				backgroundColor: 'rgba(50,50,50,0.8)',
+				backgroundColor: 'rgba(0, 0, 0, 0.6)',
 				zIndex: gameCSSConstants.zIndex.SCORE
 			}
 			if(showTable){
@@ -220,7 +220,7 @@ export default class StatusComponent extends Component {
 			overlayStyle = {
 				width: gameCSSConstants.gameBody.width,
 				height: gameCSSConstants.gameBody.height,
-				backgroundColor: 'rgba(50,50,50,0.8)',
+				backgroundColor: 'rgba(0, 0, 0, 0.6)',
 				zIndex: gameCSSConstants.zIndex.SCORE
 			}
 			style.bottom = gameCSSConstants.gameBody.height/2 + 2*gameCSSConstants.score.height/3 + 20;
@@ -251,13 +251,21 @@ export default class StatusComponent extends Component {
 				display : 'none'
 			}
 		}
+		let xpStyle = {
+			bottom: style.bottom,
+			position: 'absolute',
+			left: 20,
+			marginBottom: 8
+		}
 		style.left = gameCSSConstants.gameBody.width/2 - style.width/2;
 		return(
 			<div style={overlayStyle} className="score-overlay">
 				<div className = {className} style={style}>
 					{status}
 				</div>
-				<XPComponent xp={xp} showScores={showScores}/>
+				<div style={xpStyle}>
+					<XPComponent xp={xp} showScores={showScores}/>
+				</div>
 				<PlayerComponent players={players} activePlayerPos={activePlayerPos} showScores={showScores} ifWaiting={ifWaiting} showTable={showTable}/>
 				<div className='admin-status' style={adminButtonStyle} >
 					If it's taking too long for other players to join, you can start now with bots. Players can join the same game later.

@@ -60,7 +60,7 @@ export default class ConfirmGameExitModal extends Component{
     let arrowLeftStyle = {
       position: 'relative',
       left: 0,
-      top: 8,
+      top: 6,
       fontSize: 24
     }, pstyle ={
       margin: 0
@@ -87,7 +87,7 @@ export default class ConfirmGameExitModal extends Component{
     let continueButtonStyle={
       fontSize: 24,
       position: 'relative',
-      top: -1,
+      top: 3,
       right: 4
     };
     if(this.context.ifOnline){
@@ -99,10 +99,10 @@ export default class ConfirmGameExitModal extends Component{
           isOpen={this.state.modalIsOpen}
           style={this.customStyles} key={1}>
           {message}
-          <button onClick={this.shouldNavigateAway.bind(this,false)} className="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+          <a onClick={this.shouldNavigateAway.bind(this,false)} className="button yellow-button small-button">
             <i className='material-icons' style={continueButtonStyle}>videogame_asset</i>
             Continue Playing
-          </button>
+          </a>
         </Modal>
     );
   }

@@ -47,6 +47,9 @@ export default class StatusComponent extends Component {
 	shouldComponentUpdate(nextProps, nextState){
 		return (nextProps.getUpdateFlag() || this.state.showScores!=nextState.showScores || this.state.showTable!=nextState.showTable || this.state.status!=nextState.status);
 	}
+	componentDidUpdate(){
+		console.log('Yeah status');
+	}
 	requestServerBots(){
 		GameActions.requestDistribution();
 	}

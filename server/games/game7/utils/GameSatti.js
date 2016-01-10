@@ -105,7 +105,7 @@ var GameSatti = (function () {
 		value: function initBots(roomId) {
 			for (var i = 0; i < _constantsSattiHelper.gameVars.noOfPlayers; i++) {
 				var player = undefined;
-				var botNames = ['Player0', 'Player1', 'Player2', 'Player3'];
+				var botNames = ['Pintu', 'Bablu', 'Guddu', 'Pappu'];
 					player = new _utilsBotSatti2['default']({ id: roomId+i, name: botNames[i], img: 'IMAGE_BOT' });
 				player.position = i;
 				this.players.push(player);
@@ -118,7 +118,7 @@ var GameSatti = (function () {
 		value: function initPlayers() {
 			for (var i = 0; i < _constantsSattiHelper.gameVars.noOfPlayers; i++) {
 				var player = undefined;
-				var botNames = ['Player0', 'Player1', 'Player2', 'Player3'];
+				var botNames = ['Pintu', 'Bablu', 'Guddu', 'Pappu'];
 				if (i == 0) {
 					player = new _utilsPlayerSatti2['default']({ id: i, name: 'You', img: 'IMAGE_YOU', type: 'HUMAN' });
 				} else {

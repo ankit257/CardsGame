@@ -46,12 +46,12 @@ export default class ConfirmGameNavigation extends Component{
   startNewGame(){
       this.props.changeGameInitModalState(false);
       Howler.unmute();
-      GameActions.initGame();
+      GameActions.initGame(undefined);
   }
   loadPrevGame(){
       this.props.changeGameInitModalState(false);
       Howler.unmute();
-      GameActions.initGameFromLocal(this.props.offlineGameData);
+      GameActions.initGame(this.props.offlineGameData);
   }
   componentWillMount(){
     this.setState({
@@ -65,33 +65,32 @@ export default class ConfirmGameNavigation extends Component{
   }
   render() {
     let htwostyle ={
-      fontSize: 18,
+      fontSize: 30,
       lineHeight: '18px',
       margin: '10px auto'
     }, materialIconStyle={
       fontSize: 24,
       position: 'relative',
-      top: -1,
+      top: 3,
       right: 4
     }, continueButtonStyle={
       margin: '5px 10px 0 0'
     }, newGameButtonStyle={
-      margin: '5px 0 0 10px',
-      color: '#eee'
+      margin: '5px 0 0 10px'
     }
     return (
        <Modal
           isOpen={this.state.modalIsOpen}
           style={this.customStyles} key={1}>
           <h2 style={htwostyle} > Continue last game? </h2>
-          <button onClick={this.loadPrevGame.bind(this)} className="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" style={continueButtonStyle}>
+          <a onClick={this.loadPrevGame.bind(this)} className="button yellow-button small-button" style={continueButtonStyle}>
             <i className='material-icons' style={materialIconStyle}>cached</i>
             Yes
-          </button>
-          <button onClick={this.startNewGame.bind(this)} className="mdl-button mdl-js-button mdl-button--raised" style={newGameButtonStyle}>
+          </a>
+          <a onClick={this.startNewGame.bind(this)} className="button yellow-button small-button" style={newGameButtonStyle}>
             <i className='material-icons' style={materialIconStyle}>redo</i>
             Start New Game
-          </button>
+          </a>
         </Modal>
     );
   }

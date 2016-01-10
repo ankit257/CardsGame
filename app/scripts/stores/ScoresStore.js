@@ -30,7 +30,7 @@ const ScoresStore = createStore({
 				case 'game7':
 					fn = LoginActions.updateDBScore;
 					url = '/game7/scores';
-					data = {score: this.getScores('game7')};
+					data = {score: this.getScores('game7'), facebookid: user.profile.id};
 					break;
 				default:
 					fn = LoginActions.fetchScoreFromDB;
@@ -126,20 +126,26 @@ register(action => {
 			case 'LOGGED_IN':
 			waitFor([AuthStore.dispatchToken, SettingsStore.dispatchToken]);
 				ScoresStore.updateCurrentScores();
+				ScoresStore.emitChange();
 				break;
 			case 'LOGGED_IN_WITH_FB':
 				waitFor([AuthStore.dispatchToken]);
 				ScoresStore.fetchScoresFromServer('game7');
+				ScoresStore.emitChange();
 				break;
 			case 'GAME_7_ONLINE_SHOW_SCORES':
 				waitFor([Game7StoreOnline.dispatchToken]);
 				var xp = Game7StoreOnline.getXP();
 				ScoresStore.game7Update(xp);
+				ScoresStore.fetchScoresFromServer('game7');
+				ScoresStore.emitChange();
 				break;
 			case 'GAME7_OFFLINE_SHOW_SCORES':
 			waitFor([Game7StoreOffline.dispatchToken]);
 				var xp = Game7StoreOffline.getXP();
 				ScoresStore.game7Update(xp);
+				ScoresStore.fetchScoresFromServer('game7');
+				ScoresStore.emitChange();
 				break;
 			case 'GAMESCORE_FETCH_SUCCESS':
 				console.log(action);
@@ -147,12 +153,13 @@ register(action => {
 			case 'GAMESCORE_UPDATE_SUCCESS':
 				ScoresStore.setGlobalScores(action.response.score);
 				ScoresStore.saveScoresInLocalStorage();
+				ScoresStore.emitChange();
 				break;
 			case 'FETCH_SCORES_FROM_SERVER':
 				ScoresStore.fetchScoresFromServer(action.data);
+				// ScoresStore.emitChange();
 				break;
-		}
-		ScoresStore.emitChange();
+		}	
 });
 
 export default ScoresStore;

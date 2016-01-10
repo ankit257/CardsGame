@@ -65,24 +65,24 @@ var gameCSSConstants = {
   deckCSS : {x : 0, y : (wh-113.4)},
   cardLeftMargin : 30
 }
-var DelayService = function (time, fn) {
-  var time = time;
-  var fn = fn;
-  var _fact = {};
-    var _initvalue = 1;
-    var waitPromise = Q.when(true);
-    var _asyncTask = function(time, fn){
-        waitPromise = waitPromise.then(function (){
-            return setTimeout(function (){
-                fn();
-            }, time);
-        });
-        return waitPromise;
-    }
-    _fact.asyncTask = _asyncTask;
-    return _fact;
-}
-var delayService = new DelayService(null, null);
+// var DelayService = function (time, fn) {
+//   var time = time;
+//   var fn = fn;
+//   var _fact = {};
+//     var _initvalue = 1;
+//     var waitPromise = Q.when(true);
+//     var _asyncTask = function(time, fn){
+//         waitPromise = waitPromise.then(function (){
+//             return setTimeout(function (){
+//                 fn();
+//             }, time);
+//         });
+//         return waitPromise;
+//     }
+//     _fact.asyncTask = _asyncTask;
+//     return _fact;
+// }
+// var delayService = new DelayService(null, null);
 var findMyBrowser = function(){
     var browser = [{
                     name: 'Opera',

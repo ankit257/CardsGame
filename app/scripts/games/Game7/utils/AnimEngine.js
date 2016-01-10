@@ -52,11 +52,15 @@ export default class AnimEngine{
 		AnimEngine.setPauseState(PauseStore.getPauseState());
 		if(PauseStore.getPauseState()){
 			pauseAudio.play();
-			AnimEngine.audio.pause();
+			if(typeof AnimEngine.audio !== "undefined"){
+				AnimEngine.audio.pause();
+			}
 			AnimEngine.pause.start = performance.now();// + performance.timing.navigationStart;
 		}else{
 			unPauseAudio.play();
-			AnimEngine.audio.play();
+			if(typeof AnimEngine.audio !== "undefined"){
+				AnimEngine.audio.play();
+			}
 			AnimEngine.pause.end = performance.now();// + performance.timing.navigationStart;
 		}
 	}
@@ -146,7 +150,7 @@ export default class AnimEngine{
 						spent 		= current - start - (AnimEngine.pause.end - AnimEngine.pause.start),
 						rate;
 					if(remaining < -50){
-						// console.log('animation for: '+ duration + ' , animated for: ' + spent);
+						console.log('animation for: '+ duration + ' , animated for: ' + spent);
 						resolve();
 					}else{
 						deck.map(deckcard => {
@@ -167,6 +171,7 @@ export default class AnimEngine{
 									y = delY*rate + deckcard.oldY,
 								    z = delZ*rate + deckcard.oldZ,
 								    zIndex = deckcard.zIndex,
+								    // bgColor = deckcard.bgColor,
 									theta = delTheta*rate + deckcard.oldTheta,
 									frontRotateY, backRotateY
 								if(deckcard.showFace != deckcard.oldShowFace){
@@ -206,6 +211,7 @@ export default class AnimEngine{
 												childstyle = {
 													transform : 'perspective(400px) rotateY('+ frontRotateY +'deg)',
 													WebkitTransform : 'perspective(400px) rotateY('+ frontRotateY +'deg)'
+													// backgroundColor: bgColor
 												}
 												break;
 											case "back":

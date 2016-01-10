@@ -157,7 +157,7 @@ const GameStoreOnline = createStore( {
 			if(player.id == _myid && player.type == 'HUMAN'){
 				let score = player.score;
 				let penalty = score.penalty[score.penalty.length-1];
-				if(penalty) {
+				if(typeof penalty !== "undefined") {
 					xp = Math.round((100-penalty)/10);
 				}else{
 					xp = 0;
@@ -960,7 +960,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 		// Sets the dot above score button on the view to show scores have been updated
 			GameStoreOnline.setNewScores();
 			GameStoreOnline.adminRequestsDistribution(GameStoreOnline.getGameProperty('adminId'));
-			GameStoreOnline.setGameState('ROUND_END_SHOW_SCORES');
+			GameStore.setGameState(GameStore.getGameProperty('state')+'_SHOW_SCORES');
 			GameStoreOnline.emitChange();
 			break;
 		case 'GAME_7_ONLINE_HIDE_SCORE_UPDATED':

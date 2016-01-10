@@ -122,7 +122,6 @@ export default class GameInterface extends Component{
         self.context.history.go(-1);
       }); 
     }else{
-      GameActions.refreshStore({ifOnline: false});
       let gameData = getItemFromLocalStorage('gameData');
       if(gameData && gameData.state){
         Howler.mute();
@@ -182,8 +181,8 @@ export default class GameInterface extends Component{
     }
     return (
       <div>
-        <div className={this.props.activeColor.name+' fixed-bkg'}></div>
-        {/*<button onClick={ this.pauseToggle.bind(this)} style= {pauseButtonStyle} className="mdl-button mdl-js-button mdl-button--icon pause-button">
+        {/*<div className={this.props.activeColor.name+' fixed-bkg'}></div>
+        <button onClick={ this.pauseToggle.bind(this)} style= {pauseButtonStyle} className="mdl-button mdl-js-button mdl-button--icon pause-button">
                     <i className="material-icons">{pauseButtonText}</i>
                 </button>*/}
         <Game7Render gamePause={gamePause}/>

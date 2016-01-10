@@ -1,6 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.game.sevencentre" version="0.1.5" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
+    <feature name="AdMob">
+        <param name="android-package" value="com.rjfun.cordova.admob.AdMobPlugin" />
+        <param name="onload" value="true" />
+    </feature>
     <feature name="LaunchMyApp">
         <param name="android-package" value="nl.xservices.plugins.LaunchMyApp" />
     </feature>
@@ -16,7 +20,15 @@
     <access origin="https://api.facebook.com" />
     <access origin="https://*.fbcdn.net" />
     <access origin="https://*.akamaihd.net" />
-    <name>SattiCentre</name>
+    <feature name="GoogleAnalytics">
+        <param name="android-package" value="com.cmackay.plugins.googleanalytics.GoogleAnalyticsPlugin" />
+    </feature>
+    <allow-intent href="market:*" />
+    <splash density="land-hdpi" src="res/hdpi.png" />
+    <splash density="land-ldpi" src="res/ldpi.png" />
+    <splash density="land-mdpi" src="res/mdpi.png" />
+    <splash density="land-xhdpi" src="res/xhdpi.png" />
+    <name>Sevens</name>
     <description>
       Satti Centre Mobile App
     </description>
@@ -34,4 +46,5 @@
     <preference name="Fullscreen" value="false" />
     <preference name="Orientation" value="landscape" />
     <preference name="SplashScreenDelay" value="10000" />
+    <icon src="res/icon.png" />
 </widget>

@@ -85,13 +85,9 @@ export default class CardComponent extends Component {
         // let style = {
         //     zIndex: zIndex
         // };
-        // let cardImgStyle ={
-        //     backgroundColor         : bgColor,
-        //     WebkitBackgroundColor   : bgColor
-        // }
 		return (
             <div id={card.key} className="card" onClick={this.handleClick}>
-                <img className="front" src={cardimg}   />
+                <img className="front" src={cardimg}/>
                 <img className="back"  src={cardbackimg}/>
             </div>
 	    )

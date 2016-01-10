@@ -62,7 +62,7 @@ export default class GameSatti{
 	initPlayers(){
 		for (var i = 0; i < gameVars.noOfPlayers; i++) {
 			let player;
-			let botNames = ['', 'Player1', 'Player2', 'Player3']
+			let botNames = ['', 'Bablu', 'Guddu', 'Pappu']
 			if( i == 0 ){
 				player = new PlayerSatti({id: i, name: 'You', img: 'IMAGE_YOU', type: 'HUMAN'});
 			}else{
@@ -185,7 +185,6 @@ export default class GameSatti{
 		for(let deckcard of this.deck){
 			if(deckcard.rank == cardToRemove.rank && deckcard.suit == cardToRemove.suit){
 				deckcard.isPlayable = false;
-				deckcard.bgColor = 'rgb(250,255,255)';
 			}
 		}
 		for (var i = 0; i < this.playableCards.length; i++) {
@@ -209,8 +208,6 @@ export default class GameSatti{
 		for(let deckcard of this.deck){
 			if(deckcard.rank == cardToAdd.rank && deckcard.suit == cardToAdd.suit){
 				deckcard.isPlayable = true;
-				deckcard.bgColor = '#fff';
-				// deckcard.setPositionByState();
 			}
 		}
 		for(let playableCard of this.playableCards){

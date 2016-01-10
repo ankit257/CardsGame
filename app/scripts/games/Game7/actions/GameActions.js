@@ -2,8 +2,8 @@ import { dispatch, dispatchDelayAsync } from '../../../../scripts/AppDispatcher'
 import Actions from '../constants/Actions';
 import { timeConstants } from '../constants/SattiHelper'
 
-export function initGame(){
-	dispatch(Actions.GAME7_OFFLINE_INIT_GAME, {});
+export function initGame(data){
+	dispatch(Actions.GAME7_OFFLINE_INIT_GAME, {data});
 }
 
 export function initGameFromLocal(data){

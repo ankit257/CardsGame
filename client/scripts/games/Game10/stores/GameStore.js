@@ -255,10 +255,12 @@ const GameStore = createStore( {
 	},
 	updateCardIndex(){
 		for(let deckcard of _game.deck){
-			let index = this.setIndexFromArray(deckcard);
-			let similar = _playersCards[deckcard.ownerPos].length;
-			deckcard.index = index;
-			deckcard.similar = similar;
+			if(deckcard.state == 'DISTRIBUTED'){
+				let index = this.setIndexFromArray(deckcard);
+				let similar = _playersCards[deckcard.ownerPos].length;
+				deckcard.index = index;
+				deckcard.similar = similar;
+			}
 		}
 	},
 	setIndexFromArray(card){
@@ -415,6 +417,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.sortDeck(0);
 			GameStore.updateCardIndex();
 			GameStore.setCardPositionByState();
+			console.log(GameStore.getGameProperty('state'));
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
 			.then(function(){
 				AnimEngine.cancelAnimationFrame();

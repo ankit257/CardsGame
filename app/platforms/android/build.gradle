@@ -247,6 +247,8 @@ dependencies {
     releaseCompile project(path: "CordovaLib", configuration: "release")
     debugCompile project(path: "phonegap-facebook-plugin:FacebookLib", configuration: "debug")
     releaseCompile project(path: "phonegap-facebook-plugin:FacebookLib", configuration: "release")
+    compile "com.google.android.gms:play-services-ads:+"
+    compile "com.google.android.gms:play-services-analytics:+"
     // SUB-PROJECT DEPENDENCIES END
 }
 
@@ -309,3 +311,12 @@ for (def func : cdvPluginPostBuildExtras) {
 if (hasProperty('postBuildExtras')) {
     postBuildExtras()
 }
+apply plugin: 'android'
+
+/** Must exclude exported support jars from dependencies, or get dex duplicate class      error.
+*  we're
+**/
+configurations {
+    all*.exclude group: 'com.android.support', module: 'support-v4'
+    all*.exclude group: 'com.google.android.gms', module: 'play-services'
+} 

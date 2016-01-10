@@ -127,7 +127,7 @@ const GameStore = createStore( {
 		_game.nextTurn();
 	},
 	roundEnd(){
-		// tadaAudio.play();
+		tadaAudio.play();
 		_game.roundEnd();
 	},
 	fireInitRound(){
@@ -160,7 +160,7 @@ const GameStore = createStore( {
 			if(player.position == 0){
 				let score = player.score;
 				let penalty = score.penalty[score.penalty.length-1];
-				if(penalty) {
+				if(typeof penalty !== "undefined") {
 					xp = Math.round((30-penalty)/3);
 				}else{
 					xp = 0;
@@ -379,14 +379,21 @@ GameStore.dispatchToken = register(action=>{
 			break;
 		case 'GAME7_OFFLINE_INIT_GAME':
 			GameStore.refreshStore();
+			let data = action.data;
 			GameStore.initGame();
 			GameStore.initDeck();
 			GameStore.setCardPositionByState();
-			GameStore.fireInitStartGame();
-			GameStore.emitAndSaveChange( 'gameData', {} );
+			if(typeof data == "undefined"){
+				console.log(GameStore.getGameProperty('state'));
+				GameStore.fireInitStartGame();
+				GameStore.emitAndSaveChange( 'gameData', {} );	
+			}else{
+				GameActions.initGameFromLocal(data);
+				GameStore.emitChange();
+			}
 			break;
 		case 'GAME7_OFFLINE_INIT_GAME_FROM_LOCAL':
-			GameStore.refreshStore();
+			// GameStore.refreshStore();
 			let gameData = action.data;
 			let newGameData = GameStore.makeGameObj(gameData);
 			GameStore.setGameObj(newGameData);
@@ -399,6 +406,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.saveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_INIT_ROUND':
+			AdMob.prepareInterstitial( {adId:admobid.interstitial, autoShow:false});
 			GameStore.initRound();
 			GameStore.setCardPositionByState();
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
@@ -460,6 +468,7 @@ GameStore.dispatchToken = register(action=>{
 				GameStore.setRoundEndPos();
 				AnimEngine.startAnimation(GameStore.getAnimEngineData())
 				.then(function(){
+					AdMob.showInterstitial();
 					AnimEngine.cancelAnimationFrame();
 					GameStore.emitAndSaveChange( 'gameData', _game );
 				});
@@ -497,9 +506,12 @@ GameStore.dispatchToken = register(action=>{
 		 case 'GAME7_OFFLINE_SHOW_SCORES':
 		 	GameStore.showScores();
 			GameStore.setRoundEndPos();
-			GameStore.setGameState('ROUND_END_SHOW_SCORES');
+			GameStore.setGameState(GameStore.getGameProperty('state')+'_SHOW_SCORES');
 			GameStore.emitChange();
 		 	break;
+		 // case 'GAME_7_REFRESH_STORE':
+   //  		waitFor([PauseStore.dispatchToken]);
+   //  		GameStore.refreshStore();
 		 case 'GAME_7_OFFLINE_HIDE_SCORE_UPDATED':
 			GameStore.scoreUpdatedFalse();
 			break;

@@ -32,7 +32,7 @@ PauseStore.dispatchToken = register(action=>{
 			if(!ifOnline){
 				PauseStore.setPauseState(false);
 			}
-				PauseStore.emitChange();
+			PauseStore.emitChange();
 			break;
 	}
 })

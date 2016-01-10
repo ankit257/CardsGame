@@ -11,6 +11,22 @@ html {
   -ms-text-size-adjust: 100%; /* 2 */
   -webkit-text-size-adjust: 100%; /* 2 */
 }
+/********* GLOBALS ************/
+@font-face {
+    font-family: 'blanchcondensed';
+    src: url('fonts/blanch_condensed-webfont.eot');
+    src: url('fonts/blanch_condensed-webfont.eot?#iefix') format('embedded-opentype'), url('fonts/blanch_condensed-webfont.woff2') format('woff2'), url('fonts/blanch_condensed-webfont.woff') format('woff'), url('fonts/blanch_condensed-webfont.ttf') format('truetype'), url('fonts/blanch_condensed-webfont.svg#blanchcondensed') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'blanchcaps';
+    src: url('fonts/blanch_caps-webfont.eot');
+    src: url('fonts/blanch_caps-webfont.eot?#iefix') format('embedded-opentype'), url('fonts/blanch_caps-webfont.woff2') format('woff2'), url('fonts/blanch_caps-webfont.woff') format('woff'), url('fonts/blanch_caps-webfont.ttf') format('truetype'), url('fonts/blanch_caps-webfont.svg#blanchcaps') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
 
 /**
  * Remove default margin.
@@ -432,8 +448,11 @@ th {
   box-sizing: border-box;
 }
 
-html, body {
-  font-family: 'Josefin Sans', Helvetica, sans-serif;
+html, body, h1, h2, p {
+  font-family: "blanchcaps", sans-serif!important;
+    -webkit-font-smoothing: antialiased;
+    font-size: 30px;
+    letter-spacing: 2px;
 }
 
 .social-block {
@@ -808,7 +827,7 @@ div{
     flex-flow: column nowrap;
     align-items: center;
     justify-content: flex-start;
-    padding-top: 50px;
+    padding-top: 90px;
     transition: all 500ms ease 0s;
 }
 .radio-as-dropdown .mdl-radio__outer-circle, .radio-as-dropdown .mdl-radio__inner-circle{
@@ -821,6 +840,7 @@ div{
     margin: 0 4px;
     font-size: 18px;
     padding: 5px;
+    text-shadow: 0 2px 0 #30bf79;
 }
 .radio-container-opts {
     width: 107px;
@@ -847,7 +867,6 @@ section.radio-container {
     padding: 5px;
 }
 .rooms-div {
-    margin-top: 50px;
     width: 100%;
     height: 300px;
     overflow: auto;
@@ -878,7 +897,7 @@ section.radio-container {
   border: 1px solid #000;
 }
 .public-room-box.create-room {
-    background-color: #8BC34A;
+    background-color: #28bcdd;
     color: #000;
 }
 .public-room-box.running .public-room-status{
@@ -909,7 +928,8 @@ section.radio-container {
     padding: 4px;
 }
 .public-room-text {
-    font-size: 10px;
+    font-size: 15px;
+    letter-spacing: 1px;
     line-height: 10px;
     padding: 2px;
     position: absolute;
@@ -922,12 +942,15 @@ section.radio-container {
 .room-message {
     padding: 10px 0;
     width: 100%;
-    font-size: 14px;
+    font-size: 20px;
     line-height: 14px;
     text-align: left;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 0 2px 0 #080808;
 }
 .face-div {
-    height: 40px;
+    height: 80px;
     width: 100%;
     z-index: 2;
     color: #eee;
@@ -942,14 +965,36 @@ section.radio-container {
     justify-content: space-between;
     -webkit-flex-flow: row nowrap;
     -webkit-align-items: center;
-    -webkit-justify-content: space-between;
+    -webkit-justify-content: center;
 }
 .face-div .nav-bar-left{
-  margin-left: 20px;
+  margin: 10px;
+}
+.face-div .nav-bar-right{
+  margin: 10px;
+  position: fixed;
+  right: 0px;
+  top: 12px;
+}
+.nav-bar-gamepage {
+    margin: 5px;
+    font-size: 32px;
+}
+.profile-image{
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: 50% 50%;
+}
+.nav-bar-gamepage .xp-show {
+    zoom: 1.2;
 }
 .face-div .heading {
-    font-size: 21px;
-    line-height: 21px;
+  font-size: 30px;
+  line-height: 25px;
+  text-shadow: 0px 1px 0px #080808;
+  letter-spacing: 2px;
 }
 .face-div .material-icons {
     position: relative;
@@ -963,6 +1008,7 @@ section.radio-container {
     top: 40px;
     left: 0;
     right: 0;
+    display: none;
 }
 .face-div .mdl-menu__outline {
     background: rgb(41, 29, 25);
@@ -1004,15 +1050,17 @@ section.radio-container {
   .settingsBlock .mdl-tabs__tab.is-active {
     color: #fff!important;
     background-color: rgba(17,17,17,0.8);
-    font-size: 18px;
+    font-size: 25px;
     text-transform: none;
+    letter-spacing: 1px;
     /*border-top: 1px solid #aaa;*/
   }
   .settingsBlock .mdl-tabs__tab {
     color: rgba(221, 221, 221, 0.81);
     background-color: rgba(0, 0, 0, 0.42);
-    font-size: 18px;
+    font-size: 25px;
     text-transform: none;
+    letter-spacing: 1px;
   }
   .settingsBlock .mdl-tabs__tab-bar{
     border-bottom: 1px solid rgba(189, 189, 189, 0.5);
@@ -1038,8 +1086,8 @@ section.radio-container {
     margin: 10px;
     border: 2px solid #fff;
     cursor: pointer;
-    width: 100px;
-    height: 74px;
+    width: 40px;
+    height: 40px;
   } 
   .color-name {
     padding: 6px;
@@ -1052,7 +1100,7 @@ section.radio-container {
   }
   .colorBlock {
     width: 100%;
-    height: 46px;
+    height: 36px;
     position: relative;
     display: block;
     top: 0;
@@ -1127,14 +1175,18 @@ section.radio-container {
   .activeCards{
     border: 4px solid #ccc;
   }
-  button.apply-settings{
+  .button.apply-settings{
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    right: 0;
+    left: 0;
+    bottom: 30px;
+    width: 66px;
+    margin: 0 auto;
+    color: #fff;
   }
-  button.apply-settings.mdl-button--fab.mdl-button--colored:hover,button.apply-settings.mdl-button--fab.mdl-button--colored{
+  /*button.apply-settings.mdl-button--fab.mdl-button--colored:hover,button.apply-settings.mdl-button--fab.mdl-button--colored{
     background-color: #4CAF50; 
-  }
+  }*/
   .material-icons.md-18 {
     font-size: 18px;
     position: relative;
@@ -1378,7 +1430,7 @@ section.radio-container {
     flex: 1
 }
 .form .control-group label {
-    font-size: 11px;
+    font-size: 20px;
     font-weight: 700;
     text-transform: uppercase;
     color: #87909c;
@@ -1637,6 +1689,7 @@ section.radio-container {
 }
 .auth-center {
     position: absolute;
+    min-height: 335px;
     bottom: 0;
     left: 0;
     right: 0;
@@ -1813,7 +1866,7 @@ form.auth-form .btn-forgot-password:hover {
     filter: none
 }
 form.auth-form footer {
-    font-size: 12px;
+    font-size: 20px;
     color: #87909c;
     margin-top: 10px;
     margin-bottom: 0
@@ -1825,6 +1878,9 @@ form.auth-form footer a {
 form.auth-form footer a:hover {
     border-bottom: 2px solid #fff;
     padding-bottom: 5px
+}
+input#register-username {
+    font-size: 35px;
 }
 .auth-verify,
 .auth-invite {
@@ -1863,11 +1919,17 @@ form.auth-form footer a:hover {
     background-color: #697ec4
 }
 .form .btn.btn-main {
+  width: initial;
+  padding: 0;
+}
+.form .btn.btn-main .mdl-button{
+    font-family: "blanchcaps", sans-serif;
+    -webkit-font-smoothing: antialiased;
     margin: 10px auto;
     width: 300px;
     background-color: rgba(0, 0, 0, 0.5);
     height: 50px;
-    font-size: 18px;
+    font-size: 30px;
     line-height: 18px;
     font-weight: 600;
     padding: 15px 5px;
@@ -2002,3 +2064,161 @@ form.auth-form footer a:hover {
     from    { transform: translateX(0); }
     to      { -webkit-transform: translateX(-100%); }
 }*/
+
+.cityscape{
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
+/*pianu.com*/
+p a:hover {
+    border-bottom: 1px solid #e4fe1f;
+}
+.page-template-academy-lesson a {
+    color: #e1aa00;
+}
+.page-template-academy-lesson p a:hover {
+    border-bottom: 1px solid #e1aa00 ;
+}
+p a.red-button:hover {
+    border-bottom: 1px solid #fd2261;
+}
+.center {
+    text-align: center;
+}
+.button,
+.email-signup #mc_embed_signup .button {
+    font-size: 25px;
+    color: #fff;
+    font-family: blanchcondensed, sans-serif;
+    letter-spacing: 2px;
+    border-radius: 4px;
+    text-align: center;
+    display: inline-block;
+    padding: 15px 25px 10px;
+    cursor: pointer;
+    margin: 5px 6px 9px;
+    -webkit-transition: letter-spacing 100ms ease;
+    transition: letter-spacing 100ms ease;
+    font-weight: normal;
+    height: auto;
+}
+.button.small-button{
+    padding: 5px 16px 8px;
+}
+.button-wrap,
+.home .button-wrap {
+    display: inline-block;
+}
+p .button {
+    margin-bottom: -4px;
+    padding: 0px 25px 3px;
+}
+p .button:hover {
+    border-bottom: none;
+}
+.chords-content .fixed {
+    position: fixed;
+    top: 55px;
+    left: calc(50% - 98px);
+    z-index: 1;
+}
+.chords-content .wrap {
+    min-height: 200px;
+}
+.section .button {
+    margin: 0 25px 9px 25px;
+    position: relative;
+}
+.page-template-pianu-academy .academy-welcome .button {
+    width: auto;
+}
+.float-right {
+    display: block;
+    float: right;
+}
+.float-left {
+    display: block;
+    float: left;
+}
+.blue-button {
+    background: #28bcdd;
+    box-shadow: 0 8px #25acc8;
+    color: #fff;
+}
+article {
+    min-height: 100%;
+}
+.freestyle {
+    color: #198298;
+}
+.final-score {
+    color: #fff;
+    letter-spacing: 3px;
+    font-size: 30px;
+    padding-bottom: 20px;
+}
+.blue-button:active {
+    box-shadow: 0 2px #25acc8;
+    margin-top: 12px;
+    margin-bottom: 2px;
+}
+.red-button {
+    background: #fd2261;
+    box-shadow: 0 8px #d11740;
+}
+.red-button:active {
+    box-shadow: 0 2px #d11740;
+    margin-top: 12px;
+    margin-bottom: 2px;
+}
+.orange-button {
+    background: #f3c400;
+    box-shadow: 0 9px #e1aa00;
+    color: #fff;
+}
+.orange-button:active {
+    box-shadow: 0 2px #e1aa00;
+    margin-top: 12px;
+    margin-bottom: 2px;
+}
+p .orange-button:active {
+    margin-bottom: -11px;
+}
+.yellow-button {
+    background: #e4fe1f;    
+    box-shadow: 0 8px #d3eb1b;
+    color: #7c990f;
+}
+.yellow-button:active {
+    box-shadow: 0 2px #acd416;
+    margin-top: 12px;
+    margin-bottom: 2px;
+}
+p .yellow-button:active,
+p .red-button:active {
+    margin-bottom: -11px;
+}
+.white-button {
+    color: #30bf79;
+    background: #fff;
+    cursor: auto;
+    font-size: 21px;
+    padding: 1px 15px 3px;
+    float: left;
+}
+.green-button {
+    background: #43f0a3;
+    box-shadow: 0 6px #30bf79;
+    color: #fff;
+    font-size: 21px;
+    padding: 1px 15px 3px;
+}
+.green-button:active {
+    box-shadow: 0 1px #30bf79;
+    margin-top: 12px;
+    margin-bottom: 2px;
+}
+
+

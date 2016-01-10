@@ -65,27 +65,28 @@ export default class GameRender extends Component {
 		return this.updateFlag;
 	}
 	componentWillUnmount(){
-		if(window.detachEvent) {
-		    window.detachEvent('onresize', this.handleResize);
-		}
-		else if(window.removeEventListener) {
-		    window.removeEventListener('resize', this.handleResize);
-		}
+		// if(window.detachEvent) {
+		//     window.detachEvent('onresize', this.handleResize);
+		// }
+		// else if(window.removeEventListener) {
+		//     window.removeEventListener('resize', this.handleResize);
+		// }
 		AnimEngine.cancelAnimationFrame();
 		if(typeof this.context.ifOnline == 'boolean' && !this.context.ifOnline){
 			AnimEngine.stopListening();
 		}
+		// GameActions.refreshStore({ifOnline: this.context.ifOnline});
 	}
 	componentDidMount(){
 		this.setState({
 			zoomStyle: scaleGameBodyByWidth(gameCSSConstants)
 		});
-		if(window.attachEvent) {
-		    window.attachEvent('onresize', this.handleResize);
-		}
-		else if(window.addEventListener) {
-			window.addEventListener('resize', this.handleResize);
-		}
+		// if(window.attachEvent) {
+		//     window.attachEvent('onresize', this.handleResize);
+		// }
+		// else if(window.addEventListener) {
+		// 	window.addEventListener('resize', this.handleResize);
+		// }
 		if(typeof this.context.ifOnline == 'boolean' && !this.context.ifOnline){
 			AnimEngine.startListening();
 		}

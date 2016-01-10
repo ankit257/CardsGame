@@ -15,6 +15,13 @@ export default class GameDehla{
 					maxPlayers		: 4,
 					players 		: [],
 					deck 			: [],
+					dealerPos		: 0,
+					distributionArray 	: [5,4,4],
+					distributionIndex 	: 0,
+					distributionState	: 0,
+					trump 				: null,
+					suitTrump			: null,
+					turnSuit			: null,
 					gameTurn		: 0,
 					gameRound		: 0,
 					state 			: 'CONSTRUCTED',
@@ -29,8 +36,6 @@ export default class GameDehla{
 	}
 	initDeck(){
 		this.deck = cardsDehla.shuffle(cardsDehla.deck);
-		// this.setDeckIndex();
-		// this.deck.map(deckcard=> deckcard.setPositionByState());
 		this.state = 'INIT_DECK';
 	}
 	setDeckIndex(){
@@ -74,24 +79,95 @@ export default class GameDehla{
 		this.state = 'INIT_PLAYERS';
 		this.botState = 'BOT_READY';
 	}
+	reInitDeck(){
+		for(let deckcard of this.deck){
+			deckcard.state = 'IN_DECK';
+			deckcard.ownerPos = null;
+		}
+		this.state = 'DEALER_SELECTION_SUCCESS';
+	}
 	distributeCards(){
-		let n = 13;
-		let index = 0;
+		// let n = 13;
+		// let index = 0;
+		// for (let i = 0; i < n; i++) {
+		// 	for (let j = 0; j < this.players.length; j++) {
+		// 		let card = this.deck[index];
+		// 		if(card.state == 'IN_DECK'){
+		// 			card.state = 'DISTRIBUTED';
+		// 			card.animTime = timeConstants.SINGLE_DISTR_ANIM;
+		// 			card.delay = timeConstants.SINGLE_DISTR_DELAY*(52-index);
+		// 			card.ownerPos = this.players[j].position;
+		// 			index++;
+		// 			card.zIndex = gameCSSConstants.zIndex.DISTR + i;
+		// 			// card.setPositionByState();
+		// 		}
+		// 	}
+		// }
+		// this.state = 'DISTRIBUTING_CARDS';
+		let cardDistributionStartFrom = this.dealerPos+1;
+		if(cardDistributionStartFrom === this.players.length){
+			cardDistributionStartFrom = 0;
+		}
+		let playerPosArray = [0,1,2,3]
+		while(playerPosArray[0] !== cardDistributionStartFrom){
+			var c = playerPosArray.pop();
+			playerPosArray.unshift(c);
+		}
+		let n = this.distributionArray[this.distributionState];
+		let playersLength = this.players.length;
 		for (let i = 0; i < n; i++) {
-			for (let j = 0; j < this.players.length; j++) {
-				let card = this.deck[index];
+			for (let j = 0; j < playersLength; j++) {
+				let card = this.deck[this.distributionIndex];
 				if(card.state == 'IN_DECK'){
 					card.state = 'DISTRIBUTED';
 					card.animTime = timeConstants.SINGLE_DISTR_ANIM;
-					card.delay = timeConstants.SINGLE_DISTR_DELAY*(52-index);
-					card.ownerPos = this.players[j].position;
-					index++;
+					card.delay = timeConstants.SINGLE_DISTR_DELAY*((n*playersLength*(this.distributionState+1))-this.distributionIndex);
+					card.ownerPos = playerPosArray[j] ;//this.players[j].position;
+					this.distributionIndex++;
 					card.zIndex = gameCSSConstants.zIndex.DISTR + i;
-					// card.setPositionByState();
+					card.index = n*[this.distributionState]+i;
+				}
+
+			}
+		}
+		var ic = 0;
+		for (var i = 0; i < 10; i++) {
+			for (var j = 0; j < this.players.length; j++) {
+				let card = this.deck[ic];
+				if(card.state == 'DISTRIBUTED'){
+					card.distributionState = this.distributionState;
+				}
+				ic++;
+			};
+		};
+		this.distributionState++;
+		this.state = 'DISTRIBUTING_CARDS_'+this.distributionState;
+	}
+	distributeOneCardEach(){
+		var biggestCard;
+		for (var i = 0; i < this.players.length; i++) {
+			this.deck[i].ownerPos = i;
+			this.deck[i].state = 'SELECT_DEALER';
+
+			this.deck[i].animTime = timeConstants.SINGLE_DISTR_ANIM;
+			this.deck[i].delay = timeConstants.SINGLE_DISTR_DELAY*((i+1));
+					
+			if(!biggestCard){
+				biggestCard = this.deck[i];
+			}else{
+				if(this.deck[i].rank > biggestCard.rank){
+					biggestCard = this.deck[i];
+				}else if(this.deck[i].rank == biggestCard.rank){
+					var suitOrder = ['C','D','H','S'];
+					if(suitOrder.indexOf(this.deck[i].suit) > suitOrder.indexOf(biggestCard.suit)){
+						biggestCard = this.deck[i];
+					}
 				}
 			}
 		}
-		this.state = 'DISTRIBUTING_CARDS';
+		this.dealerPos = biggestCard.ownerPos;
+		this.state ='SELECT_DEALER';
+		// console.log(this.dealerPos);
 	}
 	distributionDone(){
 		for(let deckcard of this.deck){

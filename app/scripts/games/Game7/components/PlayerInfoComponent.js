@@ -24,10 +24,10 @@ export default class PlayerInfoComponent extends Component {
 		}
 		let player = this.props.player;
 		let activePlayerPos = this.props.activePlayerPos;
-		if(player.score.getTotalPenalty() > 90){
-			popup.src = 'game7-popup-losing.svg';
-			popup.show = true;
-		}
+		// if(player.score.getTotalPenalty() > 90){
+		// 	popup.src = 'game7-popup-losing.svg';
+		// 	popup.show = true;
+		// }
 		if(player.position == activePlayerPos && player.state == 'SKIP_TURN'){
 			popup.src = 'game7-popup-pass.svg';
 			popup.show = true;
@@ -88,7 +88,7 @@ export default class PlayerInfoComponent extends Component {
 			width				: width-6,
 			height				: 14,
 			zIndex				: gameCSSConstants.zIndex.STATUS+1,
-			top					: 4,
+			top					: 0,
 			transition         	: 'all ' + animTime + 'ms linear ' + delay + 'ms',
             WebkitTransition   	: 'all ' + animTime + 'ms linear ' + delay + 'ms'
 		}
@@ -120,8 +120,8 @@ export default class PlayerInfoComponent extends Component {
 					playerTypeSrc+='admin-large.svg';
 					break;
 			}
-			style.backgroundColor= 'rgba(62,43,36,0.8)';
-			style.WebkitBackgroundColor= 'rgba(62,43,36,0.8)';
+			style.backgroundColor= 'rgba(0,0,0,0.8)';
+			style.WebkitBackgroundColor= 'rgba(0,0,0,0.8)';
 		}
 		else{
 			playerTypeClass = 'player-type';
@@ -144,16 +144,17 @@ export default class PlayerInfoComponent extends Component {
 			backgroundColor: playertype.color
 		}
 		if(player.position == 2 && !(showScores || ifWaiting)){
+			playerNameStyle.top = 8;
 			playerNameStyle.transform = 'rotate(180deg)';
 			playerNameStyle.WebkitTransform = 'rotate(180deg)';
 		}
 		if(showScores || ifWaiting){
 			playerNameStyle.top =  40;
-			playerNameStyle.fontSize = 12;
+			playerNameStyle.fontSize = 18;
 		}
 		return(
 			<div style={style} className="player-info">
-				<div className='player-name' style={playerNameStyle} >{id} 
+				<div className='player-name' style={playerNameStyle} >{name} 
 					{this.getImg.call(this, playerTypeSrc, playerTypeClass)}
 				</div>
 				<PopUpComponent popup={popup} position={player.position} showScores={showScores} ifWaiting={ifWaiting}/>

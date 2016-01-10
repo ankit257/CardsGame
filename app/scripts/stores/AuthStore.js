@@ -66,6 +66,7 @@ AuthStore.dispatchToken = register(action => {
 				break;
 			case 'LOGGED_OUT':
 				AuthStore.del();
+				navigator.app.backHistory();
 				AuthStore.emitChange();
 				break;
 			default:

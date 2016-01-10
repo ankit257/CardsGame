@@ -15,7 +15,7 @@ export default class PlayerSatti{
 					x					: 0,
 					y					: 0,
 					theta				: 0,
-					bgColor				: 'rgba(100,100,100,0.9)',
+					bgColor				: 'rgba(0,0,0,0.8)',
 					animTime			: 100,
 					delay				: 0,
 					socket				: ''
@@ -99,17 +99,17 @@ export default class PlayerSatti{
 						// this.bgColor		= 'rgba(0,0,200,0.9)';
 						break;
 					case 'SKIP_TURN':
-							this.bgColor		= 'rgba(243,80,68,0.8)';
+							this.bgColor		= 'rgb(244, 67, 54)';
 						break;
 					case 'CAN_PLAY':
-						this.bgColor		= 'rgba(0,146,132,0.8)';
+						this.bgColor		= '#25acc8';
 						break;
 					default: 
-						this.bgColor		= 'rgba(100,100,100,0.8)';
+						this.bgColor		= 'rgba(0,0,0,0.8)';
 						break;
 				}
 			}else{
-				this.bgColor = 'rgba(62,43,36,0.8)';
+				this.bgColor = 'rgba(0,0,0,0.8)';
 			}
 			if(this.state == 'CLEARED'){
 				this.bgColor = 'rgba(226,93,138,0.8)';

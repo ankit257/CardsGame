@@ -33,12 +33,15 @@ export default class XPComponent extends Component {
 			xp.bgColor = '#FFEB3B'
 		}
 		let style = {
-			bottom: -gameCSSConstants.gameBody.height + gameCSSConstants.gameBody.padding + gameCSSConstants.cardSize.height + gameCSSConstants.player.statusOffset,
+			// bottom: -gameCSSConstants.gameBody.height + gameCSSConstants.gameBody.padding + gameCSSConstants.cardSize.height + gameCSSConstants.player.statusOffset,
 			backgroundColor: xp.bgColor,
 			color: xp.color
 		}
 		let spanStyle = {
 			color: style.color
+		}
+		if(showScores){
+			style.display = 'none';
 		}
 		return(
 			<div className='xp-show' style={style}>

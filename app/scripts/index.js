@@ -16,6 +16,7 @@ const history = new createHashHistory();
 document.addEventListener("deviceready", onDeviceReady, false);
 
 function onDeviceReady() {
+    navigator.analytics.setTrackingId('UA-72217136-1');
+    navigator.analytics.enableAdvertisingIdCollection();
     ReactDOM.render(<div><Root history={history} /></div>, rootEl);
 }
-

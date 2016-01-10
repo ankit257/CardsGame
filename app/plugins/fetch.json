@@ -9,13 +9,30 @@
     },
     "cordova-plugin-customurlscheme": {
         "source": {
-            "type": "registry",
-            "id": "cordova-plugin-customurlscheme"
+            "type": "git",
+            "url": "https://github.com/EddyVerbruggen/LaunchMyApp-PhoneGap-Plugin.git",
+            "subdir": "."
         },
         "is_top_level": true,
         "variables": {
-            "URL_SCHEME": "sevencentre"
+            "URL_SCHEME": "sevenscards"
         }
+    },
+    "cordova-plugin-admobpro": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-admobpro"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-extension": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-extension"
+        },
+        "is_top_level": false,
+        "variables": {}
     },
     "phonegap-facebook-plugin": {
         "source": {
@@ -27,5 +44,13 @@
             "APP_ID": "440773049460625",
             "APP_NAME": "Sevens Cards Game"
         }
+    },
+    "com.cmackay.plugins.googleanalytics": {
+        "source": {
+            "type": "registry",
+            "id": "com.cmackay.plugins.googleanalytics"
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }

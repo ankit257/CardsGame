@@ -251,9 +251,9 @@ export default class Game325{
 		return false;
 	}
 	assignPosToCardsToBeMoved(winnerPos){
-		if(typeof winnerPos !== 'undefined'){
+		if(typeof winnerPos === 'undefined'){
 			this.getTurnWinner();
-			winnerPos = this.winnerId;
+			// winnerPos = this.winnerId;
 		}
 		delete this.turnSuit;
 		var cards = [];
@@ -269,8 +269,6 @@ export default class Game325{
 		this.trump = trump;
 	}
 	playCard(card, callerLocation){
-		console.log(this.state);
-		console.log(this.activePlayerPos);
 			if(card && ((callerLocation == 'client' && card.ownerPos == this.activePlayerPos) ||  (callerLocation == 'server' && card.ownerId == this.activePlayerId)) && this.state == 'READY_TO_PLAY_NEXT'){
 				for(let deckcard of this.deck){
 					if(card.rank == deckcard.rank && card.suit == deckcard.suit){
@@ -278,6 +276,7 @@ export default class Game325{
 						deckcard.state = 'BEING_PLAYED';
 						deckcard.delay = timeConstants.PLAY_DELAY;
 						deckcard.animTime = timeConstants.PLAY_ANIM;
+						deckcard.ownerId = null;
 						if(!this.turnSuit){
 							this.turnSuit = deckcard.suit;
 						}
@@ -291,10 +290,8 @@ export default class Game325{
 					if(card.rank == deckcard.rank && card.suit == deckcard.suit){
 						// console.log(12345)
 						this.cardPlayed = deckcard;
-						console.log('WITHDRAW_START -> OwnerPos: '+deckcard.ownerPos + ' OwnerId: ' + deckcard.ownerId);
 						deckcard.ownerPos = this.activePlayerPos;
 						deckcard.ownerId = this.activePlayerId;
-						console.log('WITHDRAW_END -> OwnerPos: '+deckcard.ownerPos + ' OwnerId: ' + deckcard.ownerId);
 						this.updateCardIndex();
 					}
 				}
@@ -304,10 +301,8 @@ export default class Game325{
 				for(let deckcard of this.deck){
 					if(card.rank == deckcard.rank && card.suit == deckcard.suit){
 						this.cardPlayed = deckcard;
-						console.log('RETURN_START -> OwnerPos: '+deckcard.ownerPos + ' OwnerId: ' + deckcard.ownerId);
 						deckcard.ownerPos = this.otherPlayerPos;
 						deckcard.ownerId = this.otherPlayerId;
-						console.log('RETURN_END -> OwnerPos: '+deckcard.ownerPos + ' OwnerId: ' + deckcard.ownerId);
 						this.updateCardIndex();
 						// IF()
 						this.players[this.activePlayerPos].handsMadeInLR--;
@@ -441,6 +436,7 @@ export default class Game325{
 				this.winnerId = this.players[i].id;
 				this.activePlayerId = this.winnerId;
 				this.activePlayerPos = this.winnerId;
+				this.winnerPos = i;
 				if(!this.players[i].score[this.gameRound - 1]){
 					this.players[i].score[this.gameRound - 1] = {
 						handsMade : this.players[i].handsMade,

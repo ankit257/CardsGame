@@ -20,14 +20,6 @@ module.exports = {
 		*/
 		var clientData = data.clientData, gameData = data.gameData, gameObj = {};
 		var gameObj = this.makeGameObj(gameData);
-		// this.checkCards(gameObj);
-		// var ifAdminChanged = this.assignAdmin(gameObj);
-		// if(ifAdminChanged){
-		// 	console.log('admin changed');
-		// 	console.log(gameObj.adminId);
-		// }
-		// console.log(data)
-
 		switch(clientData.action){
 			case 'START_NEW_ROUND':
 				cx = 0;
@@ -42,7 +34,7 @@ module.exports = {
 					gameObj.updateHandsToMake();
 					// this.addIdToDeck(gameObj);                  // (D2) assign ownerIds according to ownerPos before sending to client
 					gameObj.setNextActivePlayerPos();           // (A1) set next activePlayerPos
-					gameObj.setActivePlayerPosOnNewRound();
+					// gameObj.setActivePlayerPosOnNewRound();
 					this.setNextActivePlayerId(gameObj);        // (A2) transform activePlayerPos to activePlayerId before sending to client
 					gameObj.updatePlayableCards();				// (U after D2) Only use this after deckcards have appropriate ownerIds assigned otherwise problem on client side
 					this.updatePlayersArrayOnServer(gameObj);   // This array resides on server. Is of no use to client. Will be used for bot-logic	
@@ -54,7 +46,6 @@ module.exports = {
 				break;
 			case 'SET_TRUMP':
 				var trump = clientData.gameData.trump;
-				console.log(trump);
 				gameObj.setTrump(trump);
 				gameObj.distributeCards();                  // (D1) assign ownerPos to cards in deck
 				// this.addIdToDeck(gameObj);                  // (D2) assign ownerIds according to ownerPos before sending to client
@@ -62,7 +53,6 @@ module.exports = {
 				return this.makeReturnObj('SET_TRUMP_SUCCESS', gameObj, gameObj);
 				break;
 			case 'CARD_PLAYED':
-				// console.log(clientData.gameData)
 				var card = clientData.gameData.card;
 				var deckcard; 
 				gameObj.deck.map(function(cardFromDeck){
@@ -70,23 +60,22 @@ module.exports = {
 						deckcard = cardFromDeck;
 					}
 				})
-				// console.log(deckcard.rank+':'+deckcard.suit);
-				// console.log(gameObj.activePlayerPos);
 				gameObj.updateCardState(deckcard, 'BEING_PLAYED');
 				gameObj.playCard(deckcard, 'server');
 				this.updatePlayersArrayOnServer(gameObj);   // This array resides on server. Is of no use to client. Will be used for bot-logic
 				// this.updateRoundScores(gameObj);			// Updates round Penalties of all players according to id. To be called only after updating PlayersArrayOnServer
 				gameObj.cardPlayed = deckcard;
 				var cardsPlayed = 0;
-				for(var i = 0; i < gameObj.players.length; i++){
-					if(gameObj.players[i].id == deckcard.ownerId){
-						gameObj.players[i].cardPlayed = deckcard;
-					}
-					if(gameObj.players[i].cardPlayed){
-						cardsPlayed++;
-					}
-				}
-				if(cardsPlayed == 3){
+				// for(var i = 0; i < gameObj.players.length; i++){
+				// 	if(gameObj.players[i].id == deckcard.ownerId){
+				// 		gameObj.players[i].cardPlayed = deckcard;
+				// 	}
+				// 	if(gameObj.players[i].cardPlayed){
+				// 		cardsPlayed++;
+				// 	}
+				// }
+				console.log('GAMETURN: '+gameObj.gameTurn);
+				if(gameObj.gameTurn!==0 && gameObj.gameTurn%3==0){
 					gameObj.getTurnWinner();
 					this.checkRoundEnd(gameObj);
 				}else{
@@ -95,11 +84,16 @@ module.exports = {
 					}
 				}
 				// gameObj.updateCardState(deckcard, 'PLAYED');    // This adjusts z-index. Handle it separately on client-side
-				gameObj.addPlayedCard(deckcard);
+				// gameObj.addPlayedCard(deckcard);
+				var cardToSend ={
+					suit: deckcard.suit,
+					rank: deckcard.rank,
+					ownerId: null
+				}
 				if(gameObj.state == 'ROUND_END'){
-					return this.handlePlayCard(this.makeReturnObj('ROUND_END', {card: card, turnType: 'CARD_PLAYED'}, gameObj));
+					return this.handlePlayCard(this.makeReturnObj('ROUND_END', {card: cardToSend, turnType: 'CARD_PLAYED'}, gameObj));
 				}else{
-					return this.handlePlayCard(this.makeReturnObj('NEXT_TURN', {card: card, turnType: 'CARD_PLAYED'}, gameObj));
+					return this.handlePlayCard(this.makeReturnObj('NEXT_TURN', {card: cardToSend, turnType: 'CARD_PLAYED'}, gameObj));
 				}
 				break;
 			case 'SKIP_TURN':
@@ -109,16 +103,12 @@ module.exports = {
 				break;
 			case 'GAME_STATE':
 				if(cx == 0){
-					console.log('asdfgh')
-					gameObj.players[0].handsMadeInLR = 2;
-					gameObj.players[1].handsMadeInLR = 4;
-					gameObj.players[2].handsMadeInLR = 4;	
+					gameObj.players[0].handsMadeInLR = 0;
+					gameObj.players[1].handsMadeInLR = 0;
+					gameObj.players[2].handsMadeInLR = 0;	
 					cx = 1;
 				}
-				
-				// console.log('IS_WD');
 				var returnedCard = clientData.gameData.returnedCard;
-				var a = console.log(gameObj.isWithdrawCard());
 				if(gameObj.isWithdrawCard()){
 					var objToExtend = {
 						activePlayerId : gameObj.activePlayerId,
@@ -130,14 +120,14 @@ module.exports = {
 				}else{
 					var objToExtend = {
 						returnedCard  : returnedCard,
-						gameState : 'PLAY_CARD'
+						activePlayerId : gameObj.activePlayerId,
+						gameState : 'READY_TO_PLAY_NEXT'
 					}
 					return this.makeReturnObj('START_PLAYING', objToExtend, gameObj);
 				}
 				break;
 			case 'CARD_WITHDRAWN':
 				var card = clientData.gameData.card;
-				console.log(card)
 				var deckcard; 
 				gameObj.deck.map(function(cardFromDeck){
 					if(cardFromDeck.suit == card.suit && cardFromDeck.rank == card.rank){
@@ -170,7 +160,6 @@ module.exports = {
 					rank	: deckcard.rank,
 					ownerId : deckcard.ownerId
 				}
-				console.log('AFter return : '+deckcard.ownerId);
 				return this.handlePlayCard(this.makeReturnObj('GAME_STATE', {
 																returnedCard : returnedCard
 																}, gameObj));
@@ -179,12 +168,10 @@ module.exports = {
 				gameObj.nextTurn();							// (A1) ...Internally
 				this.setNextActivePlayerId(gameObj);        // (A2) transform activePlayerPos to activePlayerId before sending to client
 				// gameObj.updatePlayableCards();				// (U after D2) Only use this after deckcards have appropriate ownerIds assigned otherwise problem on client side
-				// console.log(gameObj.activePlayerPos);
 				var playableCards = this.getShortenedPlayableCards(gameObj);
 				this.updatePlayersArrayOnServer(gameObj);   // This array resides on server. Is of no use to client. Will be used for bot-logic
 				gameObj.checkBotPlay();
 				var botState = gameObj.botState;
-				// console.log(gameObj.winnerId)
 				//The Roots feat. John Legend- The Fire
 				//Donovan - Superman Sunshine, Mellow yellow, Catch the wind
 				//Tommy James & Shondells - Crimson and Clover
@@ -193,15 +180,11 @@ module.exports = {
 							turnType: clientData.gameData.turnType,
 							card: clientData.gameData.card,
 							nextGameTurn: gameObj.gameTurn,
-							nextActivePlayerId: gameObj.activePlayerId,
-							nextOtherPlayer : gameObj.otherPlayerId,
+							activePlayerId: gameObj.activePlayerId,
+							otherPlayerId : gameObj.otherPlayerId,
 							playableCards: playableCards,
 							botState: botState,
 						}
-						// console.log('Turn:'+gameObj.gameTurn)
-						// console.log('Round:'+gameObj.gameRound)
-						// console.log('HandsToMake:'+gameObj.players[0].handsToMake)
-						// console.log('HandsMade:'+gameObj.players[0].handsMade)
 				if(gameObj.gameRound%3 == 1){
 					minObj['scores'] = this.getScores(gameObj);
 					minObj['winnerId'] = gameObj.winnerId;
@@ -231,7 +214,6 @@ module.exports = {
 			if(a<b) return 1;
 			if(a==b) return 0;
 		})
-		// console.log(cardkeys);
 	},
 	handleSpectators: function(gameObj){
 		gameObj.players.map(function(player){

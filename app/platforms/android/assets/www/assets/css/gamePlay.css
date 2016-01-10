@@ -24,8 +24,9 @@ body, span, img, div {
     overflow: hidden;
     position: absolute;
     left: 0;
-    font-size: 11px;
+    font-size: 20px;
     box-sizing: content-box;
+    letter-spacing: 1px;
 }
 .player-info img.player-type {
     width: 12px;
@@ -86,7 +87,7 @@ img.player-type.player-type-waiting {
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
-    background-color: rgba(243,80,68,0.8);
+    background-color: #e1aa00;
     z-index: 401;
 }
 .player-info .large-score{
@@ -103,7 +104,7 @@ img.player-type.player-type-waiting {
 }
 .player-info .large-score.expanded{
     height: 30px;
-    font-size: 15px;
+    font-size: 20px;
     padding: 5px 0;
     transition: all 200ms ease 500ms;
 }
@@ -154,7 +155,7 @@ img.player-type.player-type-waiting {
 }
 .table-score td, .table-score th{
     height: 15px;
-    font-size: 8px;
+    font-size: 14px;
     box-sizing: border-box;
     padding: 1px;
     margin: 1px auto;
@@ -171,9 +172,11 @@ button.table-button {
     display: none;
     color: #fff;
 }
-button.table-button.show{
+button.table-button.show {
     display: block;
     right: 80px;
+    font-family: "blanchcaps";
+    font-size: 22px;
 }
 button.table-button.show.shown{
     color: rgba(255,255,255,0.5);
@@ -265,15 +268,15 @@ button.ok-button.show{
     top: 0;
     width: 50px;
     height: 70px;
-    border-radius: .3em;
-    -moz-border-radius: .3em;
-    -webkit-border-radius: .3em;
-    -khtml-border-radius: .3em;
-    border: 1px solid #333;
-    -webkit-border: 1px solid #333;
-/*    -moz-box-shadow: -.05em .05em .1em #757575;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    /*border: 1px solid #333;*/
+    /*-webkit-border: 1px solid #333;*/
+    -moz-box-shadow: -.05em .05em .1em #757575;
     -webkit-box-shadow: -.05em .05em .1em #757575;
-    box-shadow: -.05em .05em .1em #757575;*/
+    box-shadow: -.05em .05em .1em #757575;
 }
 .card .back{
     backface-visibility : hidden;
@@ -378,17 +381,23 @@ button.ok-button.show{
     color: #CDDC39;
 }
 .xp-show {
-    position: absolute;
     padding: 4px;
-    font-size: 0.5em;
-    width: 40px;
+    font-size: 20px;
+    width: 80px;
     border-radius: 5px;
     -webkit-border-radius: 5px;
     box-sizing: border-box;
     text-align: center;
     /*box-shadow: 0px 0px 2px #111;*/
-    left: 20px;
-    margin-bottom: 8px;
+}
+.logout-button{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 25px;
+    color: #ddd;
+    cursor: pointer;
+    z-index: 3;
 }
 button.request-bot-button {
     margin: 8px auto;
@@ -420,7 +429,7 @@ button.request-bot-button {
     top: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: 0;
 }
 .poppins-img{
     background-image: url('../images/poppins.jpg');
@@ -459,46 +468,51 @@ button.request-bot-button {
     transition: background-image 1s ease-in-out
 }
 .poppins{
-    background: -webkit-radial-gradient(center, circle cover, #f59120 00%, #000 120%);
+    background: #f59120;
+    /*background: -webkit-radial-gradient(center, circle cover, #f59120 00%, #000 120%);
     background: -ms-radial-gradient(center, circle cover, #f59120 00%, #000 120%);
     background: -moz-radial-gradient(center, circle cover, #f59120 00%, #000 120%);
     background: -o-radial-gradient(center, circle cover, #f59120 00%, #000 120%);
-    background: radial-gradient(center, circle cover, #f59120 00%, #000 120%);
+    background: radial-gradient(center, circle cover, #f59120 00%, #000 120%);*/
 }
 .sushi{
-    background: -webkit-radial-gradient(center, circle cover, #94c23d 00%, #000 120%);
+    background: #94c23d;
+    /*background: -webkit-radial-gradient(center, circle cover, #94c23d 00%, #000 120%);
     background: -ms-radial-gradient(center, circle cover, #94c23d 00%, #000 120%);
     background: -moz-radial-gradient(center, circle cover, #94c23d 00%, #000 120%);
     background: -o-radial-gradient(center, circle cover, #94c23d 00%, #000 120%);
-    background: radial-gradient(center, circle cover, #94c23d 00%, #000 120%);
+    background: radial-gradient(center, circle cover, #94c23d 00%, #000 120%);*/
     
 }
 .viking{
-    background: -webkit-radial-gradient(center, circle cover, #4c9dcb 00%, #000 120%);
+    background: #4c9dcb;
+    /*background: -webkit-radial-gradient(center, circle cover, #4c9dcb 00%, #000 120%);
     background: -moz-radial-gradient(center, circle cover, #4c9dcb 00%, #000 120%);
     background: -ms-radial-gradient(center, circle cover, #4c9dcb 00%, #000 120%);
     background: -o-radial-gradient(center, circle cover, #4c9dcb 00%, #000 120%);
-    background: radial-gradient(center, circle cover, #4c9dcb 00%, #000 120%);
+    background: radial-gradient(center, circle cover, #4c9dcb 00%, #000 120%);*/
 }
 .orchid{
-    background: -webkit-radial-gradient(center, circle cover, #c583ac 00%, #000 120%);
+    background: #c583ac;
+    /*background: -webkit-radial-gradient(center, circle cover, #c583ac 00%, #000 120%);
     background: -moz-radial-gradient(center, circle cover, #c583ac 00%, #000 120%);
     background: -ms-radial-gradient(center, circle cover, #c583ac 00%, #000 120%);
     background: -o-radial-gradient(center, circle cover, #c583ac 00%, #000 120%);
-    background: radial-gradient(center, circle cover, #c583ac 00%, #000 120%);
+    background: radial-gradient(center, circle cover, #c583ac 00%, #000 120%);*/
 }
 .flamingo{
-    background: -webkit-radial-gradient(center, circle cover, #df3921 00%, #000 120%);
+    background: #df3921;
+    /*background: -webkit-radial-gradient(center, circle cover, #df3921 00%, #000 120%);
     background: -moz-radial-gradient(center, circle cover, #df3921 00%, #000 120%);
     background: -ms-radial-gradient(center, circle cover, #df3921 00%, #000 120%);
     background: -o-radial-gradient(center, circle cover, #df3921 00%, #000 120%);
-    background: radial-gradient(center, circle cover, #df3921 00%, #000 120%);
+    background: radial-gradient(center, circle cover, #df3921 00%, #000 120%);*/
 }
 .haze{
-    background-color: #461C56;
-    background: -webkit-radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
+    background-color: #795fa1;
+    /*background: -webkit-radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
     background: -moz-radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
     background: -ms-radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
     background: -o-radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
-    background: radial-gradient(center, circle cover, #795fa1 00%, #000 120%);
+    background: radial-gradient(center, circle cover, #795fa1 00%, #000 120%);*/
 }

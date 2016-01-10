@@ -142,6 +142,9 @@ export function playCardOnline(){
 export function cardPlayed(){
 	dispatch(Actions.GAME325_ONLINE_CARD_PLAYED, {});
 }
+export function onlineMoveHand(){
+	dispatch(Actions.GAME325_ONLINE_MOVE_HAND, {});	
+}
 export function onlineMoveHandSuccess(){
 	dispatch(Actions.GAME325_ONLINE_MOVE_HAND_SUCCESS, {});	
 }
@@ -160,7 +163,7 @@ export function  onlineWithdrawCardSuccess() {
 export function onlineReturnCardSuccess() {
 	dispatch(Actions.GAME325_ONLINE_RETURN_CARD_SUCCESS, {});
 }
-export function playCardSuccessOnline(){
+export function onlinePlayCardSuccess(){
 	dispatch(Actions.GAME325_ONLINE_PLAY_CARD_SUCCESS, {});
 }
 export function playedWaitForServer(eventName)

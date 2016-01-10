@@ -131,7 +131,7 @@ export default class AnimEngine{
 				return this.animateCards(deck, duration);
 				break;
 			case 'DEALER_SELECTION_SUCCESS':
-				duration = timeConstants.DECK_ANIM + 2000;
+				duration = timeConstants.DECK_ANIM + timeConstants.DEALER_WAIT;
 				this.audio 	 = distributeAudio;
 				// this.audio.play();
 				return this.animateCards(deck, duration);

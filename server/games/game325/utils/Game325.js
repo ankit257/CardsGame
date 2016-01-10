@@ -240,7 +240,6 @@ var Game325 = (function () {
 			};
 			this.distributionState++;
 			this.state = 'DISTRIBUTING_CARDS_' + this.distributionState;
-			console.log(this.state);
 		}
 	}, {
 		key: 'distributeOneCardEach',
@@ -313,7 +312,6 @@ var Game325 = (function () {
 			};
 			// var activePlayer = this.players[this.activePlayerPos];
 			if (activePlayer.type == 'BOT') {
-				// console.log(this.state);
 				this.botState = 'BOT_SHOULD_PLAY';
 				setTimeout(function () {
 					GameActions.playBot();
@@ -428,7 +426,7 @@ var Game325 = (function () {
 	{
 		key: 'playCard',
 		value: function playCard(card) {
-			if (card.ownerPos == this.activePlayerPos && this.state == 'READY_TO_PLAY_NEXT') {
+			if (card.ownerId == this.activePlayerId) {
 				var _iteratorNormalCompletion4 = true;
 				var _didIteratorError4 = false;
 				var _iteratorError4 = undefined;
@@ -465,73 +463,7 @@ var Game325 = (function () {
 				this.updateCardIndex();
 				this.state = 'PLAYING_CARD';
 			}
-			if (card.ownerPos == this.otherPlayerId && this.state == 'GAME325_WITHDRAW_CARD') {
-				var _iteratorNormalCompletion5 = true;
-				var _didIteratorError5 = false;
-				var _iteratorError5 = undefined;
-
-				try {
-					for (var _iterator5 = this.deck[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-						var deckcard = _step5.value;
-
-						if (card.rank == deckcard.rank && card.suit == deckcard.suit) {
-							this.cardPlayed = deckcard;
-							deckcard.ownerPos = this.activePlayerId;
-							this.updateCardIndex();
-						}
-					}
-				} catch (err) {
-					_didIteratorError5 = true;
-					_iteratorError5 = err;
-				} finally {
-					try {
-						if (!_iteratorNormalCompletion5 && _iterator5['return']) {
-							_iterator5['return']();
-						}
-					} finally {
-						if (_didIteratorError5) {
-							throw _iteratorError5;
-						}
-					}
-				}
-
-				this.state = 'GAME325_WITHDRAWING_CARD';
 			}
-			if (card.ownerPos == this.activePlayerPos && this.state == 'GAME325_RETURN_CARD') {
-				var _iteratorNormalCompletion6 = true;
-				var _didIteratorError6 = false;
-				var _iteratorError6 = undefined;
-
-				try {
-					for (var _iterator6 = this.deck[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-						var deckcard = _step6.value;
-
-						if (card.rank == deckcard.rank && card.suit == deckcard.suit) {
-							this.cardPlayed = deckcard;
-							deckcard.ownerPos = this.otherPlayerId;
-							this.updateCardIndex();
-							this.players[this.activePlayerPos].handsMadeInLR--;
-							this.players[this.otherPlayerId].handsMadeInLR++;
-						}
-					}
-				} catch (err) {
-					_didIteratorError6 = true;
-					_iteratorError6 = err;
-				} finally {
-					try {
-						if (!_iteratorNormalCompletion6 && _iterator6['return']) {
-							_iterator6['return']();
-						}
-					} finally {
-						if (_didIteratorError6) {
-							throw _iteratorError6;
-						}
-					}
-				}
-
-				this.state = 'GAME325_RETURNING_CARD';
-			}
-		}
 	}, {
 		key: 'updateHandsToMake',
 		value: function updateHandsToMake() {
@@ -554,6 +486,11 @@ var Game325 = (function () {
 							x = 0;
 						}
 						this.players[x].handsToMake = 3;
+						this.players[x].handsMadeInLR = 0;
+						this.players[x].handsToMakeInLR = 0;
+					}else{
+						this.players[x].handsMadeInLR = this.players[x].handsMade;
+						this.players[x].handsToMakeInLR = this.players[x].handsToMake;
 					}
 				for (var _iterator7 = this.players[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
 					var player = _step7.value;
@@ -574,8 +511,8 @@ var Game325 = (function () {
 						player.handsToMake = arrHands[c];	
 					}
 					var k = this.gameRound - 1;
-					player.handsMadeInLR = player.handsMade;
-					player.handsToMakeInLR = player.handsToMake;
+					// player.handsMadeInLR = player.handsMade;
+					// player.handsToMakeInLR = player.handsToMake;
 					player.score[k].handsMade = player.handsMade;
 					player.score[k].handsToMake = player.handsToMake;
 					player.handsMade = 0;
@@ -630,10 +567,14 @@ var Game325 = (function () {
 		key: 'updateCardState',
 		value: function updateCardState(card, state) {
 			var _this = this;
-			console.log(this.activePlayerPos)
 			this.deck.map(function (deckcard) {
 				if (deckcard.rank == card.rank && deckcard.suit == card.suit) {
-					_this.players[_this.activePlayerPos].cardPlayed = Object.assign(deckcard);
+					_this.players.map(function(player){
+						if(player.id == _this.activePlayerId){
+							player.cardPlayed =  Object.assign({},deckcard);
+						}
+					})
+					// _this.players[_this.activePlayerPos].cardPlayed = Object.assign(deckcard);
 					deckcard.state = state;
 				}
 			});
@@ -855,7 +796,6 @@ var Game325 = (function () {
 			for (var i = 0; i < this.players.length; i++) {
 				biggestCard = this.getBiggestCard(biggestCard, this.players[i].cardPlayed, this.turnSuit, this.trump);
 			}
-			// console.log(biggestCard)
 			this.turnSuit = '';
 			for (var i = 0; i < this.players.length; i++) {
 				if (this.players[i].cardPlayed == biggestCard) {
@@ -865,8 +805,6 @@ var Game325 = (function () {
 					this.activePlayerId = this.winnerId;
 					// this.activePlayerPos = this.winnerId;
 					this.activePlayerPos = i;
-					// console.log(this.players[i].score);
-					// console.log('Round:'+this.gameRound);
 					if(!this.players[i].score[this.gameRound - 1]){
 						this.players[i].score[this.gameRound - 1] = {
 							handsMade : 0,
@@ -877,7 +815,7 @@ var Game325 = (function () {
 				}
 			}
 			for (var i = 0; i < this.players.length; i++) {
-				this.players[i].cardPlayed = '';
+				delete this.players[i].cardPlayed;
 			}
 		}
 	}, {
@@ -941,7 +879,6 @@ var Game325 = (function () {
 				arrayId.push(array[i].id);
 				arrayVal.push(array[i].value);
 			}
-			console.log(arrayVal)
 			if (arrayVal[0] == 0 && arrayVal[2] == 0) {
 				this.withdraw = false;
 			} else {
@@ -1385,10 +1322,11 @@ var Game325 = (function () {
 	}, {
 		key: 'nextTurn',
 		value: function nextTurn() {
-			if (this.state !== 'MOVE_HAND') {
+			console.log('STATE INSIDE function nextTurn(): '+ this.state);
+			// if (this.state !== 'MOVE_HAND') {
 				this.gameTurn++;
 				this.setNextActivePlayerPos();
-			}
+			// }
 			if (this.state !== 'GAME325_WITHDRAW_CARD' && this.state !== 'GAME325_RETURN_CARD' && this.state !== 'SET_TRUMP') {
 				this.state = 'READY_TO_PLAY_NEXT';
 			}
@@ -1467,10 +1405,15 @@ var Game325 = (function () {
 		key: 'setNextActivePlayerPos',
 		value: function setNextActivePlayerPos() {
 			if (this.gameTurn > 3 && this.gameTurn % 3 == 1) {
-				this.activePlayerPos = this.winnerId;
+				var self = this;
+				this.players.map(function(player){
+					if(player.id == self.winnerId){
+						self.activePlayerPos = player.position;
+					}
+				})
 			} else {
 				if (this.gameTurn == 1) {
-					this.activePlayerPos = 0;
+					this.setActivePlayerPosOnNewRound();
 				} else {
 					if (this.activePlayerPos == _constantsSattiHelper.gameVars.noOfPlayers - 1) {
 						this.activePlayerPos = 0;

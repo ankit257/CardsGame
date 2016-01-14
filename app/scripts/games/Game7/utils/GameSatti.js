@@ -62,7 +62,7 @@ export default class GameSatti{
 	initPlayers(){
 		for (var i = 0; i < gameVars.noOfPlayers; i++) {
 			let player;
-			let botNames = ['', 'Bablu', 'Guddu', 'Pappu']
+			let botNames = ['Pintu', 'Bablu', 'Guddu', 'Pappu']
 			if( i == 0 ){
 				player = new PlayerSatti({id: i, name: 'You', img: 'IMAGE_YOU', type: 'HUMAN'});
 			}else{
@@ -312,6 +312,7 @@ export default class GameSatti{
 		let gameEnd = this.updatePenalties();
 		if(gameEnd){
 			this.state = 'GAME_END';
+			this.gameRound = 0;
 		}else{
 			this.state = 'ROUND_END';
 		}

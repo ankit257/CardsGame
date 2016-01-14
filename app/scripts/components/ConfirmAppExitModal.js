@@ -81,14 +81,14 @@ export default class ConfirmAppExitModal extends Component{
            <div style={divstyle}>
             <p style={pstyle}>Exit Game?</p>
           </div>
-          <a onClick={this.doNothing.bind(this)} className="button yellow-button small-button">
-            <i className='material-icons' style={continueButtonStyle}>videogame_asset</i>
-            No
-          </a>
-          <a onClick={this.exitApp.bind(this)} className="button yellow-button small-button">
-            <i className='material-icons' style={continueButtonStyle}>videogame_asset</i>
-            Exit Game
-          </a>
+          <div className = "game-init-button-holder">
+            <a onClick={this.doNothing.bind(this)} className="button yellow-button small-button">
+              No
+            </a>
+            <a onClick={this.exitApp.bind(this)} className="button yellow-button small-button">
+              Exit Game
+            </a>
+          </div>
         </Modal>
     );
   }

@@ -10,7 +10,7 @@ export var gameCSSConstants = {
 	score 				: { width: 100, height: 100, sep: 20 }
 }
 export const gamePathConstants = {
-	CARD_BACK_IMG		: ['assets/cards/cardback.svg','assets/cards/cardbackblackred.png','assets/cards/cardbackorange.svg','assets/cards/cardbackred.svg'] ,
+	CARD_BACK_IMG		: ['assets/cards/cardback.png','assets/cards/cardbackorange.svg'] ,
 	CARD_ASSETS 		: 'assets/cards/',
 	IMG_ASSETS  		: 'assets/img/',
 	SVG_ASSETS			: 'assets/images/svg/'

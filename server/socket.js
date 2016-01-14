@@ -151,14 +151,16 @@ module.exports = function (io, app) {
 				}
 				else
 				{
+					var botNames = ['Pintu', 'Bablu', 'Guddu', 'Pappu'];
 					for (var i = gameObj.players.length - 1; i >= 0; i--){
 						if(gameObj.players[i].socket == socket.id){
-							gameObj.players[i].type = 'BOT';
-							gameObj.players[i].socket = '';
 							if(gameObj.players[i].type == 'SPECTATOR'){
 								spectatorLeft = true;
 								console.log('spectator left');
 							}
+							gameObj.players[i].type = 'BOT';
+							gameObj.players[i].socket = '';
+							gameObj.players[i].name = botNames[i];
 						}
 
 						if(gameObj.players[i] && (gameObj.players[i].type == 'BOT' || gameObj.players[i].type == 'SPECTATOR'))
@@ -243,15 +245,17 @@ module.exports = function (io, app) {
 				}
 				else
 				{
+					var botNames = ['Pintu', 'Bablu', 'Guddu', 'Pappu'];
 					for (var i = gameObj.players.length - 1; i >= 0; i--){
-						if(gameObj.players[i].socket == socket.id){
-							gameObj.players[i].type = 'BOT';
-							gameObj.players[i].socket = '';
-							if(gameObj.players[i].type == 'SPECTATOR'){
-								spectatorLeft = true;
-								console.log('spectator left');
-							}
+					if(gameObj.players[i].socket == socket.id){
+						if(gameObj.players[i].type == 'SPECTATOR'){
+							spectatorLeft = true;
+							console.log('spectator left');
 						}
+						gameObj.players[i].type = 'BOT';
+						gameObj.players[i].socket = '';
+						gameObj.players[i].name = botNames[i];
+					}
 
 						if(gameObj.players[i] && (gameObj.players[i].type == 'BOT' || gameObj.players[i].type == 'SPECTATOR'))
 							noOfBots++;

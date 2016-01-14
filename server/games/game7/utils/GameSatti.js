@@ -681,12 +681,18 @@ var GameSatti = (function () {
 			this.players.map(function (player) {
 				player.rank = ranks[player.position];
 			});
+			return gameEnd;
 		}
 	}, {
 		key: 'roundEnd',
 		value: function roundEnd() {
-			this.state = 'ROUND_END';
-			this.updatePenalties();
+			var gameEnd = this.updatePenalties();
+			if(gameEnd){
+				this.state = 'GAME_END';
+				this.gameRound = 0;
+			}else{
+				this.state = 'ROUND_END';
+			}
 		}
 	}, {
 		key: 'getCardState',

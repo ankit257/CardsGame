@@ -75,7 +75,11 @@ export default class GameRender extends Component {
 		if(typeof this.context.ifOnline == 'boolean' && !this.context.ifOnline){
 			AnimEngine.stopListening();
 		}
+		// delete this.props;
 		// GameActions.refreshStore({ifOnline: this.context.ifOnline});
+	}
+	componentWillMount(){
+		// console.log(Date.now());
 	}
 	componentDidMount(){
 		this.setState({
@@ -90,12 +94,16 @@ export default class GameRender extends Component {
 		if(typeof this.context.ifOnline == 'boolean' && !this.context.ifOnline){
 			AnimEngine.startListening();
 		}
+		// console.log(this.props.gameState + " TIme: " + Date.now());
 	}
 	componentDidUpdate(){
 		let ifOnline = this.context.ifOnline;
 		let { gameState, botState } = this.props;
 		let action;
 		switch(gameState){
+			case 'INIT_DECK':
+				action = ifOnline ? null : GameActions.initStartGame();
+				break;
 			case 'INIT_ROUND':
 				action   = ifOnline ? GameActions.onlineInitRoundSuccess : GameActions.initRoundSuccess;
 				break;
@@ -149,6 +157,7 @@ export default class GameRender extends Component {
 		return this.props.gamePause == nextProps.gamePause;
 	}
 	componentWillReceiveProps(nextProps){
+		// console.log('game render received props'+document.getElementsByTagName('img').length);
 		this.updateFlag = true;
 		if(typeof this.props.ifOnline == "boolean" && !this.props.ifOnline && this.props.gamePause != nextProps.gamePause){
 			GameActions.togglePauseGame();

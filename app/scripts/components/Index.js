@@ -66,6 +66,7 @@ export default class Index extends Component {
     // });
   }
   validateInput(e){
+    // console.log(e.keyCode);
     // this.context.history.pushState(null, `/games`)
     var name = ReactDOM.findDOMNode(this.refs.username).value;
     var newState = _.extend({}, this.state);
@@ -76,6 +77,10 @@ export default class Index extends Component {
       newState.errors.username = { 'show' : true, 'text' : 'Damn. Its too small.'}
     }else{
       newState.errors.username = { 'show' : false, 'text' : ''}
+      if(e.keyCode == 13){
+        document.getElementById('register').click();
+        e.stopPropagation();
+      }
     }
     this.setState(newState);
   }
@@ -106,17 +111,18 @@ export default class Index extends Component {
     let buttonHolderStyle = {textAlign: 'center'};
     return (
       <div className={'auth-center'}>
+        <img className="cityscape" src="assets/images/cityscape1.png"/>
         <div className={'auth-inner'}>
           <form className={'form auth-form'}>
             <div className={'control-group'}>
               <label htmlFor="username">
                 <span>What should everyone call you?</span>
               </label>
-                <input type="text" id="register-username" ref="username" autoComplete="off" onKeyUp={this.validateInput.bind(this)}/>
+                <input type="text" id="register-username" ref="username" autoComplete="off" onKeyDown={this.validateInput.bind(this)}/>
                 <ErrorComponent msg={this.state.errors.username.text} show={this.state.errors.username.show}></ErrorComponent>
             </div>
             <div className={'control-group'} style={buttonHolderStyle}>
-              <a className={'button blue-button'} onClick={this.register.bind(this)}><span>CONTINUE</span></a>
+              <a id="register" className={'button blue-button'} onClick={this.register.bind(this)}><span>CONTINUE</span></a>
             </div>
             <footer>
               <label>

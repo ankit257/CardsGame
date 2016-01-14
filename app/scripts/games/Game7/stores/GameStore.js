@@ -34,6 +34,7 @@ var _playableCount = []
 var _showScore = false
 var _pauseState = false;
 var _scoreUpdated = false;
+var _iPlayedCard = false;
 
 const GameStore = createStore( {
 	type : 'offline',
@@ -47,6 +48,13 @@ const GameStore = createStore( {
 		_showScore = false
 		_pauseState = false;
 		_scoreUpdated = false;
+		var _iPlayedCard = false;
+	},
+	getIPlayed(){
+		return _iPlayedCard;
+	},
+	setIPlayed(status){
+		_iPlayedCard = status;
 	},
 	ifGameWaiting(){
 		return false;
@@ -384,16 +392,19 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.initDeck();
 			GameStore.setCardPositionByState();
 			if(typeof data == "undefined"){
-				console.log(GameStore.getGameProperty('state'));
-				GameStore.fireInitStartGame();
-				GameStore.emitAndSaveChange( 'gameData', {} );	
+				AnimEngine.startAnimation(GameStore.getAnimEngineData())
+				.then(function(){
+					AnimEngine.cancelAnimationFrame();
+					GameStore.emitAndSaveChange( 'gameData', {} );
+				});
 			}else{
+				GameStore.setGameState('NOW_INIT_GAME_FROM_LOCAL');
 				GameActions.initGameFromLocal(data);
 				GameStore.emitChange();
 			}
 			break;
 		case 'GAME7_OFFLINE_INIT_GAME_FROM_LOCAL':
-			// GameStore.refreshStore();
+			GameStore.refreshStore();
 			let gameData = action.data;
 			let newGameData = GameStore.makeGameObj(gameData);
 			GameStore.setGameObj(newGameData);
@@ -403,7 +414,7 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.hideScores();
 			GameStore.setGameState('GAME_STARTED');
 			GameStore.fireInitRound();
-			GameStore.saveChange( 'gameData', _game );
+			GameStore.emitAndSaveChange( 'gameData', _game );
 			break;
 		case 'GAME7_OFFLINE_INIT_ROUND':
 			AdMob.prepareInterstitial( {adId:admobid.interstitial, autoShow:false});
@@ -444,19 +455,23 @@ GameStore.dispatchToken = register(action=>{
 			break;
 		case 'GAME7_OFFLINE_PLAY_CARD':
 			// startTime = Date.now();
-			var card = action.card;
-			GameStore.playCard(card);
-			GameStore.updatePlayersArray();
-			GameStore.updateRoundPenalty();
-			GameStore.sortDeck(0);
-			GameStore.updateCardIndex();
-			GameStore.setCardPositionByState();
-			// console.log('playcard calculation for :' + (Date.now()-startTime));
-			AnimEngine.startAnimation(GameStore.getAnimEngineData())
-			.then(function(){
-				AnimEngine.cancelAnimationFrame();
-				GameStore.emitAndSaveChange( 'gameData', _game );
-			});
+			if(!GameStore.getIPlayed())
+			{	
+				GameStore.setIPlayed(true);
+				var card = action.card;
+				GameStore.playCard(card);
+				GameStore.updatePlayersArray();
+				GameStore.updateRoundPenalty();
+				GameStore.sortDeck(0);
+				GameStore.updateCardIndex();
+				GameStore.setCardPositionByState();
+				// console.log('playcard calculation for :' + (Date.now()-startTime));
+				AnimEngine.startAnimation(GameStore.getAnimEngineData())
+				.then(function(){
+					AnimEngine.cancelAnimationFrame();
+					GameStore.emitAndSaveChange( 'gameData', _game );
+				});
+			}
 			break;
 		case 'GAME7_OFFLINE_PLAY_CARD_SUCCESS':
 			var card = GameStore.getGameProperty('cardPlayed');
@@ -468,9 +483,11 @@ GameStore.dispatchToken = register(action=>{
 				GameStore.setRoundEndPos();
 				AnimEngine.startAnimation(GameStore.getAnimEngineData())
 				.then(function(){
-					AdMob.showInterstitial();
 					AnimEngine.cancelAnimationFrame();
-					GameStore.emitAndSaveChange( 'gameData', _game );
+					setTimeout(function(){
+						AdMob.showInterstitial();
+						GameStore.emitAndSaveChange( 'gameData', _game );
+					},1000)
 				});
 			}else{
 				GameStore.updateBotState('BOT_READY');
@@ -500,6 +517,7 @@ GameStore.dispatchToken = register(action=>{
 			AnimEngine.startAnimation(GameStore.getAnimEngineData())
 			.then(function(){
 				AnimEngine.cancelAnimationFrame();
+				GameStore.setIPlayed(false);
 				GameStore.emitChange();
 			});
 		 	break;
@@ -509,9 +527,9 @@ GameStore.dispatchToken = register(action=>{
 			GameStore.setGameState(GameStore.getGameProperty('state')+'_SHOW_SCORES');
 			GameStore.emitChange();
 		 	break;
-		 // case 'GAME_7_REFRESH_STORE':
-   //  		waitFor([PauseStore.dispatchToken]);
-   //  		GameStore.refreshStore();
+		 case 'GAME_7_REFRESH_STORE':
+    		waitFor([PauseStore.dispatchToken]);
+    		GameStore.refreshStore();
 		 case 'GAME_7_OFFLINE_HIDE_SCORE_UPDATED':
 			GameStore.scoreUpdatedFalse();
 			break;

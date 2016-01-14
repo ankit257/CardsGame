@@ -47,13 +47,13 @@ export default class StatusComponent extends Component {
 	componentWillReceiveProps(nextProps){
 		this.props = nextProps;
 		this.updateSelf();
-		if(nextProps.requestShowScore){
+		if(nextProps.requestShowScore || nextProps.scoresUpdated){
 			this.showScore();
 		}
 		this.setState({time: Date.now()})
 	}
 	componentDidUpdate(){
-		console.log('StatusCompRender : '+ (Date.now()-this.state.time));
+		// console.log('StatusCompRender : '+ (Date.now()-this.state.time));
 	}
 	requestServerBots(){
 		GameActions.requestDistribution();
@@ -90,6 +90,9 @@ export default class StatusComponent extends Component {
 		// console.log(this.props.playableCount);
 		switch(gameState){
 			case 'INIT_DECK':
+			case 'GAME_STARTED':
+				status =  'Loading Game. Please Wait.';
+				break;
 			case 'INIT_PLAYERS':
 			case 'INIT_ROUND':
 			case 'DISTRIBUTING_CARDS':
@@ -243,8 +246,9 @@ export default class StatusComponent extends Component {
 			}
 		}
 		if(!showScores && scoresUpdated){
-			showScoreButtonClass.show = true;
-			showScoreButtonClass['score-updated'] = true;
+			// showScoreButtonClass.show = true;
+			// showScoreButtonClass['score-updated'] = true;
+			// this.showScore();
 		}
 		if(this.context.ifOnline){
 			nextButtonStyle = {

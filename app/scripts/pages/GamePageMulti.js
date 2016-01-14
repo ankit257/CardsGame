@@ -198,7 +198,7 @@ export default class GamaPage extends Component{
 
   constructor(props) {
     super(props)
-
+    this.routerWillLeave = this.routerWillLeave.bind(this);
     this.state = {
       routeChanged: false,
       selectedGame: 'game7',
@@ -240,6 +240,7 @@ export default class GamaPage extends Component{
     setTimeout(function(){
         componentHandler.upgradeAllRegistered();
       },20);
+    document.addEventListener('backbutton', this.routerWillLeave);
   }
   getRoomFromServer(){
     return window.setInterval(function(){
@@ -247,17 +248,21 @@ export default class GamaPage extends Component{
     },2000)
   }
   componentWillUnmount(){
+    // console.log('parent unmount');
     window.clearInterval(this.intervalId);
+    document.removeEventListener('backbutton', this.routerWillLeave);
   }
   componentWillMount(){
-    console.log('will_mount');
     Howler.mute();
-    // console.log(this.props);
     if(window.requestId) window.cancelAnimFrame(window.requestId);
     if(!this.props.User.profile.id){
       this.context.history.pushState(null, `/`, null);
     }
-  } 
+  }
+  routerWillLeave(e){
+    e.preventDefault();
+    navigator.app.backHistory();
+  }
   componentDidUpdate(){
       setTimeout(function(){
         componentHandler.upgradeAllRegistered();

@@ -94,6 +94,8 @@ export default class GameInterface extends Component{
     super(props);
     this.changeGameInitModalState = this.changeGameInitModalState.bind(this);
     this.changeGameExitModalState = this.changeGameExitModalState.bind(this);
+    this.startOfflineGame = this.startOfflineGame.bind(this);
+    this.routerWillLeave = this.routerWillLeave.bind(this);
     // this.pauseToggle = this.pauseToggle.bind(this);
     // this.renderStarredRepos = this.renderStarredRepos.bind(this);
     // this.handleLoadMoreClick = this.handleLoadMoreClick.bind(this);
@@ -106,10 +108,12 @@ export default class GameInterface extends Component{
     }
   }
   componentWillMount() {
+    document.addEventListener('backbutton', this.routerWillLeave);
     var id = this.props.params.id;
     var profile = this.props.profile;
     let self = this;
     if(id){
+      this.setState({gameStart: true});
       Howler.unmute();
       GameRoomActions.joinGameRoom(id, profile, 'game7')
       socket.on('invalid_room', function(){
@@ -122,12 +126,15 @@ export default class GameInterface extends Component{
         self.context.history.go(-1);
       }); 
     }else{
+      GameActions.refreshStore({ifOnline: false});
       let gameData = getItemFromLocalStorage('gameData');
       if(gameData && gameData.state){
+        this.setState({gameStart: false});
         Howler.mute();
         this.setState({offlineGameData: gameData, gameInitModalIsOpen: true});
       }else{
         Howler.unmute();
+        this.setState({gameStart: true});
         GameActions.initGame();
       }
     }
@@ -138,10 +145,11 @@ export default class GameInterface extends Component{
       GameRoomActions.gameStateReceived('game7', clientData);
     })
     GameRoomActions.fetchScoresFromServer('game7');
-    this._unlistenBeforeLeavingRoute = this.context.history.listenBeforeLeavingRoute(this.props.route, this.routerWillLeave.bind(this));
+    // this._unlistenBeforeLeavingRoute = this.context.history.listenBeforeLeavingRoute(this.props.route, this.routerWillLeave.bind(this));
   }
   componentWillUnmount() {
-    if (this._unlistenBeforeLeavingRoute) this._unlistenBeforeLeavingRoute();
+    // if (this._unlistenBeforeLeavingRoute) this._unlistenBeforeLeavingRoute();
+    document.removeEventListener('backbutton', this.routerWillLeave);
     var id = this.props.params.id;
     if(id){
       GameRoomActions.leaveGameRoom(id, 'game7');
@@ -155,14 +163,14 @@ export default class GameInterface extends Component{
     socket.removeAllListeners("disconnect");
     socket.removeAllListeners("game_state");
   }
-  routerWillLeave(nextLocation) {
+  routerWillLeave(e) {
+      e.preventDefault();
       Howler.mute();
       if(this.state.gameExitModalIsOpen){
         this.changeGameExitModalState(false);
-        return true;
+        navigator.app.backHistory();
       }else{
         this.changeGameExitModalState(true);
-        return false;
       }
   }
   componentWillReceiveProps(nextProps) {
@@ -173,20 +181,34 @@ export default class GameInterface extends Component{
   changeGameInitModalState(state){
     this.setState({gameInitModalIsOpen: state});
   }
+  startOfflineGame(){
+    this.setState({gameStart: true});
+  }
+  getGameRender(){
+    let { gamePause, gameStart } = this.state;
+    var id = this.props.params.id;
+    if(gameStart){
+      return(
+         <Game7Render gamePause={false}/>
+        )
+    }else{
+      return (
+        <div/>
+        )
+    }    
+  }
   render() {
-    let { gamePause, gameExitModalIsOpen, gameInitModalIsOpen, offlineGameData }  = this.state;
+    let { gameExitModalIsOpen, gameInitModalIsOpen, offlineGameData }  = this.state;
     let pauseButtonText, pauseButtonStyle, overlayMessage;
-    if(this.props.params.id){
-      gamePause = false;
-    }
+    let gameRenderComponent = this.getGameRender();
     return (
       <div>
         {/*<div className={this.props.activeColor.name+' fixed-bkg'}></div>
         <button onClick={ this.pauseToggle.bind(this)} style= {pauseButtonStyle} className="mdl-button mdl-js-button mdl-button--icon pause-button">
                     <i className="material-icons">{pauseButtonText}</i>
                 </button>*/}
-        <Game7Render gamePause={gamePause}/>
-        <GameInitModal gameInitModalIsOpen={gameInitModalIsOpen} changeGameInitModalState={this.changeGameInitModalState} offlineGameData={offlineGameData}/>
+        {gameRenderComponent}
+        <GameInitModal gameInitModalIsOpen={gameInitModalIsOpen} changeGameInitModalState={this.changeGameInitModalState} offlineGameData={offlineGameData} startOfflineGame={this.startOfflineGame}/>
         <ConfirmGameExitModal gameExitModalIsOpen={gameExitModalIsOpen} changeGameExitModalState={this.changeGameExitModalState}/>
       </div>
     );

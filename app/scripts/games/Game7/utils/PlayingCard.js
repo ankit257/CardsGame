@@ -7,6 +7,7 @@ export default class PlayingCard{
 		Object.assign(this, { suit, rank, order, storey, place });
 		Object.assign(this, {
 			state 		: 'IN_DECK',
+			// deckOrder	: null,
 			oldX		: 0,
 			oldY 		: 0,
 			oldZ 		: 0,
@@ -42,6 +43,7 @@ export default class PlayingCard{
 	setDefaultState(){
 		Object.assign(this, {
 			state 		: 'IN_DECK',
+			// deckOrder	: this.deckOrder,
 			oldX		: 0,
 			oldY 		: 0,
 			oldZ 		: 0,
@@ -83,7 +85,52 @@ export default class PlayingCard{
 		this.animTime = timeConstants.ROUND_END_WAIT;
 		switch(this.state){
 			case 'DISTRIBUTED':
-				this.showFace = true;
+				let smallOffset = gameCSSConstants.cardOffset.small * gameCSSConstants.cardSize.width;
+				let largeOffset = gameCSSConstants.cardOffset.large * gameCSSConstants.cardSize.width;
+				let screenOutOffset = -1 * gameCSSConstants.cardOffset.screenOut * gameCSSConstants.cardSize.height;
+				let widthLargeCardArrayBy2 = ((this.similar - 1)*largeOffset + gameCSSConstants.cardSize.width)/2;
+				let widthSmallCardArrayBy2 = ((this.similar - 1)*smallOffset + gameCSSConstants.cardSize.width)/2;
+				switch(this.ownerPos){
+					case 0:
+						this.ox 		= gameCSSConstants.gameBody.width/2 - gameCSSConstants.cardSize.width/2;
+						this.oy 		= gameCSSConstants.gameBody.height - gameCSSConstants.cardSize.height - gameCSSConstants.gameBody.padding;
+						this.dx 		= -1*widthLargeCardArrayBy2 + largeOffset*(this.index) + gameCSSConstants.cardSize.width/2;
+						this.dy 		= 0;
+						this.theta 		= 0;
+						this.showFace	= true;
+						if(this.isPlayable){
+							this.dy = -5;
+							this.bgColor = '#fff';
+						}
+						break;
+					case 1:
+						// this.ox 		=  2*gameCSSConstants.gameBody.padding;
+						this.ox			= gameCSSConstants.cardSize.height/2 - gameCSSConstants.cardSize.width/2 + screenOutOffset;
+						this.oy 		= gameCSSConstants.gameBody.height/2 - gameCSSConstants.cardSize.height/2;
+						this.dx 		= 0;
+						this.dy 		= -1*widthLargeCardArrayBy2 + largeOffset*(this.index) + gameCSSConstants.cardSize.width/2;
+						this.theta 		= 90;
+						this.showFace	= true;
+						break;
+					case 2:
+						this.ox 		= gameCSSConstants.gameBody.width/2 - gameCSSConstants.cardSize.width/2;
+						// this.oy 		= gameCSSConstants.gameBody.padding;
+						this.oy			= screenOutOffset
+						this.dx 		= widthLargeCardArrayBy2 - largeOffset*(this.index) - gameCSSConstants.cardSize.width/2;
+						this.dy 		= 0;
+						this.theta 		= 180;
+						this.showFace	= true;
+						break;
+					case 3:
+						this.ox 		= gameCSSConstants.gameBody.width + (gameCSSConstants.cardSize.height/2 - gameCSSConstants.cardSize.width/2) - gameCSSConstants.cardSize.height - screenOutOffset;
+						this.oy 		= gameCSSConstants.gameBody.height/2 - gameCSSConstants.cardSize.height/2;
+						this.dx 		= 0;
+						this.dy 		= widthLargeCardArrayBy2 - largeOffset*(this.index) - gameCSSConstants.cardSize.width/2;
+						this.theta 		= 270;
+						this.showFace	= true;
+						break;
+				}
+				this.zIndex = gameCSSConstants.zIndex.DISTR + this.index;
 				break;
 			case 'PLAYED':
 				let boundSep = (gameCSSConstants.gameBody.width - 4*gameCSSConstants.score.width - 3*gameCSSConstants.score.sep)/2;
@@ -93,9 +140,9 @@ export default class PlayingCard{
 				this.dx = 0;
 				this.dy = 0;
 				this.showFace = false;
-				this.calculateActualPosition();
 				break;
 		}
+		this.calculateActualPosition();
 	}
 	setPositionByState(){
 		this.oldShowFace = this.showFace;

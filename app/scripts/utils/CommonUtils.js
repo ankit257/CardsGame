@@ -14,7 +14,7 @@ export var globalVars = {
         {name : 'haze', color : '#795fa1'}
     ],
     backClass : 'poppins',
-    cardBack : ['assets/cards/cardback.svg','assets/cards/cardbackblackred.png','assets/cards/cardbackorange.svg','assets/cards/cardbackred.svg'],
+    cardBack : ['assets/cards/cardback.png','assets/cards/cardbackorange.svg'],
     // cardFront : ['cardFront1', 'cardFront2'],
     activeBgColor : {name : 'poppins', color : '#f59120'},
     activeCardBack : 'assets/cards/cardback.svg'//,

@@ -14,9 +14,7 @@
   <body>
     <!-- <canvas id="myCanvas" width="650" height="420" style="position:fixed; left:0; right:0; top:0;"></canvas> -->
     <div id='root'></div>
-    <div id="hidden-div" class="hidden" style="display:none">
-            
-     </div>
+    <div id="hidden-div" style="visibility:hidden; position: fixed; top: 0; left: 0;"></div>
     <script src="/android_asset/www/assets/js/socket.io-1.3.7.js"></script>
 
     <script type="text/javascript">
@@ -31,7 +29,7 @@
        var iLoaded = 0;
        var scriptsSrc = [];
        var cardAssets = [];
-       var otherImg = ['cards/cardback.svg','cards/cardbackblackred.png','cards/cardbackorange.svg','cards/cardbackred.svg', 'images/cityscape1.png'];
+       var otherImg = ['cards/cardback.png','cards/cardbackorange.svg', 'images/cityscape1.png', 'images/svg/waiting-large.svg', 'images/svg/spectator-icon.svg', 'images/svg/person-large.svg', 'images/svg/person-icon.svg', 'images/svg/game7-popup-you.svg', 'images/svg/game7-popup-pass.svg', 'images/svg/game7-popup-losing.svg', 'images/svg/game7-popup-cleared.svg', 'images/svg/bot-large.svg', 'images/svg/bot-icon.svg', 'images/svg/admin-large.svg', 'images/svg/admin-icon.svg', 'images/ficon.png', 'images/avatar1.png', 'cards/123.png', 'cards/cardback.png' ];
        for (var rank = 1; rank <= 13; rank++) {
         for (var suit = 0; suit < suitArray.length; suit++) {
           var cardPath = assetsPath + 'cards/' + rank + suitArray[suit] + '.svg';
@@ -53,10 +51,10 @@
               for (var i = 0; i < scriptSrcs.length; i++) {
                   appendScript(scriptSrcs[i]);
               }
-              console.log('ho gaya');
             }
           }
           img.setAttribute('src', cardAssets[i]);
+          img.setAttribute('class', 'hidden-div-img');
        };
        function appendScript(src){
           var c = document.createElement('script');

@@ -137,7 +137,7 @@ export default class PlayerInfoComponent extends Component {
 					break;
 			}
 			if(player.type == 'BOT' && player.position == 0){
-				playerTypeSrc='../' + gamePathConstants.SVG_ASSETS + 'spectator-icon.svg';
+				playerTypeSrc = gamePathConstants.SVG_ASSETS + 'spectator-icon.svg';
 			}
 		}
 		let playerTypeStyle = {

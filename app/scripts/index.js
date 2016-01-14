@@ -16,7 +16,11 @@ const history = new createHashHistory();
 document.addEventListener("deviceready", onDeviceReady, false);
 
 function onDeviceReady() {
+	navigator.splashscreen.hide();
     navigator.analytics.setTrackingId('UA-72217136-1');
     navigator.analytics.enableAdvertisingIdCollection();
-    ReactDOM.render(<div><Root history={history} /></div>, rootEl);
+    let colorStyle = {
+    	background: '#35d58e'
+    }
+    ReactDOM.render(<div style={colorStyle}><Root history={history} /></div>, rootEl);
 }

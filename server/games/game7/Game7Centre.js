@@ -82,6 +82,9 @@ module.exports = {
 				gameObj.roundEnd();
 				this.setRoundEndPos(gameObj);
 				var players = this.shortenPlayerScores(gameObj);
+				gameObj.players.map(function(player){
+					player.score = new ScoreSatti();
+				})
 				return this.makeReturnObj('ROUND_END', 
 											{
 												turnType: clientData.gameData.turnType,

@@ -69,6 +69,7 @@ export default class AnimEngine{
 		const { deck, gameState, botState, ifOnline } = animEngineData;
 		let duration = 0, action, audio;
 		switch(gameState){
+			case 'INIT_DECK':
 			case 'INIT_ROUND':
 				duration = timeConstants.TOTAL_DECK_DELAY;
 				return this.animateCards(deck, duration);
@@ -150,7 +151,7 @@ export default class AnimEngine{
 						spent 		= current - start - (AnimEngine.pause.end - AnimEngine.pause.start),
 						rate;
 					if(remaining < -50){
-						console.log('animation for: '+ duration + ' , animated for: ' + spent);
+						// console.log('animation for: '+ duration + ' , animated for: ' + spent);
 						resolve();
 					}else{
 						deck.map(deckcard => {

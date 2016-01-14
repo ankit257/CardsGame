@@ -588,6 +588,11 @@ html, body, h1, h2, p {
             transform: translateY(0);
   }
 }
+.hidden-div-img{
+  position: fixed;
+  left: 0;
+  top: 0;
+}
 .animation{
   transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
@@ -898,7 +903,7 @@ section.radio-container {
 }
 .public-room-box.create-room {
     background-color: #28bcdd;
-    color: #000;
+    color: #fff;
 }
 .public-room-box.running .public-room-status{
   background-color: #000;
@@ -1181,8 +1186,18 @@ section.radio-container {
     left: 0;
     bottom: 30px;
     width: 66px;
-    margin: 0 auto;
+    margin: 5px auto 9px auto;
     color: #fff;
+  }
+  .game-init-button-holder{
+    display: flex;
+    display: -webkit-flex;
+    flex-flow: row nowrap;
+    align-items: flex-end;
+    justify-content: flex-start;
+    -webkit-flex-flow: row nowrap;
+    -webkit-align-items: flex-end;
+    -webkit-justify-content: flex-start;
   }
   /*button.apply-settings.mdl-button--fab.mdl-button--colored:hover,button.apply-settings.mdl-button--fab.mdl-button--colored{
     background-color: #4CAF50; 
@@ -1433,7 +1448,7 @@ section.radio-container {
     font-size: 20px;
     font-weight: 700;
     text-transform: uppercase;
-    color: #87909c;
+    color: #ccc;
     display: block
 }
 .form .control-group label+input,
@@ -1458,7 +1473,7 @@ section.radio-container {
     width: 100%
 }
 .form .control-group.error label {
-    color: #f04747
+    color: #FF5722;
 }
 .form .control-group.error label span.error {
     font-weight: 400
@@ -1712,7 +1727,8 @@ section.radio-container {
     -ms-flex-align: center;
     -webkit-align-items: center;
     align-items: center;
-    z-index: 1
+    z-index: 1;
+    background: #35d58e;
 }
 .auth-blur {
     filter: blur(10px);
@@ -1867,13 +1883,14 @@ form.auth-form .btn-forgot-password:hover {
 }
 form.auth-form footer {
     font-size: 20px;
-    color: #87909c;
+    color: #ccc;
     margin-top: 10px;
     margin-bottom: 0
 }
 form.auth-form footer a {
     color: #fff;
-    text-decoration: none
+    text-decoration: none;
+    border-bottom: 1px solid #ccc;
 }
 form.auth-form footer a:hover {
     border-bottom: 2px solid #fff;

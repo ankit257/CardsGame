@@ -7,6 +7,9 @@
         "files": {}
     },
     "installed_plugins": {
+        "com.cmackay.plugins.googleanalytics": {
+            "PACKAGE_NAME": "com.game.sevencentre"
+        },
         "cordova-plugin-admobpro": {
             "PACKAGE_NAME": "com.game.sevencentre"
         },
@@ -17,15 +20,15 @@
         "cordova-plugin-extension": {
             "PACKAGE_NAME": "com.game.sevencentre"
         },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.game.sevencentre"
+        },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "com.game.sevencentre"
         },
         "phonegap-facebook-plugin": {
             "APP_ID": "440773049460625",
             "APP_NAME": "Sevens Cards Game",
-            "PACKAGE_NAME": "com.game.sevencentre"
-        },
-        "com.cmackay.plugins.googleanalytics": {
             "PACKAGE_NAME": "com.game.sevencentre"
         }
     },

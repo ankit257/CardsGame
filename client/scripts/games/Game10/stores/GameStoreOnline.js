@@ -830,10 +830,10 @@ GameStoreOnline.dispatchToken = register(action=>{
 				// console.log('Someone joined');
 			}
 			break;
-		case 'GAME7_ONLINE_GAME_STATE_RECEIVED':   
+		case 'GAME10_ONLINE_GAME_STATE_RECEIVED':   
 			GameStoreOnline.pushServerData(action.clientData);
 			break;
-		case 'GAME_7_ONLINE_INIT_ROUND':
+		case 'GAME_10_ONLINE_INIT_ROUND':
 		// to bring deck to centre position
 			GameStoreOnline.setGameState('INIT_ROUND');
 			GameStoreOnline.setCardPositionByState();
@@ -843,7 +843,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 				GameStoreOnline.emitChange();
 			});
 			break;
-		case 'GAME_7_ONLINE_INIT_ROUND_SUCCESS': 
+		case 'GAME_10_ONLINE_INIT_ROUND_SUCCESS': 
 		// Server sends 'START_NEW_ROUND' - (use false deck) -> 'INIT_ROUND' -> 'INIT_ROUND_SUCCESS' - (consume server gameObj using setNextGameObj) -> 'DISTRIBUTING_CARDS'
 			GameStoreOnline.setNextGameObj();  // now use the calculated gameObj sent by server
 			GameStoreOnline.setCardOwnerPosition();
@@ -858,13 +858,13 @@ GameStoreOnline.dispatchToken = register(action=>{
 				GameStoreOnline.emitChange();
 			});
 			break;
-		case 'GAME7_ONLINE_DISTRIBUTE_CARDS_SUCCESS':
+		case 'GAME10_ONLINE_DISTRIBUTE_CARDS_SUCCESS':
 		// 'DISTRIBUTING_CARDS' - (AnimEngine) -> 'DISTRIBUTION_SUCCESS' -> 'NOW_NEXT_TURN' -> gamestate == 'READY_TO_PLAY_NEXT' -> waitForClientInput
 			GameStoreOnline.distributionDone();
 			GameStoreOnline.setGameState('NOW_NEXT_TURN');
 			GameStoreOnline.fireNextTurn();
 			break;
-		case 'GAME7_ONLINE_NOW_NEXT_TURN':
+		case 'GAME10_ONLINE_NOW_NEXT_TURN':
 		// Universal next_turn event fired after PLAY_CARD_SUCCESS and SKIP_TURN_DONE and DISTRIBUTE_CARDS_SUCCESS
 			GameStoreOnline.nextTurn();
 			GameStoreOnline.updatePlayersArray();
@@ -880,7 +880,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 				GameStoreOnline.emitChange();
 			});
 			break;
-		case 'GAME7_ONLINE_PLAY_CARD':
+		case 'GAME10_ONLINE_PLAY_CARD':
 		// If I am active player and I played this card. Rendering independant from server.
 			var card = action.card;
 			GameStoreOnline.emitPlayCardFromSocket('CARD_PLAYED', {card});
@@ -895,7 +895,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 				GameStoreOnline.emitChange();
 			});
 			break;
-		case 'GAME7_ONLINE_CARD_PLAYED':
+		case 'GAME10_ONLINE_CARD_PLAYED':
 		// If I am not active player and someone played this card. Rendered after data received from server.
 			var card = GameStoreOnline.getGameProperty('cardPlayed');
 			GameStoreOnline.playCard(card, 'server');
@@ -910,7 +910,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 				GameStoreOnline.emitChange();
 			});
 			break;
-		case 'GAME7_ONLINE_PLAY_CARD_SUCCESS':
+		case 'GAME10_ONLINE_PLAY_CARD_SUCCESS':
 		// Fired after both the PLAY_CARD events -> Next event is NOW_NEXT_TURN
 			var card = GameStoreOnline.getGameProperty('cardPlayed');
 			GameStoreOnline.updateCardState(card, 'PLAYED');
@@ -931,7 +931,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 				GameStoreOnline.fireNextTurn();	
 			}
 			break;
-		case 'GAME_7_ONLINE_PLAYED_WAIT_FOR_SERVER':
+		case 'GAME_10_ONLINE_PLAYED_WAIT_FOR_SERVER':
 		// I have played card during my turn - (AnimEngine) -> WAIT_FOR_SERVER
 			var playCardSync = GameStoreOnline.getPlayCardSyncState();
 			if(playCardSync.serverFirst){  // <-  If server already sent next_turn data while I was animating.
@@ -941,32 +941,32 @@ GameStoreOnline.dispatchToken = register(action=>{
 				GameStoreOnline.setPlayCardSyncState('client', 'PLAY_CARD_DONE', {});
 			}
 			break;
-		case 'GAME_7_ONLINE_SKIP_TURN':
+		case 'GAME_10_ONLINE_SKIP_TURN':
 		// If I skipped my turn
 			var id = action.id;
 			GameStoreOnline.emitPlayCardFromSocket('SKIP_TURN', {id});
 			break;
-		case 'GAME_7_ONLINE_TURN_SKIPPED':
+		case 'GAME_10_ONLINE_TURN_SKIPPED':
 		// If skip turn data received from server
 			passAudio.play();
 			GameStoreOnline.emitChange();
 			break;
-		case 'GAME_7_ONLINE_SKIP_TURN_DONE':
+		case 'GAME_10_ONLINE_SKIP_TURN_DONE':
 		// Fired after both skip turn events. Next event is NOW_NEXT_TURN
 			GameStoreOnline.setGameState('NOW_NEXT_TURN');
 			GameStoreOnline.fireNextTurn();
 			break;
-		case 'GAME_7_ONLINE_SHOW_SCORES':
+		case 'GAME_10_ONLINE_SHOW_SCORES':
 		// Sets the dot above score button on the view to show scores have been updated
 			GameStoreOnline.setNewScores();
 			GameStoreOnline.adminRequestsDistribution(GameStoreOnline.getGameProperty('adminId'));
 			GameStoreOnline.setGameState('ROUND_END_SHOW_SCORES');
 			GameStoreOnline.emitChange();
 			break;
-		case 'GAME_7_ONLINE_HIDE_SCORE_UPDATED':
+		case 'GAME_10_ONLINE_HIDE_SCORE_UPDATED':
 			GameStoreOnline.scoreUpdatedFalse();
 			break;
-		case 'GAME_7_ONLINE_PLAYER_CHANGED':
+		case 'GAME_10_ONLINE_PLAYER_CHANGED':
 		// In case a player leaves the game. Emit is true when game is waiting, false when game is running
 			let players = action.players;
 			if(GameStoreOnline.ifGameWaiting()){
@@ -981,13 +981,13 @@ GameStoreOnline.dispatchToken = register(action=>{
 				GameStoreOnline.attemptPlayerChangeTrigger();
 			}
 			break;
-		case 'GAME_7_ONLINE_REQUEST_SERVER_BOT':
+		case 'GAME_10_ONLINE_REQUEST_SERVER_BOT':
 			GameStoreOnline.adminRequestServerBot(GameStoreOnline.getGameProperty('adminId'));
 			break;
-		case 'GAME7_ONLINE_ADMIN_REQUEST_DISTRIBUTION':
+		case 'GAME10_ONLINE_ADMIN_REQUEST_DISTRIBUTION':
 			GameStoreOnline.adminRequestsDistribution(GameStoreOnline.getGameProperty('adminId'));
 			break;
-		case 'GAME_7_REFRESH_STORE':
+		case 'GAME_10_REFRESH_STORE':
 			waitFor([PauseStore.dispatchToken]);
 			GameStoreOnline.refreshStore();
 			// GameStoreOnline.emitChange();

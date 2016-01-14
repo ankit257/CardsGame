@@ -117,7 +117,7 @@ export default class GamaPage extends Component{
     this.context.history.pushState(null, `/${this.state.selectedGame}`, null); 
   }
   showMultiplayerOpts(){
-    this.context.history.replaceState(null, `/gamesmulti`, null);  
+    this.context.history.pushState(null, `/gamesmulti`, null);  
   }
   handleGoToSettings(){
       this.context.history.pushState(null, `/settings`, null);
@@ -204,7 +204,7 @@ export default class GamaPage extends Component{
     heading['text'] = this.state.showMultiplayerOpts ? 'Play with other online players' : 'Sevens Card Game';
     return (
       <div className={''}>
-        <img className="cityscape" src="assets/images/cityscape1.png"/>      
+        <img className="cityscape" src="assets/images/cityscape1.png"/>
         <div className="no-overflow-div">
           <div className='face-div'>
             <div className="nav-bar-gamepage">

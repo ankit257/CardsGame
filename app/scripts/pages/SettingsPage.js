@@ -57,6 +57,7 @@ export default class SettingsPage extends Component{
 
   constructor(props) {
     super(props)
+    this.routerWillLeave = this.routerWillLeave.bind(this);
     // this.calculateCSS = this.calculateCSS.bind(this);
     // this.goToGame = this.goToGame.bind(this)
     this.tabs = ['colors', 'deck'];
@@ -100,6 +101,13 @@ export default class SettingsPage extends Component{
       this.context.history.pushState(null, `/`, null);
     }
   }
+  componentWillUnmount(){
+    document.removeEventListener('backbutton', this.routerWillLeave);
+  }
+  routerWillLeave(e){
+    e.preventDefault();
+    navigator.app.backHistory();
+  }
   componentWillReceiveProps(nextProps){
     if(!nextProps.User.profile){
       this.context.history.pushState(null, `/`, null);
@@ -114,6 +122,7 @@ export default class SettingsPage extends Component{
     setTimeout(function(){
       componentHandler.upgradeAllRegistered();
     },20);
+    document.addEventListener('backbutton', this.routerWillLeave);
   }
   goToGame(game){
     var newState = _.extend({}, this.state);

@@ -386,6 +386,16 @@ export default class CardsSatti{
 			array[currentIndex] = array[randomIndex];
 			array[randomIndex] = temporaryValue;
 		}
+		// for (var i = 0; i < array.length; i++) {
+		// 	array[i].deckOrder = i;
+		// };
+		// array.sort(function(a,b){
+		// 	if(a.order > b.order){
+		// 		return -1;
+		// 	}else{
+		// 		return 1;
+		// 	}
+		// })
 		return array;
 	}
 }

@@ -46,11 +46,13 @@ export default class ConfirmGameNavigation extends Component{
   startNewGame(){
       this.props.changeGameInitModalState(false);
       Howler.unmute();
+      this.props.startOfflineGame();
       GameActions.initGame(undefined);
   }
   loadPrevGame(){
       this.props.changeGameInitModalState(false);
       Howler.unmute();
+      this.props.startOfflineGame();
       GameActions.initGame(this.props.offlineGameData);
   }
   componentWillMount(){
@@ -73,24 +75,22 @@ export default class ConfirmGameNavigation extends Component{
       position: 'relative',
       top: 3,
       right: 4
-    }, continueButtonStyle={
-      margin: '5px 10px 0 0'
-    }, newGameButtonStyle={
-      margin: '5px 0 0 10px'
     }
     return (
        <Modal
           isOpen={this.state.modalIsOpen}
           style={this.customStyles} key={1}>
           <h2 style={htwostyle} > Continue last game? </h2>
-          <a onClick={this.loadPrevGame.bind(this)} className="button yellow-button small-button" style={continueButtonStyle}>
-            <i className='material-icons' style={materialIconStyle}>cached</i>
-            Yes
-          </a>
-          <a onClick={this.startNewGame.bind(this)} className="button yellow-button small-button" style={newGameButtonStyle}>
-            <i className='material-icons' style={materialIconStyle}>redo</i>
-            Start New Game
-          </a>
+          <div className = "game-init-button-holder">
+            <a onClick={this.loadPrevGame.bind(this)} className="button yellow-button small-button">
+              <i className='material-icons' style={materialIconStyle}>cached</i>
+              Yes
+            </a>
+            <a onClick={this.startNewGame.bind(this)} className="button yellow-button small-button">
+              <i className='material-icons' style={materialIconStyle}>redo</i>
+              Start New Game
+            </a>
+          </div>
         </Modal>
     );
   }

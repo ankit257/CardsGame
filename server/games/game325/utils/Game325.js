@@ -313,9 +313,9 @@ var Game325 = (function () {
 			// var activePlayer = this.players[this.activePlayerPos];
 			if (activePlayer.type == 'BOT') {
 				this.botState = 'BOT_SHOULD_PLAY';
-				setTimeout(function () {
-					GameActions.playBot();
-				}, _constantsSattiHelper.timeConstants.DISPATCH_DELAY);
+				// setTimeout(function () {
+				// 	GameActions.playBot();
+				// }, _constantsSattiHelper.timeConstants.DISPATCH_DELAY);
 			} else {
 				this.botState = 'BOT_CANNOT_PLAY';
 			}
@@ -1322,11 +1322,8 @@ var Game325 = (function () {
 	}, {
 		key: 'nextTurn',
 		value: function nextTurn() {
-			console.log('STATE INSIDE function nextTurn(): '+ this.state);
-			// if (this.state !== 'MOVE_HAND') {
-				this.gameTurn++;
-				this.setNextActivePlayerPos();
-			// }
+			this.gameTurn++;
+			this.setNextActivePlayerPos();
 			if (this.state !== 'GAME325_WITHDRAW_CARD' && this.state !== 'GAME325_RETURN_CARD' && this.state !== 'SET_TRUMP') {
 				this.state = 'READY_TO_PLAY_NEXT';
 			}

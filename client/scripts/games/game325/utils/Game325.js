@@ -183,13 +183,18 @@ export default class Game325{
 		this.gameTurn = 0;
 	}
 	checkBotPlay(){
-		let activePlayer = this.players[this.activePlayerPos];
+		let activePlayer;
+		this.players.map(player=>{
+			if(player.position == this.activePlayerPos){
+				activePlayer = player;
+			}
+		})
 		if(activePlayer.type == 'BOT'){
 			console.log(this.state);
 			this.botState = 'BOT_SHOULD_PLAY';
-			setTimeout(function(){
-				GameActions.playBot()
-			}, timeConstants.DISPATCH_DELAY);
+			// setTimeout(function(){
+			// 	GameActions.playBot()
+			// }, timeConstants.DISPATCH_DELAY);
 		}else{
 			this.botState = 'BOT_CANNOT_PLAY';
 		}
@@ -235,13 +240,13 @@ export default class Game325{
 			}, timeConstants.DISPATCH_DELAY);
 		}
 	}
-	playBot(){
+	playBot(botCards, gameObj){
 		let activeBot = this.players[this.activePlayerPos];
 		if(activeBot.type == 'BOT' && this.botState == 'BOT_SHOULD_PLAY' && this.state == 'SET_TRUMP'){
-			activeBot.setTrump();
+			return activeBot.setTrump();
 		}else if(activeBot.type == 'BOT' && this.botState == 'BOT_SHOULD_PLAY'){
 			this.botState = 'BOT_PLAYING_CARD';
-			activeBot.playCard();
+			return activeBot.playCard(botCards, gameObj);
 		}
 	}
 	shouldMoveHand(){
@@ -261,6 +266,8 @@ export default class Game325{
 			if(deckcard.state == 'BEING_PLAYED'){
 				deckcard.state = 'MOVE_HAND';
 				deckcard.ownerPos = winnerPos;
+				deckcard.animTime = timeConstants.PLAY_ANIM;
+				deckcard.delay = timeConstants.PLAY_DELAY;
 			}
 		}
 		delete this.winnerId;

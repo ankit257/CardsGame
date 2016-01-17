@@ -199,19 +199,20 @@ export default class AnimEngine{
 			case 'SET_TRUMP':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
+					console.log('animate bot thinking delay')
 				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
 					duration = 0;
 				}
-				if(!ifOnline){
+				// if(!ifOnline){
 					return this.animateCards(deck, duration); // Animate only qith bots. While rendering from server 	
-				}														  // Its already handled
-				
+				// }														  // Its already handled
 				break;
 			case 'WITHDRAW_CARD':
 				if(!ifOnline && botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
+					console.log('animate bot thinking delay')
 				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
@@ -226,6 +227,7 @@ export default class AnimEngine{
 			case 'RETURN_CARD':
 				if(!ifOnline && botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
+					console.log('animate bot thinking delay')
 				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
@@ -241,6 +243,7 @@ export default class AnimEngine{
 			case 'READY_TO_PLAY_NEXT':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
+					console.log('animate bot thinking delay')
 				}else if(botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 				}else if(botState == 'BOT_PLAYING_CARD'){

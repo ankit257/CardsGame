@@ -188,6 +188,9 @@ export default class StatusComponent extends Component {
 		}
 		return players;
 	}
+	requestServerBots(){
+		GameActions.requestDistribution();
+	}
 	render() {
 		let xp = this.props.xp;
 		let ifWaiting = this.props.ifWaiting;

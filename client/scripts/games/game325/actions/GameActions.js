@@ -45,9 +45,6 @@ export function onlineSetTrump(trump){
 export function setTrumpOnline(){
 	dispatch(Actions.GAME325_ONLINE_SET_TRUMP, {card});
 }
-export function requestServerBot(){
-	dispatch(Actions.GAME325_ONLINE_REQUEST_SERVER_BOT, {});
-}
 export function initRoundSuccess(){
 	dispatch(Actions.GAME325_INIT_ROUND_SUCCESS, {});
 }
@@ -198,7 +195,8 @@ export function requestServerBot(){
 }
 
 export function requestDistribution(){
-	dispatch(Actions.GAME325_ONLINE_ADMIN_REQUEST_DISTRIBUTION, {});
+	// dispatch(Actions.GAME325_ONLINE_ADMIN_REQUEST_DISTRIBUTION, {});
+	dispatch(Actions.GAME325_ONLINE_START_GAME, {});
 }
 
 export function refreshStore(data){

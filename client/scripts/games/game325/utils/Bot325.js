@@ -1,7 +1,7 @@
 import Player325 from '../utils/Player325'
 import * as GameActions from '../actions/GameActions';
 import { timeConstants } from '../constants/SattiHelper'
-import GameStore from '../stores/GameStore'
+// import GameStore from '../stores/GameStore'
 
 
 export default class Bot325 extends Player325{
@@ -11,9 +11,9 @@ export default class Bot325 extends Player325{
 		this.cards = [];
 		this.game = {}
 	}
-	updateState(){
-		this.cards = GameStore.getPlayersCardsByPosition(this.position);
-		this.game = GameStore.getGameObj();
+	updateState(botCards, gameObj){
+		this.cards = botCards;//GameStore.getPlayersCardsByPosition(this.position);
+		this.game = gameObj;//GameStore.getGameObj();
 	}
 	getRandomCardFromPlayersDeck(playerId){
 		var deck = [];
@@ -26,37 +26,43 @@ export default class Bot325 extends Player325{
 		return deck[randomInt];
 	}
 	setTrump(){
-		setTimeout(function(){
-			GameActions.setTrump('H');
-		}, timeConstants.DISPATCH_DELAY);
+		// setTimeout(function(){
+		// 	GameActions.setTrump('H');
+		// }, timeConstants.DISPATCH_DELAY);
+        return 'H';
 	}
-	playCard(){
-		this.updateState();
+	playCard(botCards, gameObj){
+		this.updateState(botCards, gameObj);
 		var otherPlayerId = this.game.otherPlayerId;
 		var activePlayerId = this.game.activePlayerId;
 		var state = this.game.state;
 		if(state == 'WITHDRAW_CARD'){
 			var card = this.getRandomCardFromPlayersDeck(otherPlayerId);
-			setTimeout(function(){
-				GameActions.playCard(card);
-			}, timeConstants.DISPATCH_DELAY);
+            return card;
+			// setTimeout(function(){
+			// 	GameActions.playCard(card);
+			// }, timeConstants.DISPATCH_DELAY);
 		}else if(state == 'RETURN_CARD'){
 			var card = this.getRandomCardFromPlayersDeck(activePlayerId);
-			setTimeout(function(){
-				GameActions.playCard(card);
-			}, timeConstants.DISPATCH_DELAY);
+            return card;
+			// setTimeout(function(){
+			// 	GameActions.playCard(card);
+			// }, timeConstants.DISPATCH_DELAY);
 		}else{
 			let myPlayableCards = [];
 			for(let myCard of this.cards){
-				if(myCard.isPlayable){ myPlayableCards.push(myCard) }
+				// if(myCard.isPlayable){ 
+                    myPlayableCards.push(myCard) 
+                // }
 			}
 			if(myPlayableCards.length == 0){
 				console.log('I GOT NO CARD TO PLAY!');
-				var self = this;
+				// var self = this;
 			}else{
-				setTimeout(function(){
-					GameActions.playCard(myPlayableCards.pop());
-				}, timeConstants.DISPATCH_DELAY);
+                return myPlayableCards.pop();
+				// setTimeout(function(){
+				// 	GameActions.playCard(myPlayableCards.pop());
+				// }, timeConstants.DISPATCH_DELAY);
 			}
 		}
 	}

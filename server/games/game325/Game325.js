@@ -54,6 +54,10 @@ module.exports = {
 				break;
 			case 'CARD_PLAYED':
 				var card = clientData.gameData.card;
+				if(typeof card == 'undefined' || typeof card.suit == 'undefined' || typeof card.rank == 'undefined'){
+					console.log('undefined card received');
+					return;
+				}
 				var deckcard; 
 				gameObj.deck.map(function(cardFromDeck){
 					if(cardFromDeck.suit == card.suit && cardFromDeck.rank == card.rank){

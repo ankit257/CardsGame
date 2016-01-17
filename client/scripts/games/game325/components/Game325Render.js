@@ -98,7 +98,6 @@ export default class Game325Render extends Component {
 			// console.log('Action is Fn: '+gameState);
 			action();
 		}
-		this.updateFlag = false;
 		// console.log('Rendering TIME : '+ (Date.now()-this.state.time));
 	}
 	handleResize(e){

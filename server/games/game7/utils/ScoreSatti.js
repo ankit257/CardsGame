@@ -17,7 +17,7 @@ var ScoreSatti = (function () {
 				total: 0,
 				isNotPlayable: 0
 			},
-			penalty: [94],
+			penalty: [],
 			xpgain: []
 		});
 	}

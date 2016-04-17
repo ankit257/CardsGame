@@ -93,7 +93,6 @@ export default class AnimEngine{
 		this.pause.state = gamePause;
 	}
 	static cancelAnimationFrame(){
-		console.log('cancelled');
 		window.cancelAnimFrame(window.requestId);
 	}
 	static startListening(){
@@ -125,7 +124,6 @@ export default class AnimEngine{
 				break;
 			case 'DISTRIBUTING_CARDS_0':
 				duration = timeConstants.SINGLE_DISTR_DELAY*3 + timeConstants.SINGLE_DISTR_ANIM;
-				console.log(duration);
 				this.audio 	 = distributeAudio;
 				// this.audio.play();
 				return this.animateCards(deck, duration);
@@ -192,14 +190,12 @@ export default class AnimEngine{
 				return this.animateCards(deck, duration);
 				break;
 			case 'MOVE_HAND':
-				console.log('moving_hand')
 				duration = timeConstants.TOTAL_PLAY_DELAY;
 				return this.animateCards(deck, duration);
 				break;
 			case 'SET_TRUMP':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-					console.log('animate bot thinking delay')
 				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
@@ -212,7 +208,6 @@ export default class AnimEngine{
 			case 'WITHDRAW_CARD':
 				if(!ifOnline && botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-					console.log('animate bot thinking delay')
 				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
@@ -227,7 +222,6 @@ export default class AnimEngine{
 			case 'RETURN_CARD':
 				if(!ifOnline && botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-					console.log('animate bot thinking delay')
 				}else if(!ifOnline && botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 				}else if(!ifOnline && botState == 'BOT_PLAYING_CARD'){
@@ -243,7 +237,6 @@ export default class AnimEngine{
 			case 'READY_TO_PLAY_NEXT':
 				if(botState == 'BOT_SHOULD_PLAY'){
 					duration = timeConstants.BOT_THINKING_DELAY;
-					console.log('animate bot thinking delay')
 				}else if(botState == 'BOT_CANNOT_PLAY'){
 					duration = timeConstants.REARRANGE_ANIM;
 				}else if(botState == 'BOT_PLAYING_CARD'){
@@ -277,7 +270,6 @@ export default class AnimEngine{
 			})
 		}
 		let self = this;
-		// console.log('duration = '+duration);
 		return AnimEngine.stepPromise(deck, duration);
 	}
 	static stepPromise(deck, duration){
@@ -291,8 +283,6 @@ export default class AnimEngine{
 						spent 		= current - start - (AnimEngine.pause.end - AnimEngine.pause.start),
 						rate;
 					if(remaining < -50){
-						console.log('resolved');
-						// console.log('animation for: '+ duration + ' , animated for: ' + spent + '===============================================================');
 						resolve();
 					}else{
 						deck.map(deckcard => {

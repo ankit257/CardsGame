@@ -50,9 +50,10 @@ export default class Bot325 extends Player325{
 			// }, timeConstants.DISPATCH_DELAY);
 		}else{
 			let myPlayableCards = [];
+            return this.cards.pop();
 			for(let myCard of this.cards){
 				// if(myCard.isPlayable){ 
-                    myPlayableCards.push(myCard) 
+                    myPlayableCards.push(myCard);
                 // }
 			}
 			if(myPlayableCards.length == 0){
@@ -63,7 +64,7 @@ export default class Bot325 extends Player325{
 				// setTimeout(function(){
 				// 	GameActions.playCard(myPlayableCards.pop());
 				// }, timeConstants.DISPATCH_DELAY);
-			}
+			} 
 		}
 	}
 	playCardv(){
@@ -151,7 +152,6 @@ export default class Bot325 extends Player325{
                                 minSuit = validMinSuit[i];
                             }
                         };
-                        // // console.log(minSuit);
                         var minSuitCards = Array();
                         for (var i = deck.length - 1; i >= 0; i--) {
                             if(deck[i].suit == minSuit.suit){
@@ -166,20 +166,16 @@ export default class Bot325 extends Player325{
                         };
                         if(card.currentSuitOrder > 2){
                             cardToPlay = card;
-                            // console.log('Just removing this suit from my deck 8)');
                         }else{
                             cardToPlay = this.getSmallestCard(deck);
-                            // console.log('This was my smallest card, no options with me ;(');
                         }
                     }else{
                         cardToPlay = this.getSmallestCard(deck);
-                        // console.log('This was my smallest card, no options with me ;(');
                     }
                     if(cardToPlay != ''){
                         this.cardPlayed(cardToPlay);
                         break;    
                     }else{
-                        // console.log('What the Fuck! Nothing to play.')
                     }
                 }else if(this.getCurrentPosition() == 1 || this.getCurrentPosition() == 2){
                     var playedCards = this.game.playedCards;

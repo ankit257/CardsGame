@@ -29,7 +29,7 @@ export default class PlayingCard{
 			zIndex		: 0,
 			isPlayable	: false,
 			bgColor		: '#ddd',
-			animState	: 0
+			animState	: 0,
 		});
 		this.key = this.suit + this.rank;
 		this.setPositionByState();

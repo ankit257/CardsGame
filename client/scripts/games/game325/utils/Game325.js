@@ -173,7 +173,6 @@ export default class Game325{
 		}
 		this.dealerPos = biggestCard.ownerPos;
 		this.state ='SELECT_DEALER';
-		// console.log(this.dealerPos);
 	}
 	distributionDone(){
 		for(let deckcard of this.deck){
@@ -190,7 +189,6 @@ export default class Game325{
 			}
 		})
 		if(activePlayer.type == 'BOT'){
-			console.log(this.state);
 			this.botState = 'BOT_SHOULD_PLAY';
 			// setTimeout(function(){
 			// 	GameActions.playBot()
@@ -241,7 +239,12 @@ export default class Game325{
 		}
 	}
 	playBot(botCards, gameObj){
-		let activeBot = this.players[this.activePlayerPos];
+		let activeBot;
+		this.players.map(player => {
+			if(player.position === this.activePlayerPos) {
+				activeBot = player;
+			}
+		})
 		if(activeBot.type == 'BOT' && this.botState == 'BOT_SHOULD_PLAY' && this.state == 'SET_TRUMP'){
 			return activeBot.setTrump();
 		}else if(activeBot.type == 'BOT' && this.botState == 'BOT_SHOULD_PLAY'){
@@ -295,7 +298,6 @@ export default class Game325{
 			if(card && ((callerLocation == 'client' && card.ownerPos == this.otherPlayerPos) ||  (callerLocation == 'server' && card.ownerPos == this.otherPlayerPos)) && this.state == 'WITHDRAW_CARD'){
 				for(let deckcard of this.deck){
 					if(card.rank == deckcard.rank && card.suit == deckcard.suit){
-						// console.log(12345)
 						this.cardPlayed = deckcard;
 						deckcard.ownerPos = this.activePlayerPos;
 						deckcard.ownerId = this.activePlayerId;
@@ -318,10 +320,6 @@ export default class Game325{
 				}
 				// this.state ='RETURNING_CARD';
 			}
-			// console.log(card.ownerPos)
-			// console.log(this.otherPlayerPos)
-			// console.log(this.activePlayerPos);
-			// console.log(this.state)
 			// this.updateCardIndex()
 	}
 	updateHandsToMake() {
@@ -352,8 +350,6 @@ export default class Game325{
 		}
 	}
 	updateCardState(card, state){
-		// console.log(card)
-		// console.log(this.activePlayerPos)
 		this.deck.map(deckcard=>{
 			if(deckcard.rank == card.rank && deckcard.suit == card.suit){
 				this.players[this.activePlayerPos].cardPlayed = Object.assign(deckcard);

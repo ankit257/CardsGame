@@ -78,7 +78,7 @@ module.exports = {
 				// 		cardsPlayed++;
 				// 	}
 				// }
-				console.log('GAMETURN: '+gameObj.gameTurn);
+				// console.log('GAMETURN: '+gameObj.gameTurn);
 				if(gameObj.gameTurn!==0 && gameObj.gameTurn%3==0){
 					gameObj.getTurnWinner();
 					this.checkRoundEnd(gameObj);
@@ -199,11 +199,13 @@ module.exports = {
 				gameObj.roundEnd();
 				this.setRoundEndPos(gameObj);
 				var players = this.shortenPlayerScores(gameObj);
+				console.log(gameObj.winnerId);
 				return this.makeReturnObj('ROUND_END', 
 											{
 												turnType: clientData.gameData.turnType,
 												card: clientData.gameData.card,
-												players: players
+												players: players,
+												winnerId: gameObj.winnerId
 											}, 	gameObj);
 				break;
 		}

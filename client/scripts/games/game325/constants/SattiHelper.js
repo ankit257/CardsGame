@@ -11,15 +11,15 @@ export const gameCSSConstants = {
 export const gamePathConstants = {
 	CARD_BACK_IMG		: 'assets/cards/cardback.svg',
 	CARD_ASSETS 		: 'assets/cards/',
-	IMG_ASSETS  		: 'assets/img/'
+	IMG_ASSETS  		: 'assets/img/' 
 }
 export const timeConstants = {
 	TOTAL_DISTR_DELAY 	: 50*15 + 100, 			// = SINGLE_DISTR_DELAY*52 + SINGLE_DISTR_ANIM
-	TOTAL_PLAY_DELAY	: 300 + 0,				// = PLAY_ANIM + PLAY_DELAY
+	TOTAL_PLAY_DELAY	: 700 + 0,				// = PLAY_ANIM + PLAY_DELAY
 	TOTAL_DECK_DELAY	: 100 + 200 + 500, 			// = DECK_ANIM + DECK_DELAY + 500
 	SINGLE_DISTR_DELAY	: 50,
 	SINGLE_DISTR_ANIM	: 100,
-	PLAY_ANIM			: 200,
+	PLAY_ANIM			: 500,
 	PLAY_DELAY			: 0,
 	DECK_DELAY			: 100,
 	DECK_ANIM			: 200,

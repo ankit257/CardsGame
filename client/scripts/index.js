@@ -10,3 +10,7 @@ const history = process.env.NODE_ENV === 'production' ?
   createHistory();
 
 React.render(<div><Root history={history} /></div>, rootEl);
+
+if (module.hot) {
+  module.hot.accept();
+}

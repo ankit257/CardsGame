@@ -179,7 +179,7 @@ export default class Game325{
 			deckcard.delay 		= 0;
 			deckcard.animTime 	= timeConstants.REARRANGE_ANIM; 
 		}
-		this.gameTurn = 0;
+		// this.gameTurn = 0;
 	}
 	checkBotPlay(){
 		let activePlayer;
@@ -376,7 +376,7 @@ export default class Game325{
 		
 	}
 	addPlayedCard(cardToAdd){
-		if(!cardToAdd) return false;
+		if(!cardToAdd || typeof cardToAdd.suit === 'undefined') return false;
 		for(let playedCard of this.playedCards[cardToAdd.suit].cards){
 			if(cardToAdd.rank == playedCard.rank && cardToAdd.suit == playedCard.suit){
 				return false;
@@ -417,11 +417,11 @@ export default class Game325{
 	}
 	assignPlayerIds(){
 		this.playerIds =  [];
-		for(let player of this.players){
+		for(let player of this.players){  
 			this.playerIds.push(player.id);
 		}
 	}
-	getTurnWinner() {
+	getTurnWinner() { 
 		for(let deckcard of this.deck){
 			if(deckcard.state == 'PLAYED'){
 				this.players[deckcard.ownerPos].cardPlayed = deckcard;

@@ -184,7 +184,7 @@ module.exports = function (io, app) {
 					}
 					redisClient.get('roomData', function (err, roomData){
 						roomData = JSON.parse(roomData);
-						if(!roomData[game][roomId]){
+						if(!roomData[game] || !roomData[game][roomId]){
 							redisClient.del('Game:'+roomId)
 							if(roomId) {io.sockets.in(roomId).emit('invalid_room', {})};	
 							return;

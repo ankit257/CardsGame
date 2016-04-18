@@ -4,8 +4,8 @@ var webpack = require('webpack');
 
 module.exports = {
   entry: [
-    'webpack-hot-middleware/client?http://localhost:3000',
-    './scripts/index',
+    'webpack-hot-middleware',
+    './scripts/index.js',
   ],
   devtool: 'eval-source-map',
   output: {

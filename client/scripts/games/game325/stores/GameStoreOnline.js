@@ -202,7 +202,7 @@ const GameStoreOnline = createStore({
 	},
 	updatePlayedCards(card){
 		delete _game.cardPlayed;
-		_game.cardPlayed = new Object();
+		_game.cardPlayed = {};
 		_game.addPlayedCard(card);
 	},
 	updatePlayableCards(){
@@ -290,9 +290,7 @@ const GameStoreOnline = createStore({
 		if(callerLocation == 'server'){
 			_game.playCard(card, 'server');
 		}else{
-			if(!this.ifIAmSpectatorOrBot()){
-				_game.playCard(card, 'client');
-			}
+			_game.playCard(card, 'client');
 		}
 	},
 	getTurnWinner(){
@@ -302,8 +300,8 @@ const GameStoreOnline = createStore({
 		_game.winnerId = _next.winnerId;
 	},
 	nextTurn(){
-		// _game.nextTurn();
-		_game.gameTurn = _next.gameTurn;
+		console.log('next game turn', _next.nextGameTurn);
+		_game.gameTurn = typeof _next.gameTurn !== 'undefined' ? _next.gameTurn : _next.nextGameTurn;
 		this.setActivePlayerPos();
 		_game.state = 'READY_TO_PLAY_NEXT';
 	},
@@ -749,11 +747,11 @@ const GameStoreOnline = createStore({
 	            	setTimeout(resolvedelay, delayTime); // (A)
 	        	});
 			}
-			delay(ms).then(function(){
+			delay(ms).then(function() {
 				stateThen = self.getGameRealTimeState();
-				if(self.ifGameStatesSame(stateNow, stateThen)){
+				if (self.ifGameStatesSame(stateNow, stateThen)) {
 					resolve();
-				}else{
+				} else {
 					reject();
 				}
 			})
@@ -765,9 +763,7 @@ const GameStoreOnline = createStore({
 				case 'READY_TO_PLAY_NEXT':
 					_game.checkBotPlay();
 					if(_game.botState == 'BOT_SHOULD_PLAY'){
-						setTimeout(function(){
-							GameActions.requestServerBot();
-						}, timeConstants.DISPATCH_DELAY);
+						GameActions.requestServerBot();
 					}
 					break;
 				case 'ROUND_END_SHOW_SCORES':
@@ -849,7 +845,86 @@ const GameStoreOnline = createStore({
 		})
 		_game.adminId = newAdminId;
 
-	},takeAction(socketdata){  // switch for acting upon data being received from server
+	},
+	attemptPlayerChangeTrigger(){
+		if(_serverData.length > 0 && _serverData[0].action == 'PLAYER_CHANGED'){
+			this.actUponServerData();
+		}
+	},
+	attemptClientTrigger(socketdata){
+		switch(_game.state){
+			case 'READY_TO_PLAY_NEXT':
+				if((socketdata.gameData.nextGameTurn - _game.gameTurn) == 1 || socketdata.action == 'ROUND_END') this.actUponServerData();
+				break;
+			case 'PLAYING_CARD':
+				this.setSyncState('server', 'PLAY');
+				let syncState = this.getSyncState('PLAY');
+				if(syncState.clientFirst && syncState.serverFirst){
+					this.actUponServerData();
+					GameStoreOnline.resolveSyncState('PLAY');
+				}
+				break;
+			case 'ROUND_END':
+				if(socketdata.action == 'ROUND_END') this.actUponServerData();
+				break;
+		}
+	},
+	actUponServerData(){
+		if(_serverData.length > 0){
+			let action = _serverData[0].action;
+			switch(action){
+				case 'NEXT_TURN':
+				case 'ROUND_END':
+					this.takeAction(_serverData.shift());
+					break;
+				case 'PLAYER_CHANGED':
+					let data = _serverData.shift(), self = this;
+					this.refreshPlayers(data.gameData);
+					if(_serverData.length == 0){
+						this.gameIsIdleFor(2000)
+						.then(function(){
+							self.adminCheckAndAct();
+						}, function(){
+						})
+					}else{
+						this.actUponServerData(); // PlayerChanged event never triggers actUponServerData() function. It must be triggered by NEXT_TURN event
+					}
+					break;
+			}
+		}
+	},
+	checkActionType(serveraction){
+		let actions = [{
+						type: 'IMMEDIATE',
+						values: ['SET_ID', 'START_NEW_ROUND', 'SET_TRUMP_SUCCESS', 'START_PLAYING']
+					},{
+						type: 'DEFERRED',
+						values: ['NEXT_TURN', 'ROUND_END', 'PLAYER_CHANGED']
+					}]
+		for (var i = 0; i < actions.length; i++) {
+			if(actions[i].values.indexOf(serveraction) > -1){
+				return actions[i].type;
+				break;
+			}
+		};
+		console.warn('Some action may not be defined');
+		return false;
+	},
+	pushServerData(socketdata){
+		switch(this.checkActionType(socketdata.action)){
+			case 'IMMEDIATE':
+				this.takeAction(socketdata);
+				break;
+			case 'DEFERRED':
+				_serverData.push(socketdata);
+				this.attemptClientTrigger(socketdata);
+				break;
+			case false:
+				console.warn('Cannot process further');
+				break;
+		}
+	},
+	takeAction(socketdata){  // switch for acting upon data being received from server
 		switch(socketdata.action){
 			case 'SET_ID':   // sent as soon as a player gets connected to socket.
 				this.setMyId(socketdata.id);
@@ -897,14 +972,9 @@ const GameStoreOnline = createStore({
 				_next = socketdata.gameData;
 				var playedCard = _next.card;
 				if(typeof playedCard !== 'undefined' && socketdata.gameData.turnType === 'CARD_PLAYED'){
-					if(this.ifIPlayedCard('PLAY', playedCard)){
-						this.setSyncState('server', 'PLAY');
-						let syncState = this.getSyncState('PLAY');
-						if(syncState.clientFirst && syncState.serverFirst){
+					if (this.ifIPlayedCard('PLAY', playedCard)) {
 							GameActions.onlinePlayCardSuccess();
-							GameStoreOnline.resolveSyncState('PLAY');
-						}
-					}else{
+					} else {
 						GameActions.onlinePlayCard(playedCard);
 					}
 					_game.botState = socketdata.gameData.botState;
@@ -915,16 +985,16 @@ const GameStoreOnline = createStore({
 				_playersFromServer = socketdata.gameData.players;
 				_next = socketdata.gameData;
 				var playedCard = _next.card;
-				if(typeof playedCard !== 'undefined' && socketdata.gameData.turnType === 'CARD_PLAYED'){
+				if (typeof playedCard !== 'undefined' && socketdata.gameData.turnType === 'CARD_PLAYED') {
 					let socketcard = socketdata.gameData.card;
-					if(this.ifIPlayedCard('PLAY', playedCard)){
+					if (this.ifIPlayedCard('PLAY', playedCard)) {
 						this.setSyncState('server', 'PLAY');
 						let syncState = this.getSyncState('PLAY');
-						if(syncState.clientFirst && syncState.serverFirst){
+						if (syncState.clientFirst && syncState.serverFirst) {
 							GameActions.onlinePlayCardSuccess();
 							GameStoreOnline.resolveSyncState('PLAY');
 						}
-					}else{
+					} else {
 						GameActions.onlinePlayCard(playedCard);
 					}
 				}
@@ -933,11 +1003,11 @@ const GameStoreOnline = createStore({
 			case 'START_PLAYING':
 				_next = socketdata.gameData;
 				var returnedCard = socketdata.gameData.returnedCard;
-				if(typeof returnedCard !== 'undefined'){
-					if(this.ifIPlayedCard('RETURN', returnedCard)){
+				if (typeof returnedCard !== 'undefined') {
+					if (this.ifIPlayedCard('RETURN', returnedCard)) {
 						this.setSyncState('server', 'RETURN');
 						let syncState = this.getSyncState('RETURN');
-						if(syncState.clientFirst && syncState.serverFirst){
+						if (syncState.clientFirst && syncState.serverFirst) {
 							GameActions.onlineReturnCardSuccess();
 							GameStoreOnline.resolveSyncState('RETURN');
 						}
@@ -1009,7 +1079,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 				let gameData = (action.data);
 				GameStoreOnline.setGameObj(GameStoreOnline.makeGameObj(gameData));
 				if (GameStoreOnline.ifIAmSpectatorOrBot()) {
-					// GameStoreOnline.setCardOwnerPosition();
+					GameStoreOnline.setCardOwnerPosition();
 					GameStoreOnline.makeGameRunning();
 					GameStoreOnline.setCardPositionByState();
 					GameStoreOnline.setSpectatorCards();
@@ -1022,7 +1092,8 @@ GameStoreOnline.dispatchToken = register(action=>{
 			}
 			break;
 		case 'GAME325_ONLINE_GAME_STATE_RECEIVED':   
-			GameStoreOnline.takeAction(action.clientData);
+			// GameStoreOnline.takeAction(action.clientData);
+			GameStoreOnline.pushServerData(action.clientData);
 			if(typeof _fnToCall === 'function'){
 				GameStoreOnline.callFn(_fnToCall);
 			}
@@ -1139,7 +1210,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 			GameStoreOnline.assignDistributedCards(disCards);
 			GameStoreOnline.setNextAction(GameActions.onlineDistributionSecondSuccess);
 			AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
-			.then(function(){
+			.then(function() {
 				AnimEngine.cancelAnimationFrame();
 				GameStoreOnline.emitChange();
 			});
@@ -1183,7 +1254,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 				}
 			}
 			else if (gameState == 'READY_TO_PLAY_NEXT') {
-				if (typeof GameStoreOnline.getClickedFlag('PLAY') == "boolean" && !GameStoreOnline.getClickedFlag('PLAY')) {
+				if (typeof GameStoreOnline.getClickedFlag('PLAY') === 'boolean' && !GameStoreOnline.getClickedFlag('PLAY')) {
 					GameStoreOnline.setClickedFlag('PLAY', true);
 					processPlayCard = true;
 					if (GameStoreOnline.ifIPlayedCard('PLAY', card)) {
@@ -1233,7 +1304,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 			GameStoreOnline.sortDeck(0);
 			GameStoreOnline.updateCardIndex();
 			GameStoreOnline.setCardPositionByState();
-			AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
+			AnimEngine.startAnimation(GameStoreOnline.getstAnimEngineData())
 			.then(function() {
 				AnimEngine.cancelAnimationFrame();
 				GameStoreOnline.emitChange();
@@ -1265,7 +1336,7 @@ GameStoreOnline.dispatchToken = register(action=>{
 						GameActions.onlineReturnCardSuccess();
 						break;
 					case 'PLAY':
-						GameActions.onlinePlayCardSuccess();
+						GameStoreOnline.actUponServerData();
 						break;
 				}	
 			}
@@ -1342,12 +1413,14 @@ GameStoreOnline.dispatchToken = register(action=>{
 						AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
 						.then(function() {
 							AnimEngine.cancelAnimationFrame();
+							GameStoreOnline.actUponServerData();
 							GameStoreOnline.emitChange();
 						});
 					break;
 					case 'BOT_CANNOT_PLAY':
 						GameStoreOnline.setNextAction(null);
 						GameStoreOnline.setCardPositionByState();
+						GameStoreOnline.actUponServerData();
 						GameStoreOnline.emitChange();
 					break;
 				}
@@ -1384,8 +1457,8 @@ GameStoreOnline.dispatchToken = register(action=>{
 					action: 'PLAYER_CHANGED',
 					gameData: players
 				}
-				// GameStoreOnline.pushServerData(socketdata);
-				// GameStoreOnline.attemptPlayerChangeTrigger();
+				GameStoreOnline.pushServerData(socketdata);
+				GameStoreOnline.attemptPlayerChangeTrigger();
 			}
 			break;
 		 case 'GAME325_ONLINE_SHOW_SCORES':

@@ -52,7 +52,7 @@ export default class CardComponent extends Component {
         let gameState = this.props.gameState;
         // console.log(gameState + 'activeplayer:'+ this.props.activePlayerPos + 'other' + this.props.otherPlayerPos);
         // console.log(this.props.otherPlayerPos);
-        if( card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !this.props.pauseState){
+        if( card.ownerPos == 0 && card.state == "DISTRIBUTED" && card.ownerPos == this.props.activePlayerPos && gameState=='READY_TO_PLAY_NEXT' && !this.props.pauseState && !this.props.ifIAmBot){
             if(this.context.ifOnline){
                 GameActions.onlinePlayCard(this.state.card);
             }else{
@@ -60,14 +60,14 @@ export default class CardComponent extends Component {
             }
             
         }
-        if(card.ownerPos == this.props.otherPlayerPos && card.state == "DISTRIBUTED" && gameState=='WITHDRAW_CARD' && !this.props.pauseState){
+        if(card.ownerPos == this.props.otherPlayerPos && card.state == "DISTRIBUTED" && gameState=='WITHDRAW_CARD' && !this.props.pauseState  && !this.props.ifIAmBot){
             if(this.context.ifOnline){
                 GameActions.onlinePlayCard(this.state.card);
             }else{
                 GameActions.playCard(this.state.card);
             }
         }
-        if(card.ownerPos == this.props.activePlayerPos && card.state == "DISTRIBUTED" && gameState=='RETURN_CARD' && !this.props.pauseState){
+        if(card.ownerPos == this.props.activePlayerPos && card.state == "DISTRIBUTED" && gameState=='RETURN_CARD' && !this.props.pauseState  && !this.props.ifIAmBot){
             if(this.context.ifOnline){
                 GameActions.onlinePlayCard(this.state.card);
             }else{

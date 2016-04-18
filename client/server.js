@@ -6,12 +6,22 @@ var config = require('./webpack.config');
 var app = express();
 var compiler = webpack(config);
 
+//config.output.publicPath = "http://" + 'localhost' + ":" + '3000' +
+//    config.output.publicPath;
+
 app.use(require('webpack-dev-middleware')(compiler, {
+	hot: true,
     noInfo: true,
-    publicPath: config.output.publicPath
+    publicPath: config.output.publicPath,
+    stats: {
+    	colors: true,
+    }
 }));
 
-app.use(require('webpack-hot-middleware')(compiler));
+app.use(require('webpack-hot-middleware')(compiler, {
+	log: console.log,
+	heartbeat: 10 * 1000,
+}));
 
 // app.use(express.static('assets'));
 app.use('/assets', express.static(__dirname + '/assets'));

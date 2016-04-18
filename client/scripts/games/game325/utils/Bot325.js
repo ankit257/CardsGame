@@ -31,7 +31,7 @@ export default class Bot325 extends Player325{
 		// }, timeConstants.DISPATCH_DELAY);
         return 'H';
 	}
-	playCard(botCards, gameObj){
+	playCardv(botCards, gameObj){
 		this.updateState(botCards, gameObj);
 		var otherPlayerId = this.game.otherPlayerId;
 		var activePlayerId = this.game.activePlayerId;
@@ -67,9 +67,12 @@ export default class Bot325 extends Player325{
 			} 
 		}
 	}
-	playCardv(){
-		this.updateState();
-		switch(this.gameState){
+	playCard(botCards, gameObj){
+		this.updateState(botCards, gameObj);
+        var otherPlayerId = this.game.otherPlayerId;
+        var activePlayerId = this.game.activePlayerId;
+        var state = this.game.state;
+		switch(state){
             case 'PLAY_CARD':
                 var e = this.game.activePlayerId;
                 var trump = this.game.trump;
@@ -175,7 +178,7 @@ export default class Bot325 extends Player325{
                     if(cardToPlay != ''){
                         this.cardPlayed(cardToPlay);
                         break;    
-                    }else{
+                    }else{ 
                     }
                 }else if(this.getCurrentPosition() == 1 || this.getCurrentPosition() == 2){
                     var playedCards = this.game.playedCards;
@@ -200,7 +203,7 @@ export default class Bot325 extends Player325{
                                 if(playableCards[i].winningProbability == 1){
                                     cardToPlay = playableCards[i];
                                     // console.log('I played the largest card :D');
-                                    break;
+                                    break; 
                                 }
                                 if(playableCards[i].rank > oppCard[0].rank){
                                     greaterCards.push(playableCards[i]);

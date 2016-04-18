@@ -43,7 +43,7 @@ export function dispatch(type, action = {}) {
     if (action.error) {
       console.error(type, action);
     } else {
-      console.log(type, action, timeDiff);
+      console.log(type, action, timeDiff); 
     }
     oldTime = newTime;
   }

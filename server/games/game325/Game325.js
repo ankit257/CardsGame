@@ -79,6 +79,7 @@ module.exports = {
 				// 	}
 				// }
 				// console.log('GAMETURN: '+gameObj.gameTurn);
+				gameObj.addPlayedCard(deckcard);
 				if(gameObj.gameTurn!==0 && gameObj.gameTurn%3==0){
 					gameObj.getTurnWinner();
 					this.checkRoundEnd(gameObj);
@@ -205,7 +206,8 @@ module.exports = {
 												turnType: clientData.gameData.turnType,
 												card: clientData.gameData.card,
 												players: players,
-												winnerId: gameObj.winnerId
+												winnerId: gameObj.winnerId,
+												nextGameTurn: gameObj.gameTurn,
 											}, 	gameObj);
 				break;
 		}

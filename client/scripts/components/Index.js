@@ -1,4 +1,5 @@
-import React, { Component, PropTypes, findDOMNode } from 'react';
+import React, { Component, PropTypes } from 'react';
+import { findDOMNode } from 'react-dom'
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import _ from 'underscore';
 import classnames from 'classnames/dedupe';

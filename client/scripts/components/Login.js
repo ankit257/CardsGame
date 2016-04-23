@@ -1,4 +1,4 @@
-import React, { Component, PropTypes, findDomNode } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
 import  * as LoginActionCreators from '../actions/LoginActionCreators';
 import AuthStore from '../stores/AuthStore';

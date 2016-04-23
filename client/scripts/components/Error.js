@@ -1,4 +1,4 @@
-import React, { Component, PropTypes, findDOMNode } from 'react';
+import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames/dedupe';
 import _ from 'underscore';
 

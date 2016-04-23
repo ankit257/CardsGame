@@ -1,4 +1,4 @@
-import React, { Component, PropTypes, findDOMNode } from 'react';
+import React, { Component, PropTypes } from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 
 import { gameCSSConstants, timeConstants } from '../constants/SattiHelper'
@@ -41,10 +41,12 @@ export default class TableScoreComponent extends Component {
 		return(
 			<div className={className} style={style}>
 				<table>
+					<tbody>
 						<tr>
 							<th> # </th>
 							<th> Penalty </th>
 						</tr>
+					</tbody>
 				</table>
 			</div>
 			)

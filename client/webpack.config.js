@@ -7,7 +7,7 @@ module.exports = {
     'webpack-hot-middleware',
     './scripts/index.js',
   ],
-  devtool: 'eval-source-map',
+  devtool: '#eval-source-map',
   output: {
     path: __dirname,
     filename: 'bundle.js',

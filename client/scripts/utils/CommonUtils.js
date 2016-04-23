@@ -319,13 +319,13 @@ export function getColorClass (color, i, activeColor) {
       },
       getCardSuit : function(cardSuit) {
           if(cardSuit == 'H')
-              return '<img height="16" width="16" src="public/css/cards/images/heart.png">';
+              return '<img height="16" width="16" src="assets/images/heart.png">';
           if(cardSuit == 'S')
-              return '<img height="18" width="18" src="public/css/cards/images/spade.png" style="position:relative;right:4px;">';
+              return '<img height="18" width="18" src="assets/images/spade.png" style="position:relative;right:4px;">';
           if(cardSuit == 'D')
-              return '<img height="18" width="18" src="public/css/cards/images/diams.png" style="position:relative;right:6px;">';
+              return '<img height="18" width="18" src="assets/images/diams.png" style="position:relative;right:6px;">';
           if(cardSuit == 'C')
-              return '<img height="18" width="18" src="public/css/cards/images/club.png">';
+              return '<img height="18" width="18" src="assets/images/club.png">';
       }
     }
     // export default CommonUtils;

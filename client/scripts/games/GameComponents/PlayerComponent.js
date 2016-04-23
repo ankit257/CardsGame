@@ -1,4 +1,4 @@
-import React, { Component, PropTypes, findDOMNode } from 'react';
+import React, { Component, PropTypes } from 'react';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 
 // import ReactCSSTransitionGroup from 'react-addons-css-transition-group'

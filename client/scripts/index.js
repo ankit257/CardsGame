@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom'
 import { createHistory, createHashHistory } from 'history';
 import Root from './Root';
 
@@ -9,7 +10,7 @@ const history = process.env.NODE_ENV === 'production' ?
   createHashHistory() :
   createHistory();
 
-React.render(<div><Root history={history} /></div>, rootEl);
+ReactDOM.render(<div><Root history={history} /></div>, rootEl);
 
 if (module.hot) {
   module.hot.accept();

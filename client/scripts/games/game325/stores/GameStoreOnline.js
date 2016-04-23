@@ -1557,11 +1557,12 @@ GameStoreOnline.dispatchToken = register(action=>{
 		 	GameStoreOnline.showScores();
 			GameStoreOnline.setRoundEndPos();
 			GameStoreOnline.setGameState('ROUND_END_SHOW_SCORES');
-		 	AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
-			.then(function() {
-				AnimEngine.cancelAnimationFrame();
+			console.log(_game.state);
+		 	// AnimEngine.startAnimation(GameStoreOnline.getAnimEngineData())
+			// .then(function() {
+				// AnimEngine.cancelAnimationFrame();
 				GameStoreOnline.emitChange();
-			});
+			// });
 		 	break;
 		 case 'GAME325_ONLINE_REQUEST_SERVER_BOT':
 			GameStoreOnline.adminRequestServerBot(GameStoreOnline.getGameProperty('adminId'));

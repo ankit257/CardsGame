@@ -31,7 +31,8 @@ export default class Game325{
 					otherPlayerId		: 0,
 					pauseState			: false,
 					dealerPos			: 0,
-					playerPosArray 		: [0,1,2]
+					playerPosArray 		: [0,1,2],
+					wrCount: 0,
 		});
 	}
 	initDeck(){
@@ -238,7 +239,7 @@ export default class Game325{
 			}, timeConstants.DISPATCH_DELAY);
 		}
 	}
-	playBot(botCards, gameObj){
+	playBot(botCards, otherPlayerCards, gameObj){
 		let activeBot;
 		this.players.map(player => {
 			if(player.position === this.activePlayerPos) {
@@ -249,7 +250,7 @@ export default class Game325{
 			return activeBot.setTrump();
 		}else if(activeBot.type == 'BOT' && this.botState == 'BOT_SHOULD_PLAY'){
 			this.botState = 'BOT_PLAYING_CARD';
-			return activeBot.playCard(botCards, gameObj);
+			return activeBot.playCard(botCards, otherPlayerCards, gameObj);
 		}
 	}
 	shouldMoveHand(){

@@ -7,6 +7,7 @@ var score = function () {
 export default class Score325{
 	constructor(){
 		Object.assign(this, {
+						'gameRound'		: 0,
 						'handsMade' 	: 0,
 						'handsToMake' 	: 0
 		})

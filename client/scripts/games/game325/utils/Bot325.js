@@ -15,13 +15,7 @@ export default class Bot325 extends Player325{
 		this.cards = botCards;//GameStore.getPlayersCardsByPosition(this.position);
 		this.game = gameObj;//GameStore.getGameObj();
 	}
-	getRandomCardFromPlayersDeck(playerId){
-		var deck = [];
-		for(let deckCard of this.game.deck){
-			if(deckCard.ownerPos === playerId){
-				deck.push(deckCard);
-			}
-		}
+	getRandomCardFromPlayersDeck(deck){
 		var randomInt = Math.floor(Math.random() * 9) + 1;
 		return deck[randomInt];
 	}
@@ -31,19 +25,19 @@ export default class Bot325 extends Player325{
 		// }, timeConstants.DISPATCH_DELAY);
         return 'H';
 	}
-	playCardv(botCards, gameObj){
+	playCard(botCards, otherPlayerCards, gameObj){
 		this.updateState(botCards, gameObj);
 		var otherPlayerId = this.game.otherPlayerId;
 		var activePlayerId = this.game.activePlayerId;
 		var state = this.game.state;
 		if(state == 'WITHDRAW_CARD'){
-			var card = this.getRandomCardFromPlayersDeck(otherPlayerId);
+			var card = this.getRandomCardFromPlayersDeck(otherPlayerCards);
             return card;
 			// setTimeout(function(){
 			// 	GameActions.playCard(card);
 			// }, timeConstants.DISPATCH_DELAY);
 		}else if(state == 'RETURN_CARD'){
-			var card = this.getRandomCardFromPlayersDeck(activePlayerId);
+			var card = this.getRandomCardFromPlayersDeck(botCards);
             return card;
 			// setTimeout(function(){
 			// 	GameActions.playCard(card);
@@ -67,7 +61,7 @@ export default class Bot325 extends Player325{
 			} 
 		}
 	}
-	playCard(botCards, gameObj){
+	playCardv(botCards, gameObj){
 		this.updateState(botCards, gameObj);
         var otherPlayerId = this.game.otherPlayerId;
         var activePlayerId = this.game.activePlayerId;
